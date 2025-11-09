@@ -1,15 +1,26 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DokterController;
+use App\Http\Controllers\PasienController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    // Kalau user sudah login, langsung arahkan ke dashboard masing-masing role
+    if (Auth::check()) {
+        $role = Auth::user()->role_id;
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'dokter' => redirect()->route('dokter.dashboard'),
+            default => redirect()->route('dashboard'),
+        };
+    }
+
+    return view('welcome');
+})->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -17,4 +28,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+Route::middleware(['auth'])->group(function () {
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    });
+
+    Route::middleware('role:dokter')->group(function () {
+        Route::get('/dokter/dashboard', [DokterController::class, 'index'])->name('dokter.dashboard');
+    });
+
+    Route::middleware('role:pasien')->group(function () {
+        Route::get('/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
+    });
+});
+
+require __DIR__ . '/auth.php';

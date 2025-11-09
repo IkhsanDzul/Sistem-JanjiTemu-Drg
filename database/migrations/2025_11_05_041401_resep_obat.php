@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('resep_obats', function (Blueprint $table) {
+        Schema::create('resep_obat', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('user_id');
+            $table->string('rekam_medis_id');
             $table->date('tanggal_resep');
             $table->string('nama_obat')->notnull();
             $table->integer('jumlah')->notnull();
             $table->integer('dosis')->notnull();
             $table->text('aturan_pakai')->notnull();
             $table->timestamps();
+            $table->foreign('rekam_medis_id')->references('id')->on('rekam_medis');
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
