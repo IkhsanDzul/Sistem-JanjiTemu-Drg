@@ -18,7 +18,7 @@ return new class extends Migration
             $table->time('jam_mulai')->notnull();
             $table->time('jam_selesai')->notnull();
             $table->string('status', 50)->notnull();
-            $table->foreign('dokter_id')->references('id')->on('dokter');
+            $table->foreign('dokter_id')->references('id')->on('dokter')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

@@ -8,19 +8,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // Kalau user sudah login, langsung arahkan ke dashboard masing-masing role
     if (Auth::check()) {
         $role = Auth::user()->role_id;
-
-        return match ($role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'dokter' => redirect()->route('dokter.dashboard'),
-            default => redirect()->route('dashboard'),
-        };
+        switch ($role) {
+            case 'admin':
+                return redirect()->route('admin.dashboard');
+            case 'dokter':
+                return redirect()->route('dokter.dashboard');
+            case 'pasien':
+                return redirect()->route('pasien.dashboard');
+            default:
+                Auth::logout();
+                return redirect('/login');
+        }
     }
-
     return view('welcome');
-})->name('home');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,7 +32,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-
+    
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     });
@@ -39,7 +42,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('role:pasien')->group(function () {
-        Route::get('/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
+        Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
     });
 });
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('no_str', 50)->unique();
             $table->string('pengalaman_tahun', 100)->notnull();
             $table->string('spesialisasi_gigi', 100)->notnull();
-            $table->string('status', 50)->notnull();
+            $table->enum('status', ['aktif', 'nonaktif'])->notnull();
             $table->foreign('user_id')->references('id')->on('users');
             // $table->timestamps();
         });

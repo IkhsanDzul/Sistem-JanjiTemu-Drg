@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('resep_obat', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('user_id');
             $table->string('rekam_medis_id');
             $table->date('tanggal_resep');
             $table->string('nama_obat')->notnull();
@@ -21,8 +20,7 @@ return new class extends Migration
             $table->integer('dosis')->notnull();
             $table->text('aturan_pakai')->notnull();
             $table->timestamps();
-            $table->foreign('rekam_medis_id')->references('id')->on('rekam_medis');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('rekam_medis_id')->references('id')->on('rekam_medis')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('resep_obats');
+        Schema::dropIfExists('resep_obat');
     }
 };

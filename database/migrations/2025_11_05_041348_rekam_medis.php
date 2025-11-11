@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('tindakan')->notnull();
             $table->text('catatan')->nullable();
             $table->float('biaya')->notnull();
-            $table->foreign('janji_temu_id')->references('id')->on('janji_temu');
+            $table->foreign('janji_temu_id')->references('id')->on('janji_temu')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
