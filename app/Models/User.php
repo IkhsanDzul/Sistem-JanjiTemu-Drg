@@ -36,5 +36,29 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, 'role_id', 'id');
     }
+
+    // Relasi ke Pasien
+    public function pasien()
+    {
+        return $this->hasOne(Pasien::class, 'user_id', 'id');
+    }
+
+    // Relasi ke Dokter
+    public function dokter()
+    {
+        return $this->hasOne(Dokter::class, 'user_id', 'id');
+    }
+
+    // Relasi ke Admin
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'user_id', 'id');
+    }
+
+    // Accessor untuk name (compatibility dengan Laravel Breeze)
+    public function getNameAttribute()
+    {
+        return $this->nama_lengkap;
+    }
 }
 

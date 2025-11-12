@@ -32,7 +32,18 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    
+    // Route dashboard umum yang redirect ke dashboard sesuai role
+    Route::get('/dashboard', function () {
+        $role = Auth::user()->role_id;
+        
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'dokter' => redirect()->route('dokter.dashboard'),
+            'pasien' => redirect()->route('pasien.dashboard'),
+            default => redirect('/'),
+        };
+    })->name('dashboard');
+
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     });
