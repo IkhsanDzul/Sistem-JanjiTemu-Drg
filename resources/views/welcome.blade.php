@@ -23,7 +23,7 @@
             </style>
         @endif
     </head>
-<body class="font-sans antialiased bg-white">
+<body class="font-sans antialiased bg-white scroll-smooth">
     <!-- Navbar -->
     <x-navbar-landing />
 

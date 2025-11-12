@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('resep_obats');
+        Schema::dropIfExists('resep_obat');
     }
 };
