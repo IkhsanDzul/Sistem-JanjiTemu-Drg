@@ -20,8 +20,8 @@ return new class extends Migration
             $table->time('jam_selesai')->notnull();
             $table->string('keluhan')->notnull();
             $table->enum('status', ['pending', 'confirmed', 'completed', 'canceled'])->notnull();
-            $table->foreign('pasien_id')->references('id')->on('pasien');
-            $table->foreign('dokter_id')->references('id')->on('dokter');
+            $table->foreign('pasien_id')->references('id')->on('pasien')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('dokter_id')->references('id')->on('dokter')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

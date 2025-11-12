@@ -32,5 +32,33 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
         ]);
+
+    // User::factory(10)->create();
+
+
+    // User::factory()->create([
+    //     'id' => (string) Str::uuid(),
+    //     'role_id' => 'admin',
+    //     'nama_lengkap' => 'Admin',
+    //     'email' => 'admin@gmail.com',
+    //     'password' => Hash::make('password'),
+    // ]);
+
+    // User::factory()->create([
+    //     'id' => (string) Str::uuid(),
+    //     'role_id' => 'dokter',
+    //     'nama_lengkap' => 'Dokter',
+    //     'email' => 'dokter@gmail.com',
+    //     'password' => Hash::make('password'),
+    // ]);
+
+    // User::factory()->create([
+    //     'id' => (string) Str::uuid(),
+    //     'role_id' => 'pasien',
+    //     'nama_lengkap' => 'Pasien',
+    //     'email' => 'pasien@gmail.com',
+    //     'password' => Hash::make('password'),
+    // ]);
+        
     }
 }

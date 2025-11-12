@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('admin_id');
             $table->enum('action', ['buat', 'edit', 'hapus'])->notnull();
-            $table->foreign('admin_id')->references('id')->on('users');
+            $table->foreign('admin_id')->references('id')->on('admin')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
