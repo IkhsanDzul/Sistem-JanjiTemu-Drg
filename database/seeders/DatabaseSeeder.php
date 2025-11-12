@@ -22,15 +22,18 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
         ]);
 
-        // User::factory(10)->create();
-
-
+        // Seed admin user
         User::factory()->create([
             'id' => Str::uuid(),
             'role_id' => 'admin',
             'nama_lengkap' => 'Admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
+        ]);
+
+        // Seed dokter users with dokter data
+        $this->call([
+            DokterSeeder::class,
         ]);
 
     // User::factory(10)->create();

@@ -44,17 +44,29 @@ Route::middleware(['auth'])->group(function () {
         };
     })->name('dashboard');
 
+    // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
     });
 
+    // Dokter routes
     Route::middleware('role:dokter')->group(function () {
         Route::get('/dokter/dashboard', [DokterController::class, 'index'])->name('dokter.dashboard');
+        Route::get('/dokter/resep-obat', function () {
+            return view('dokter.resepobat');
+        })->name('dokter.resepobat');
+
+        // Route::get('/dokter/rekam-medis', [RekamMedisController::class, 'index'])->name('dokter.rekam-medis');
+        // Route::get('/dokter/rekam-medis/create', [RekamMedisController::class, 'create'])->name('dokter.rekam-medis.create');
+        // Route::post('/dokter/rekam-medis', [RekamMedisController::class, 'store'])->name('dokter.rekam-medis.store');
+        // Route::get('/dokter/rekam-medis/{id}', [RekamMedisController::class, 'show'])->name('dokter.rekam-medis.show');
     });
 
+    // Pasien routes
     Route::middleware('role:pasien')->group(function () {
         Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
     });
 });
+
 
 require __DIR__ . '/auth.php';
