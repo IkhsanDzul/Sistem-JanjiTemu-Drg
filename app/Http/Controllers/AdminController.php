@@ -95,4 +95,8 @@ class AdminController extends Controller
             'janjiTemuPerBulan'
         ))->with('title', 'Dashboard Admin');
     }
+    public function kelolaDokter()
+    {
+        return view('admin.kelola-dokter')->with('title', 'Kelola Dokter');
+    }
 }

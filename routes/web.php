@@ -47,6 +47,8 @@ Route::middleware(['auth'])->group(function () {
     // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+        Route::get('/admin/kelola-dokter', [AdminController::class, 'kelolaDokter'])->name('admin.kelola-dokter');
+        
     });
 
     // Dokter routes

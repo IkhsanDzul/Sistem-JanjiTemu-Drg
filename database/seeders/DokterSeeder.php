@@ -44,7 +44,7 @@ class DokterSeeder extends Seeder
                 'no_str' => 'STR-2024-001234',
                 'pengalaman_tahun' => '10',
                 'spesialisasi_gigi' => 'Konservasi Gigi',
-                'status' => 'aktif',
+                'status' => 'tersedia',
             ]
         );
 
@@ -76,7 +76,7 @@ class DokterSeeder extends Seeder
                 'no_str' => 'STR-2024-001235',
                 'pengalaman_tahun' => '5',
                 'spesialisasi_gigi' => 'Bedah Mulut',
-                'status' => 'aktif',
+                'status' => 'tersedia',
             ]
         );
     }

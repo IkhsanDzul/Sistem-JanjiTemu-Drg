@@ -65,7 +65,7 @@
 
             <!-- Manajemen Dokter -->
             <li>
-                <a href="#" 
+                <a href="{{ route('admin.kelola-dokter') }}" 
                    class="flex items-center justify-between px-4 py-3 text-white rounded-lg hover:bg-[#005248]/80 transition-colors">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
