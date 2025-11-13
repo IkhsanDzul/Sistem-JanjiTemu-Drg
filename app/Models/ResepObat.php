@@ -10,7 +10,7 @@ class ResepObat extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'resep_obat';
+    protected $table = 'resep_obats'; // Nama tabel yang benar
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
@@ -18,7 +18,6 @@ class ResepObat extends Model
     protected $fillable = [
         'id',
         'user_id',
-        'rekam_medis_id',
         'tanggal_resep',
         'nama_obat',
         'jumlah',
@@ -32,16 +31,10 @@ class ResepObat extends Model
         'dosis' => 'integer',
     ];
 
-    // Relasi ke User
+    // Relasi ke User (dokter yang membuat resep)
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    // Relasi ke RekamMedis
-    public function rekamMedis()
-    {
-        return $this->belongsTo(RekamMedis::class, 'rekam_medis_id', 'id');
     }
 }
 

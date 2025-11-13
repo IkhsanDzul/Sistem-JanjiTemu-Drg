@@ -14,6 +14,7 @@ class Pasien extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
+    public $timestamps = false; // Tabel pasien tidak memiliki timestamps
 
     protected $fillable = [
         'id',

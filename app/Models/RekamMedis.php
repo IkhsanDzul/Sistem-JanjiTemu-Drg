@@ -35,9 +35,11 @@ class RekamMedis extends Model
     }
 
     // Relasi ke ResepObat
-    public function resepObat()
-    {
-        return $this->hasMany(ResepObat::class, 'rekam_medis_id', 'id');
-    }
+    // Catatan: Tabel resep_obats tidak memiliki rekam_medis_id
+    // Relasi dilakukan melalui user_id (dokter) dan tanggal
+    // public function resepObat()
+    // {
+    //     return $this->hasMany(ResepObat::class, 'rekam_medis_id', 'id');
+    // }
 }
 

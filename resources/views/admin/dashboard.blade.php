@@ -127,7 +127,7 @@
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Janji Temu Terbaru</h3>
-                            <a href="#" class="text-sm text-[#005248] hover:text-[#FFA700] font-medium transition-colors">Lihat Semua</a>
+                            <a href="{{ route('admin.janji-temu.index') }}" class="text-sm text-[#005248] hover:text-[#FFA700] font-medium transition-colors">Lihat Semua</a>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">

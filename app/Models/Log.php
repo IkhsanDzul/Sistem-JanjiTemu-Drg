@@ -22,6 +22,7 @@ class Log extends Model
     ];
 
     // Relasi ke User (Admin)
+    // Catatan: admin_id reference ke users.id, bukan admin.id
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id', 'id');

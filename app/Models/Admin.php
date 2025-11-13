@@ -14,6 +14,7 @@ class Admin extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
+    public $timestamps = false; // Tabel admin tidak memiliki timestamps
 
     protected $fillable = [
         'id',

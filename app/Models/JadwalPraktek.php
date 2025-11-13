@@ -14,6 +14,7 @@ class JadwalPraktek extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
     public $incrementing = false;
+    public $timestamps = false; // Tabel jadwal_praktek tidak memiliki timestamps
 
     protected $fillable = [
         'id',
