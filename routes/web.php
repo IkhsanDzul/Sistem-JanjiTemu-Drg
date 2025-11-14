@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DokterController;
+use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
@@ -19,8 +20,7 @@ Route::get('/', function () {
             case 'pasien':
                 return redirect()->route('pasien.dashboard');
             default:
-                Auth::logout();
-                return redirect('/login');
+                return redirect()->route('login');
         }
     }
     return view('welcome');
@@ -32,50 +32,36 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth'])->group(function () {
-    // Route dashboard umum yang redirect ke dashboard sesuai role
+// Admin Routes
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
-        $role = Auth::user()->role_id;
-        
-        return match ($role) {
-            'admin' => redirect()->route('admin.dashboard'),
-            'dokter' => redirect()->route('dokter.dashboard'),
-            'pasien' => redirect()->route('pasien.dashboard'),
-            default => redirect('/'),
-        };
+        return view('admin.dashboard');
     })->name('dashboard');
-
-    // Admin routes
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-        Route::get('/admin/kelola-dokter', [AdminController::class, 'kelolaDokter'])->name('admin.kelola-dokter');
-        
-        // Janji Temu Routes
-        Route::prefix('admin/janji-temu')->name('admin.janji-temu.')->group(function () {
-            Route::get('/', [AdminJanjiTemuController::class, 'index'])->name('index');
-            Route::get('/{id}', [AdminJanjiTemuController::class, 'show'])->name('show');
-            Route::patch('/{id}/status', [AdminJanjiTemuController::class, 'updateStatus'])->name('update-status');
-        });
-    });
-
-    // Dokter routes
-    Route::middleware('role:dokter')->group(function () {
-        Route::get('/dokter/dashboard', [DokterController::class, 'index'])->name('dokter.dashboard');
-        Route::get('/dokter/resep-obat', function () {
-            return view('dokter.resepobat');
-        })->name('dokter.resepobat');
-
-        // Route::get('/dokter/rekam-medis', [RekamMedisController::class, 'index'])->name('dokter.rekam-medis');
-        // Route::get('/dokter/rekam-medis/create', [RekamMedisController::class, 'create'])->name('dokter.rekam-medis.create');
-        // Route::post('/dokter/rekam-medis', [RekamMedisController::class, 'store'])->name('dokter.rekam-medis.store');
-        // Route::get('/dokter/rekam-medis/{id}', [RekamMedisController::class, 'show'])->name('dokter.rekam-medis.show');
-    });
-
-    // Pasien routes
-    Route::middleware('role:pasien')->group(function () {
-        Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
-    });
 });
 
+// Dokter Routes
+Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dokter.dashboard');
+    })->name('dashboard');
 
-require __DIR__ . '/auth.php';
+    // Rekam Medis - Simple Route
+    Route::get('/rekam-medis', function () {
+        return view('dokter.rekam-medis');
+    })->name('rekam-medis');
+
+    // Resep Obat
+    Route::get('/resep-obat', function () {
+        return view('dokter.resep-obat');
+    })->name('resep-obat');
+});
+
+// Pasien Routes
+Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('pasien.dashboard');
+    })->name('dashboard');
+});
+
+require __DIR__.'/auth.php';
