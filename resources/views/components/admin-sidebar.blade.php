@@ -147,7 +147,6 @@
 
 <!-- Overlay for mobile -->
 <div x-show="open" 
-     x-cloak
      @click="open = false"
-     class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden transition-opacity"></div>
+     class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden transition-opacity"></div>
 

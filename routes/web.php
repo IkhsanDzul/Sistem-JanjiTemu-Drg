@@ -32,11 +32,21 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    // Dashboard
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    
+    //Manajemen Dokter
+    Route::get('/kelola-dokter', [AdminController::class, 'kelolaDokter'])->name('kelola-dokter');
+    Route::get('/edit-dokter/{id}', [AdminController::class, 'editDokter'])->name('edit-dokter');
+    Route::patch('/update-dokter/{id}', [AdminController::class, 'updateDokter'])->name('update-dokter');
+    
+    //Janji Temu
+    Route::get('/janji-temu', [AdminJanjiTemuController::class, 'index'])->name('janji-temu.index');
+    Route::get('/janji-temu/{id}', [AdminJanjiTemuController::class, 'show'])->name('janji-temu.show');
+    Route::post('/janji-temu/{id}/update-status', [AdminJanjiTemuController::class, 'updateStatus'])->name('janji-temu.update-status');
 });
 
 // Dokter Routes
@@ -59,9 +69,10 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
 
 // Pasien Routes
 Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('pasien.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [PasienController::class, 'index'])->name('dashboard');
+
+    //cari dokter
+    Route::get('/cari-dokter', [PasienController::class, 'cariDokter'])->name('cariDokter');
 });
 
 require __DIR__.'/auth.php';

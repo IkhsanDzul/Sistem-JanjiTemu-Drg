@@ -27,7 +27,7 @@
             <x-pasien-header :title="$title ?? 'Dashboard'" />
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-hidden bg-gray-50 p-6" style="background-color: #f9fafb;">
+            <main class="flex-1 overflow-x-hidden bg-gray-50 p-6" style="background-color: #f9fafb;">
                 @yield('content')
             </main>
         </div>

@@ -16,7 +16,8 @@ class LogSeeder extends Seeder
     public function run(): void
     {
         // Ambil admin user (foreign key reference ke users.id, bukan admin.id)
-        $adminUser = User::where('role_id', 'admin')->first();
+        // $adminUser = User::where('role_id', 'admin')->first();
+        $adminUser = Admin::first();
 
         if (!$adminUser) {
             $this->command->warn('Tidak ada admin yang ditemukan. Pastikan AdminSeeder sudah dijalankan.');

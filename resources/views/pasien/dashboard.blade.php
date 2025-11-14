@@ -2,7 +2,6 @@
 
 @section('title', 'Dashboard Pasien')
 
-
 @section('content')
 <div x-data="{ showModal: {{ $belumVerifikasi ? 'true' : 'false' }}, 
               showModalClick: false }"
@@ -16,9 +15,9 @@
             <h2 class="text-lg font-semibold text-gray-800 mb-3">Verifikasi Data Diri</h2>
             <p class="text-sm text-gray-500 mb-4">Silakan lengkapi nomor telepon dan upload foto KTP untuk melanjutkan.</p>
             <div class="flex space-x-4 justify-center">
-            <a href="{{route ('profile.edit')}}">
-                <button class="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-green-400">Profil</button>
-            </a>    
+                <a href="{{route ('profile.edit')}}">
+                    <button class="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-green-400">Profil</button>
+                </a>
                 <button @click="showModal = false; showModalClick = false" class="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Close</button>
             </div>
         </div>
@@ -28,18 +27,30 @@
     <div class="flex-1 flex flex-col h-full overflow-hidden">
         <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
 
-            {{-- Kolom kiri: daftar dokter --}}
+            {{-- Daftar dokter --}}
             <div class="lg:col-span-2 flex flex-col space-y-4 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                <div class="w-full sticky top-0 bg-gray-50 pb-2 z-10">
-                    <input type="text" placeholder="Cari Dokter"
-                        class="w-full rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent">
+                <!-- Filter Section -->
+                <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
+                    <form method="GET" action="{{ route('pasien.cariDokter') }}" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Search -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Dokter</label>
+                                <input type="text"
+                                    name="search"
+                                    value="{{ request('search') }}"
+                                    placeholder="Cari nama dokter..."
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent">
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 {{-- List dokter dari database --}}
                 @forelse ($dokter as $d)
                 <div
                     class="bg-white rounded-xl shadow-sm p-4 flex justify-between items-center hover:shadow-md transition cursor-pointer"
-                    @click="{{ $belumVerifikasi ? 'showModalClick = true' : "window.location.href='/pasien/janji-temu/$d->id'" }}">
+                    @click="{{ $belumVerifikasi ? 'showModalClick = true' : " " }}">
 
                     <div class="flex items-center gap-4">
                         <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xl">

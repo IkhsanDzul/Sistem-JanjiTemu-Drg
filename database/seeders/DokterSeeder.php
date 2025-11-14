@@ -42,6 +42,7 @@ class DokterSeeder extends Seeder
             [
                 'id' => Str::uuid(),
                 'no_str' => 'STR-2024-001234',
+                'pendidikan' => 'S1 Kedokteran Gigi',
                 'pengalaman_tahun' => '10',
                 'spesialisasi_gigi' => 'Konservasi Gigi',
                 'status' => 'tersedia',
@@ -74,6 +75,7 @@ class DokterSeeder extends Seeder
             [
                 'id' => Str::uuid(),
                 'no_str' => 'STR-2024-001235',
+                'pendidikan' => 'S1 Kedokteran Gigi Universitas Indonesia',
                 'pengalaman_tahun' => '5',
                 'spesialisasi_gigi' => 'Bedah Mulut',
                 'status' => 'tersedia',

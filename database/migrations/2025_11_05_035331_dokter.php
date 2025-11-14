@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('user_id');
             $table->string('no_str', 50)->unique();
+            $table->string('pendidikan')->notnull();
             $table->string('pengalaman_tahun', 100)->notnull();
             $table->string('spesialisasi_gigi', 100)->notnull();
             $table->enum('status', ['tersedia', 'tidak tersedia'])->notnull();

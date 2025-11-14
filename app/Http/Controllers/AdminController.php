@@ -11,6 +11,7 @@ use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -95,8 +96,43 @@ class AdminController extends Controller
             'janjiTemuPerBulan'
         ))->with('title', 'Dashboard Admin');
     }
+
+    //Manajemen Dokter
     public function kelolaDokter()
     {
-        return view('admin.kelola-dokter')->with('title', 'Kelola Dokter');
+        $dokterAktif = Dokter::with('user')
+            ->where('status', 'tersedia')
+            ->get();
+        
+        $totalDokter = Dokter::count();
+        $dokter = Dokter::all();
+
+        $user = User::all();
+
+        return view('admin.manajemen-dokter.kelola-dokter', compact('dokterAktif', 'totalDokter', 'dokter', 'user'))->with('title', 'Kelola Dokter');
     }
+
+    public function editDokter($id)
+    {
+        $dokter = Dokter::with('user')->findOrFail($id);
+        return view('admin.manajemen-dokter.edit-dokter', compact('dokter'))->with('title', 'Edit Dokter');
+    }
+
+    public function updateDokter(Request $request, $id)
+    {
+        $dokter = Dokter::with('user')->findOrFail($id);
+
+        $validatedData = $request->validate([
+            'no_str' => ['required', Rule::unique(Dokter::class, 'no_str')->ignore($dokter->id)],
+            'pendidikan' => 'required|string|max:255',
+            'pengalaman_tahun' => 'required|string|max:100',
+            'spesialisasi_gigi' => 'required|string|max:100',
+            'status' => 'required|in:tersedia,tidak tersedia',
+        ]);
+
+        $dokter->update($validatedData);
+
+        return redirect()->route('admin.kelola-dokter')->with('success', 'Data dokter berhasil diperbarui.');
+    }    
+
 }

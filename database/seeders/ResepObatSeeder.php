@@ -17,7 +17,7 @@ class ResepObatSeeder extends Seeder
     public function run(): void
     {
         // Ambil semua rekam medis dengan relasi dokter
-        $rekamMedis = RekamMedis::with('janjiTemu.dokter.user')->get();
+        $rekamMedis = RekamMedis::with('janjiTemu.dokter')->get();
 
         if ($rekamMedis->isEmpty()) {
             $this->command->warn('Tidak ada rekam medis yang ditemukan. Pastikan RekamMedisSeeder sudah dijalankan.');
@@ -74,7 +74,8 @@ class ResepObatSeeder extends Seeder
                 // Tabel resep_obats tidak punya rekam_medis_id, hanya user_id
                 ResepObat::firstOrCreate(
                     [
-                        'user_id' => $dokter->user_id,
+                        'rekam_medis_id' => $rekam->id,
+                        'dokter_id' => $dokter->id,
                         'nama_obat' => $obat['nama_obat'],
                         'tanggal_resep' => Carbon::parse($rekam->created_at)->format('Y-m-d'),
                     ],
