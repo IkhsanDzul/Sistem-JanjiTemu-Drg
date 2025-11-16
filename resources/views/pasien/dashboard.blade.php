@@ -84,17 +84,37 @@
 
             <!-- Kolom Kanan -->
             <div class="space-y-4 lg:col-span-1 sticky top-6 self-start h-fit">
-                <div class="bg-white rounded-xl shadow-sm p-4 h-40 flex flex-col justify-center items-center text-center">
+                <div class="bg-white rounded-xl shadow-sm p-4 h-fit flex flex-col justify-start">
                     <h3 class="text-sm font-semibold text-gray-800 mb-2">Janji Temu Mendatang</h3>
-                    <p class="text-gray-500 text-sm">Belum ada janji temu</p>
+                    <ul class="list-disc list-inside text-gray-600 text-sm">
+                        @forelse ($janjiTemuMendatang as $janji)
+                        <a href="{{ route('pasien.detail-janji-temu', $janji->id) }}">
+                            <div class="mb-4 shadow-sm p-4 flex flex-col hover:bg-[#005248] hover:text-white transition rounded-lg">
+                                <p class=" text-sm font-semibold">{{ $janji->dokter->user->nama_lengkap ?? 'Dokter' }}</p>
+                                <p class=" text-sm"> {{ $tanggal = \Carbon\Carbon::parse($janji->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY')  }} | {{ $janji->jam_mulai = \Carbon\Carbon::parse($janji->jam_mulai)->format('H:i') }}</p>
+                            </div>
+                        </a>
+                        @empty
+                        <p class="text-gray-500 text-center mt-10">Belum ada janji temu mendatang</p>
+                        @endforelse
+                    </ul>
                 </div>
-
-                <div class="bg-white rounded-xl shadow-sm p-4 h-40 flex flex-col justify-center items-center text-center">
-                    <h3 class="text-sm font-semibold text-gray-800 mb-2">Pengingat</h3>
-                    <p class="text-gray-500 text-sm">Tidak ada pengingat hari ini</p>
+                <div class="bg-white rounded-xl shadow-sm p-4 h-fit flex flex-col justify-start">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-2">Janji Temu Di Setujui</h3>
+                    @forelse ($janjiTemuConfirmed as $janji)
+                    <a href="{{ route('pasien.detail-janji-temu', $janji->id) }}">
+                        <div class="mb-4 shadow-sm p-4 flex flex-col hover:bg-[#005248] hover:text-white transition rounded-lg">
+                            <p class=" text-sm font-semibold">{{ $janji->dokter->user->nama_lengkap ?? 'Dokter' }}</p>
+                            <p class=" text-sm"> {{ $tanggal = \Carbon\Carbon::parse($janji->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY')  }} | {{ $janji->jam_mulai = \Carbon\Carbon::parse($janji->jam_mulai)->format('H:i') }}</p>
+                        </div>
+                    </a>
+                    @empty
+                    <p class="text-gray-500 text-center mt-5 text-sm">Belum ada janji temu.</p>
+                    @endforelse
                 </div>
             </div>
-        </main>
     </div>
+    </main>
+</div>
 </div>
 @endsection

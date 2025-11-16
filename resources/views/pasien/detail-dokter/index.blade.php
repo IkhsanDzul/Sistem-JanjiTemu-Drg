@@ -45,44 +45,48 @@
 
 
             {{-- SIDEBAR BOOKING --}}
-            <div>
-                <div class="sticky top-0 p-4 bg-white rounded-xl shadow-md space-y-4">
+            <div class="sticky top-0 p-4 bg-white rounded-xl shadow-md space-y-4 h-fit">
+                <form action="{{ route('pasien.buat-janji') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('POST')
 
-                    <h3 class="text-lg font-semibold text-gray-800">Buat Janji Temu</h3>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Buat Janji dengan Dokter</h2>
 
-                    {{-- PILIH TANGGAL --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Tanggal</label>
-
-                        <div class="grid grid-cols-3 gap-2">
-                            @foreach ($jadwalFormatted as $tgl)
-                            <button
-                                class="px-2 py-1 bg-gray-100 rounded-md text-sm hover:bg-teal-600 hover:text-white focus:ring focus:ring-teal-300 transition">
-                                {{ $tgl }}
-                            </button>
+                    <div class="mb-4">
+                        <label for="tanggal" class="block text-gray-700 mb-2">Pilih Tanggal</label>
+                        <select id="tanggal" name="tanggal" class="w-full border border-gray-300 rounded-md p-2">
+                            @foreach($jadwalHari as $index => $tanggal)
+                            <option value="{{$tanggal->tanggal}}" {{ request('tanggal') == $tanggal->tanggal ? 'selected' : '' }}>{{ $jadwalFormat[$index] }}</option>
                             @endforeach
-                        </div>
-                    </div>
-
-                    {{-- PILIH JAM --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Pilih Jam</label>
-                        <select class="w-full px-3 py-2 border rounded-md mt-1 focus:ring-2 focus:ring-teal-500">
-                            <option>08:00</option>
-                            <option>10:00</option>
-                            <option>13:00</option>
-                            <option>15:00</option>
                         </select>
                     </div>
 
-                    {{-- BUTTON --}}
-                    <button class="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700">
-                        Buat Janji
-                    </button>
+                    <div class="mb-4">
+                        <label for="jam_mulai" class="block text-gray-700 mb-2">Pilih Jam</label>
+                        <select id="jam_mulai" name="jam_mulai" class="w-full border border-gray-300 rounded-md p-2">
+                            @foreach($jamPraktek as $jam)
+                            <option value="{{ $jam }}">{{ \Carbon\Carbon::parse($jam)->format('H:i') }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                </div>
+                    <div class="mb-4">
+                        <label for="keluhan" class="block text-gray-700 mb-2">Keterangan *</label>
+                        <textarea id="keluhan" name="keluhan" rows="3" class="w-full border border-gray-300 rounded-md p-2" placeholder="Jelaskan keluhan" required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="foto_gigi">Upload Foto Gigi *</label>
+                        <input type="file" id="foto_gigi" name="foto_gigi" accept="image/*" required class="w-full border border-gray-300 rounded-md p-2 mt-2">
+                    </div>
+
+                    <input type="hidden" name="dokter_id" value="{{ $dokter->id }}">
+                    <input type="hidden" name="pasien_id" value="{{ auth()->user()->pasien->id }}">
+                    <input type="hidden" name="status" value="pending">
+
+                    <button type="submit" class="w-full bg-[#005248] hover:bg-[#004039] text-white py-2 rounded-lg">Buat Janji</button>
+                </form>
             </div>
-
         </main>
     </div>
 </div>

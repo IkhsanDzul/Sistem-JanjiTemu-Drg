@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('dokter_id');
             $table->date('tanggal')->notnull();
             $table->time('jam_mulai')->notnull();
-            $table->time('jam_selesai')->notnull();
+            $table->time('jam_selesai')->nullable();
             $table->string('foto_gigi')->nullable();
             $table->string('keluhan')->notnull();
             $table->enum('status', ['pending', 'confirmed', 'completed', 'canceled'])->notnull();

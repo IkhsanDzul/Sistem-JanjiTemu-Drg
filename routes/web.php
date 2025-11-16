@@ -82,7 +82,8 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
 
     // Janji Temu
     Route::get('janji-temu', [PasienController::class, 'janjiTemu'])->name('janji-temu');
-    Route::post('buat-janji', [PasienController::class, 'buatJanji'])->name('buat-janji');
+    Route::post('buat-janji', [PasienController::class, 'buatJanjiTemu'])->name('buat-janji');
+    Route::get('janji-temu/{id}', [PasienController::class, 'detailJanjiTemu'])->name('detail-janji-temu');
 });
 
 require __DIR__.'/auth.php';

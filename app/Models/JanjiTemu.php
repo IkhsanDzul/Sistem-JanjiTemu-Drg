@@ -22,6 +22,7 @@ class JanjiTemu extends Model
         'tanggal',
         'jam_mulai',
         'jam_selesai',
+        'foto_gigi',
         'keluhan',
         'status',
     ];
