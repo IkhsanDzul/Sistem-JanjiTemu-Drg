@@ -4,12 +4,12 @@
 
 @section('content')
 {{-- Main Content --}}
+<div class="space-y-2 px-6">
+    <h2 class="text-2xl font-semibold text-gray-800">Edit Dokter</h2>
+    <p class="text-gray-600">Perbarui informasi dokter di sini.</p>
+</div>
 <main class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2 flex flex-col gap-6">
-        <div class="space-y-2">
-            <h2 class="text-2xl font-semibold text-gray-800">Edit Dokter</h2>
-            <p class="text-gray-600">Perbarui informasi dokter di sini.</p>
-        </div>
         <div class="bg-white rounded-xl shadow-sm p-4">
             <form action="{{ route('admin.update-dokter', $dokter->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -73,11 +73,23 @@
 
     {{-- Sidebar Info --}}
     <div class="w-full lg:col-span-1">
-        <div class="sticky top-0">
+        <div class="sticky top-0 space-y-4">
+            <div class="bg-white rounded-xl shadow-sm p-4 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800">Informasi Akun Dokter</h3>
+                <p class="text-gray-600">Email: {{ $dokter->user->email }}</p>
+                <p class="text-gray-600">Password: <span class="font-mono">{{ $dokter->user->email }}123</span></p>
+            </div>
             <div class="bg-white rounded-xl shadow-sm p-4 space-y-4">
                 <h3 class="text-lg font-semibold text-gray-800">Info Dokter</h3>
                 <p class="text-gray-600">Pastikan semua informasi sudah benar sebelum menyimpan perubahan.</p>
             </div>
+                <form action="{{ route('admin.delete-dokter', $dokter->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokter ini?');">
+                    @csrf
+                    @method('delete')
+                    <button type="submit" class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                        Hapus Dokter
+                    </button>
+                </form>
         </div>
     </div>
 </main>

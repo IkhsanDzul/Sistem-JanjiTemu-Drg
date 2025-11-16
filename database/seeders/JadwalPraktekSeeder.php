@@ -26,18 +26,19 @@ class JadwalPraktekSeeder extends Seeder
             // Jadwal untuk dokter pertama (Dr. Ahmad Wijaya)
             if ($dokter->user->email === 'dokter@gmail.com') {
                 $jadwalDokter1 = [
-                    ['hari' => 'Senin', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
-                    ['hari' => 'Selasa', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
-                    ['hari' => 'Rabu', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
-                    ['hari' => 'Kamis', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
-                    ['hari' => 'Jumat', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-01', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-02', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-03', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-04', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-05', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-06', 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'aktif'],
                 ];
 
                 foreach ($jadwalDokter1 as $jadwal) {
                     JadwalPraktek::firstOrCreate(
                         [
                             'dokter_id' => $dokter->id,
-                            'hari' => $jadwal['hari'],
+                            'tanggal' => $jadwal['tanggal'],
                         ],
                         [
                             'id' => Str::uuid(),
@@ -52,19 +53,19 @@ class JadwalPraktekSeeder extends Seeder
             // Jadwal untuk dokter kedua (Dr. Siti Nurhaliza)
             if ($dokter->user->email === 'dokter2@gmail.com') {
                 $jadwalDokter2 = [
-                    ['hari' => 'Senin', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
-                    ['hari' => 'Selasa', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
-                    ['hari' => 'Rabu', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
-                    ['hari' => 'Kamis', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
-                    ['hari' => 'Jumat', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
-                    ['hari' => 'Sabtu', 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-01', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-02', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-03', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-04', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-05', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'aktif'],
+                    ['tanggal' => '2024-07-06', 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'aktif'],
                 ];
 
                 foreach ($jadwalDokter2 as $jadwal) {
                     JadwalPraktek::firstOrCreate(
                         [
                             'dokter_id' => $dokter->id,
-                            'hari' => $jadwal['hari'],
+                            'tanggal' => $jadwal['tanggal'],
                         ],
                         [
                             'id' => Str::uuid(),

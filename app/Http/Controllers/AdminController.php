@@ -11,6 +11,7 @@ use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -135,4 +136,44 @@ class AdminController extends Controller
         return redirect()->route('admin.kelola-dokter')->with('success', 'Data dokter berhasil diperbarui.');
     }    
 
+    public function deleteDokter($id)
+    {
+        $dokter = Dokter::findOrFail($id);
+        $user = User::findOrFail($dokter->user_id);
+        $dokter->delete();
+        $user->delete();
+
+        return redirect()->route('admin.kelola-dokter')->with('success', 'Data dokter berhasil dihapus.');
+    }
+
+    public function tambahDokter() {
+        return view('admin.manajemen-dokter.tambah-dokter')->with('title', 'Tambah Dokter');
+    }
+
+    public function daftarkanDokter() {
+
+        User::create([
+            'nama_lengkap' => request('nama_lengkap'),
+            'nik' => request('nik'),
+            'role_id' => 'dokter',
+            'email' => request('email'),
+            'password' => bcrypt(request('email') . '123'),
+            'nomor_telp' => request('nomor_telp'),
+            'alamat' => request('alamat'),
+            'tanggal_lahir' => request('tanggal_lahir'),
+            'jenis_kelamin' => request('jenis_kelamin'),
+        ]);
+
+       Dokter::create([
+            'user_id' => User::latest()->first()->id,
+            'no_str' => request('no_str'),
+            'pendidikan' => request('pendidikan'),
+            'pengalaman_tahun' => request('pengalaman_tahun'),
+            'spesialisasi_gigi' => request('spesialisasi_gigi'),
+            'status' => 'tidak tersedia',
+        ]);
+
+
+        return redirect()->route('admin.kelola-dokter')->with('success', 'Data dokter berhasil ditambahkan.');
+    }
 }

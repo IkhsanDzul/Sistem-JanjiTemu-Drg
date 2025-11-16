@@ -42,6 +42,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/kelola-dokter', [AdminController::class, 'kelolaDokter'])->name('kelola-dokter');
     Route::get('/edit-dokter/{id}', [AdminController::class, 'editDokter'])->name('edit-dokter');
     Route::patch('/update-dokter/{id}', [AdminController::class, 'updateDokter'])->name('update-dokter');
+    Route::delete('/delete-dokter/{id}', [AdminController::class, 'deleteDokter'])->name('delete-dokter');
+    Route::get('/tambah-dokter', [AdminController::class, 'tambahDokter'])->name('tambah-dokter');
+    Route::post('/tambah-dokter', [AdminController::class, 'daftarkanDokter'])->name('daftarkan-dokter');
     
     //Janji Temu
     Route::get('/janji-temu', [AdminJanjiTemuController::class, 'index'])->name('janji-temu.index');
@@ -73,6 +76,13 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
 
     //cari dokter
     Route::get('/cari-dokter', [PasienController::class, 'cariDokter'])->name('cariDokter');
+
+    //Detail Dokter
+    Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
+
+    // Janji Temu
+    Route::get('janji-temu', [PasienController::class, 'janjiTemu'])->name('janji-temu');
+    Route::post('buat-janji', [PasienController::class, 'buatJanji'])->name('buat-janji');
 });
 
 require __DIR__.'/auth.php';

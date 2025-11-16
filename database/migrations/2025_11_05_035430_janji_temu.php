@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('tanggal')->notnull();
             $table->time('jam_mulai')->notnull();
             $table->time('jam_selesai')->notnull();
+            $table->string('foto_gigi')->nullable();
             $table->string('keluhan')->notnull();
             $table->enum('status', ['pending', 'confirmed', 'completed', 'canceled'])->notnull();
             $table->foreign('pasien_id')->references('id')->on('pasien')->onDelete('cascade')->onUpdate('cascade');

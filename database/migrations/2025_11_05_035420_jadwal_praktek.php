@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('jadwal_praktek', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('dokter_id');
-            $table->enum('hari', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'])->notnull();
+            $table->date('tanggal')->notnull();
             $table->time('jam_mulai')->notnull();
             $table->time('jam_selesai')->notnull();
             $table->string('status', 50)->notnull();

@@ -21,6 +21,7 @@ class Dokter extends Model
         'user_id',
         'no_str',
         'pengalaman_tahun',
+        'pendidikan',
         'spesialisasi_gigi',
         'status',
     ];

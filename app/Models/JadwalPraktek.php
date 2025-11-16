@@ -19,7 +19,7 @@ class JadwalPraktek extends Model
     protected $fillable = [
         'id',
         'dokter_id',
-        'hari',
+        'tanggal',
         'jam_mulai',
         'jam_selesai',
         'status',

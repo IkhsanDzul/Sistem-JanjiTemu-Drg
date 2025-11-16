@@ -50,16 +50,11 @@
                 @forelse ($dokter as $d)
                 <div
                     class="bg-white rounded-xl shadow-sm p-4 flex justify-between items-center hover:shadow-md transition cursor-pointer"
-                    @click="{{ $belumVerifikasi ? 'showModalClick = true' : " " }}">
+                    @click="{{$belumVerifikasi ? '' : "window.location='".route('pasien.detail-dokter', $d->id)."' "}}">
 
                     <div class="flex items-center gap-4">
                         <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xl">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5.121 17.804A13.937 13.937 0 0112 15c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 14v7m0-7a9 9 0 110-18 9 9 0 010 18z" />
-                            </svg>
+                            <img src="{{ asset('storage/' . $d->user->foto_profil) }}" alt="Foto Dokter" class="w-full h-full object-cover rounded-md">
                         </div>
                         <div>
                             @php
@@ -81,13 +76,13 @@
                 <p class="text-gray-500 text-center mt-10">Belum ada data dokter.</p>
                 @endforelse
 
-                {{-- Pagination --}}
+                <!-- Pagination -->
                 <div class="sticky bottom-0 bg-white py-3 flex justify-center items-center border-t border-gray-200">
                     {{ $dokter->links() }}
                 </div>
             </div>
 
-            {{-- Kolom kanan: sticky --}}
+            <!-- Kolom Kanan -->
             <div class="space-y-4 lg:col-span-1 sticky top-6 self-start h-fit">
                 <div class="bg-white rounded-xl shadow-sm p-4 h-40 flex flex-col justify-center items-center text-center">
                     <h3 class="text-sm font-semibold text-gray-800 mb-2">Janji Temu Mendatang</h3>
