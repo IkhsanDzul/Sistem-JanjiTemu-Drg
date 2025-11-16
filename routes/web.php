@@ -54,20 +54,42 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // Dokter Routes
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', function () {
+      // Dashboard
+      Route::get('/dashboard', function () {
         return view('dokter.dashboard');
     })->name('dashboard');
 
+    Route::get('/daftar-pasien', function () {
+        return view('dokter.daftar-pasien.index');
+    })->name('daftar-pasien');
+
     // Rekam Medis - Simple Route
     Route::get('/rekam-medis', function () {
-        return view('dokter.rekam-medis');
+        return view('dokter.rekam-medis.index');
     })->name('rekam-medis');
 
+     // Detail rekam medis
+    Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
+     ->name('rekam-medis.show');
+    Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
+     ->name('rekam-medis.edit');
+    Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
+     ->name('rekam-medis.update');
+     Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
+     ->name('rekam-medis.destroy');
+
+       // Halaman daftar & kelola janji temu
+    Route::get('/janji-temu', [\App\Http\Controllers\Dokter\JanjiTemuController::class, 'index'])
+    ->name('janji-temu.index');
+
+// Detail janji temu (opsional)
+Route::get('/janji-temu/{id}', [\App\Http\Controllers\Dokter\JanjiTemuController::class, 'show'])
+    ->name('janji-temu.show');
+
     // Resep Obat
-    Route::get('/resep-obat', function () {
-        return view('dokter.resep-obat');
-    })->name('resep-obat');
+    Route::get('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'index'])->name('resep-obat.index');
+    Route::post('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'store'])->name('resep-obat.store');
+    Route::delete('/resep-obat/{id}', [\App\Http\Controllers\Dokter\ResepObatController::class, 'destroy'])->name('resep-obat.destroy');
 });
 
 // Pasien Routes
