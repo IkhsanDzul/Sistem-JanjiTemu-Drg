@@ -97,6 +97,7 @@ class AdminController extends Controller
             'janjiTemuPerBulan'
         ))->with('title', 'Dashboard Admin');
     }
+<<<<<<< Updated upstream
 
     //Manajemen Dokter
     public function kelolaDokter()
@@ -177,3 +178,6 @@ class AdminController extends Controller
         return redirect()->route('admin.kelola-dokter')->with('success', 'Data dokter berhasil ditambahkan.');
     }
 }
+=======
+}
+>>>>>>> Stashed changes

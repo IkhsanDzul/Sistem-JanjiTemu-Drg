@@ -6,6 +6,8 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
+use App\Http\Controllers\Admin\DokterController as AdminDokterController;
+use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +35,7 @@ Route::middleware('auth')->group(function () {
 });
 
 
+<<<<<<< Updated upstream
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -50,6 +53,54 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/janji-temu', [AdminJanjiTemuController::class, 'index'])->name('janji-temu.index');
     Route::get('/janji-temu/{id}', [AdminJanjiTemuController::class, 'show'])->name('janji-temu.show');
     Route::post('/janji-temu/{id}/update-status', [AdminJanjiTemuController::class, 'updateStatus'])->name('janji-temu.update-status');
+=======
+    // Admin routes
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+        
+        // Dokter Routes (CRUD)
+        Route::prefix('admin/dokter')->name('admin.dokter.')->group(function () {
+            Route::get('/', [AdminDokterController::class, 'index'])->name('index');
+            Route::get('/create', [AdminDokterController::class, 'create'])->name('create');
+            Route::post('/', [AdminDokterController::class, 'store'])->name('store');
+            Route::get('/{id}', [AdminDokterController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [AdminDokterController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [AdminDokterController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AdminDokterController::class, 'destroy'])->name('destroy');
+            
+        });
+        
+        // Jadwal Praktek Routes (harus di luar prefix dokter untuk menghindari konflik)
+        Route::prefix('admin/dokter/{dokterId}/jadwal-praktek')->name('admin.dokter.jadwal-praktek.')->group(function () {
+            Route::get('/', [AdminJadwalPraktekController::class, 'index'])->name('index');
+            Route::get('/create', [AdminJadwalPraktekController::class, 'create'])->name('create');
+            Route::post('/', [AdminJadwalPraktekController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [AdminJadwalPraktekController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [AdminJadwalPraktekController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AdminJadwalPraktekController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Janji Temu Routes
+        Route::prefix('admin/janji-temu')->name('admin.janji-temu.')->group(function () {
+            Route::get('/', [AdminJanjiTemuController::class, 'index'])->name('index');
+            Route::get('/{id}', [AdminJanjiTemuController::class, 'show'])->name('show');
+            Route::patch('/{id}/status', [AdminJanjiTemuController::class, 'updateStatus'])->name('update-status');
+        });
+    });
+
+    // Dokter routes
+    Route::middleware('role:dokter')->group(function () {
+        Route::get('/dokter/dashboard', [DokterController::class, 'index'])->name('dokter.dashboard');
+        Route::get('/dokter/resep-obat', function () {
+            return view('dokter.resepobat');
+        })->name('dokter.resepobat');
+    });
+
+    // Pasien routes
+    Route::middleware('role:pasien')->group(function () {
+        Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
+    });
+>>>>>>> Stashed changes
 });
 
 // Dokter Routes
