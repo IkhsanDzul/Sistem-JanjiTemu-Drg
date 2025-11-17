@@ -58,7 +58,7 @@ class AdminController extends Controller
             ->get();
         
         $dokterAktif = Dokter::with('user')
-            ->where('status', 'aktif')
+            ->where('status', 'tersedia')
             ->limit(5)
             ->get();
         

@@ -240,7 +240,7 @@
                                         </div>
                                     </div>
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                                        {{ ucfirst($dokter->status) }}
+                                        {{ $dokter->status === 'tersedia' ? 'Tersedia' : 'Tidak Tersedia' }}
                                     </span>
                                 </div>
                             @empty

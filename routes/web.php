@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DokterController as AdminDokterController;
 use App\Http\Controllers\Admin\PasienController as AdminPasienController;
 use App\Http\Controllers\Admin\RekamMedisController as AdminRekamMedisController;
 use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
+use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -88,6 +89,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/edit', [AdminRekamMedisController::class, 'edit'])->name('edit');
             Route::put('/{id}', [AdminRekamMedisController::class, 'update'])->name('update');
             Route::delete('/{id}', [AdminRekamMedisController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Laporan Routes
+        Route::prefix('admin/laporan')->name('admin.laporan.')->group(function () {
+            Route::get('/', [AdminLaporanController::class, 'index'])->name('index');
+            Route::get('/pasien', [AdminLaporanController::class, 'pasien'])->name('pasien');
+            Route::get('/jadwal-kunjungan', [AdminLaporanController::class, 'jadwalKunjungan'])->name('jadwal-kunjungan');
+            Route::get('/dokter-aktif', [AdminLaporanController::class, 'dokterAktif'])->name('dokter-aktif');
         });
     });
 

@@ -70,8 +70,11 @@
 
             <!-- List Dokter -->
             @forelse ($dokter as $d)
+            @php
+                $onclickAttr = !$belumVerifikasi ? 'onclick="window.location=\'' . route('pasien.detail-dokter', $d->id) . '\';"' : '';
+            @endphp
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-[#005248] transition-all cursor-pointer group {{ $belumVerifikasi ? 'opacity-50 cursor-not-allowed' : '' }}"
-                @if(!$belumVerifikasi) onclick="window.location='{{ route('pasien.detail-dokter', $d->id) }}'" @endif>
+                {!! $onclickAttr !!}>
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0">
                         @if($d->user && $d->user->foto_profil)
