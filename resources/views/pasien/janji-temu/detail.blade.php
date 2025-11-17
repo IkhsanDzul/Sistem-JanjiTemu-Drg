@@ -3,66 +3,136 @@
 @section('title', 'Detail Janji Temu')
 
 @section('content')
-<main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
-    <div class="container mx-auto px-6 py-4">
-        <h3 class="text-gray-700 text-3xl font-semibold">Detail Janji Temu</h3>
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Detail Janji Temu</h2>
+            <p class="text-sm text-gray-600 mt-1">Informasi lengkap tentang janji temu Anda</p>
+        </div>
+        <a href="{{ route('pasien.janji-temu') }}" 
+           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali
+        </a>
+    </div>
 
-        <div class="mt-8">
-            <div class="flex flex-col">
-                <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-                    <div class="align-middle inline-block min-w-full shadow sm:rounded-lg border-b border-gray-200">
-                        <div class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            <img src="{{ asset('storage/' . $janjiTemu->dokter->user->foto_profil) }}" alt="Foto Dokter" class="w-60 h-60 object-cover rounded-md">
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Informasi Dokter -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-[#005248]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                Informasi Dokter
+            </h3>
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0">
+                    @if($janjiTemu->dokter && $janjiTemu->dokter->user && $janjiTemu->dokter->user->foto_profil)
+                        <img src="{{ asset('storage/' . $janjiTemu->dokter->user->foto_profil) }}" 
+                             alt="Foto Dokter" 
+                             class="w-24 h-24 rounded-lg object-cover"
+                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center hidden">
+                            <span class="text-gray-400 font-bold text-3xl">
+                                {{ strtoupper(substr($janjiTemu->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
                         </div>
-                        <div class="flex w-full">
-                            <table class="w-full">
-                                <tbody class="bg-white">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Dokter
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $janjiTemu->dokter->user->nama_lengkap }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Tanggal
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $tanggalFormat }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Jam Mulai
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $janjiTemu->jam_mulai = \Carbon\Carbon::parse($janjiTemu->jam_mulai)->format('H:i') }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            Status
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $janjiTemu->status }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 bg-white">
-                                <img src="{{ asset('storage/' . $janjiTemu->foto_gigi) }}" alt="Foto Kondisi Gigi" class="w-60 h-60 object-cover rounded-md">
-                            </div>
+                    @else
+                        <div class="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-400 font-bold text-3xl">
+                                {{ strtoupper(substr($janjiTemu->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
                         </div>
-                    </div>
-                    <div class="mt-4 bg-white rounded-xl shadow-sm p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Catatan Penting</h3>
-                        <p class="text-sm text-gray-500">Pastikan datang pada 20 atau 10 menit sebelum waktu yang telah ditentukan.</p>
-                    </div>
+                    @endif
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-lg font-semibold text-gray-900">{{ $janjiTemu->dokter->user->nama_lengkap ?? 'N/A' }}</h4>
+                    <p class="text-sm text-gray-600 mt-1">{{ $janjiTemu->dokter->spesialisasi_gigi ?? 'N/A' }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Pengalaman: {{ $janjiTemu->dokter->pengalaman_tahun ?? '-' }} tahun</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informasi Janji Temu -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Detail Janji Temu
+            </h3>
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Tanggal</p>
+                    <p class="text-base text-gray-900 mt-1">{{ $tanggalFormat }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Waktu</p>
+                    <p class="text-base text-gray-900 mt-1">
+                        {{ \Carbon\Carbon::parse($janjiTemu->jam_mulai)->format('H:i') }} - 
+                        {{ $janjiTemu->jam_selesai ? \Carbon\Carbon::parse($janjiTemu->jam_selesai)->format('H:i') : 'N/A' }} WIB
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Status</p>
+                    @php
+                        $statusConfig = [
+                            'pending' => ['bg-yellow-100', 'text-yellow-800', 'Menunggu Konfirmasi'],
+                            'confirmed' => ['bg-green-100', 'text-green-800', 'Disetujui'],
+                            'completed' => ['bg-blue-100', 'text-blue-800', 'Selesai'],
+                            'canceled' => ['bg-red-100', 'text-red-800', 'Dibatalkan'],
+                        ];
+                        $status = $statusConfig[$janjiTemu->status] ?? $statusConfig['pending'];
+                    @endphp
+                    <span class="inline-block mt-2 px-4 py-2 text-sm font-semibold rounded-lg {{ $status[0] }} {{ $status[1] }}">
+                        {{ $status[2] }}
+                    </span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Keluhan</p>
+                    <p class="text-base text-gray-900 mt-1">{{ $janjiTemu->keluhan ?? '-' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Foto Kondisi Gigi -->
+        @if($janjiTemu->foto_gigi)
+        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6 lg:col-span-2">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                Foto Kondisi Gigi
+            </h3>
+            <div class="flex justify-center">
+                <img src="{{ asset('storage/' . $janjiTemu->foto_gigi) }}" 
+                     alt="Foto Kondisi Gigi" 
+                     class="max-w-full h-auto rounded-lg shadow-md max-h-96">
+            </div>
+        </div>
+        @endif
+
+        <!-- Catatan Penting -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 lg:col-span-2">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h4 class="text-lg font-semibold text-blue-900 mb-2">Catatan Penting</h4>
+                    <ul class="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                        <li>Pastikan datang 15-20 menit sebelum waktu yang telah ditentukan</li>
+                        <li>Bawa kartu identitas (KTP/SIM) untuk verifikasi</li>
+                        <li>Jika perlu membatalkan, lakukan minimal 24 jam sebelum jadwal</li>
+                        <li>Gunakan masker dan ikuti protokol kesehatan yang berlaku</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
-</main>
+</div>
 @endsection

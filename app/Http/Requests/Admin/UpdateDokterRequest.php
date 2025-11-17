@@ -57,6 +57,9 @@ class UpdateDokterRequest extends FormRequest
             'pengalaman_tahun' => 'required|string|max:100',
             'spesialisasi_gigi' => 'required|string|max:100',
             'status' => 'required|in:tersedia,tidak tersedia',
+            
+            // Foto Profil
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 
@@ -92,6 +95,9 @@ class UpdateDokterRequest extends FormRequest
             'spesialisasi_gigi.required' => 'Spesialisasi gigi wajib diisi.',
             'status.required' => 'Status wajib dipilih.',
             'status.in' => 'Status harus Tersedia atau Tidak Tersedia.',
+            'foto_profil.image' => 'File foto profil harus berupa gambar.',
+            'foto_profil.mimes' => 'Foto profil harus berformat: jpeg, png, jpg, atau gif.',
+            'foto_profil.max' => 'Ukuran foto profil maksimal 2MB.',
         ];
     }
 }

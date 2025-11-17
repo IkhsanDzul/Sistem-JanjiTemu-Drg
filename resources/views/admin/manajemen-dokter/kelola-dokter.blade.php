@@ -25,9 +25,15 @@
                 class="bg-white rounded-xl shadow-sm p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 hover:shadow-md border border-transparent hover:border-[#005248] transition">
                 <div class="flex flex-col sm:flex-row items-center gap-4">
                     <div
-                        class="w-20 h-20 sm:w-16 sm:h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400">
-                        <img src="{{ asset('storage/' . $d->user->foto_profil) }}" alt="Foto Dokter"
-                            class="w-full h-full rounded-md object-cover">
+                        class="w-20 h-20 sm:w-16 sm:h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 overflow-hidden">
+                        @if($d->user->foto_profil)
+                            <img src="{{ asset('storage/' . $d->user->foto_profil) }}" alt="Foto Dokter"
+                                class="w-full h-full rounded-md object-cover">
+                        @else
+                            <span class="text-gray-600 font-semibold text-lg">
+                                {{ strtoupper(substr($d->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        @endif
                     </div>
                     <div class="text-center sm:text-left">
                         <p class="font-semibold text-gray-800 text-base sm:text-lg">

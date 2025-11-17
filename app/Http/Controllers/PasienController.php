@@ -11,86 +11,143 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 class PasienController extends Controller
 {
+    /**
+     * Menampilkan dashboard pasien
+     */
     public function index()
     {
-        $dokter = Dokter::where('status', 'tersedia')->with('user')->paginate(6);
-        $Dokter = Dokter::with('user')->paginate(6);
-        $user = User::paginate(6);
-        $User = Auth::user();
+        $user = Auth::user();
+        $pasien = $user->pasien;
 
-        // Aman, tidak error meskipun pasien belum ada
-        if (optional($User->pasien)->id) {
-            $janjiTemuMendatang = JanjiTemu::where('pasien_id', $User->pasien->id)
+        // Ambil dokter yang tersedia
+        $dokter = Dokter::where('status', 'tersedia')
+            ->with('user')
+            ->paginate(6);
+
+        // Inisialisasi variabel janji temu
+        $janjiTemuMendatang = collect();
+        $janjiTemuConfirmed = collect();
+
+        // Ambil janji temu jika pasien sudah ada
+        if ($pasien) {
+            $janjiTemuMendatang = JanjiTemu::where('pasien_id', $pasien->id)
                 ->where('status', 'pending')
+                ->with('dokter.user')
+                ->orderBy('tanggal', 'asc')
                 ->get();
 
-            $janjiTemuConfirmed = JanjiTemu::where('pasien_id', $User->pasien->id)
+            $janjiTemuConfirmed = JanjiTemu::where('pasien_id', $pasien->id)
                 ->where('status', 'confirmed')
+                ->with('dokter.user')
+                ->orderBy('tanggal', 'asc')
                 ->get();
-        } else {
-            $janjiTemuMendatang = [];
-            $janjiTemuConfirmed = [];
         }
 
         // Cek data verifikasi
-        $belumVerifikasi = !$User->nik || !$User->nomor_telp || !$User->tanggal_lahir;
+        $belumVerifikasi = !$user->nik || !$user->nomor_telp || !$user->tanggal_lahir;
 
-        return view(
-            'pasien.dashboard',
-            compact(
-                'dokter',
-                'user',
-                'Dokter',
-                'belumVerifikasi',
-                'janjiTemuMendatang',
-                'janjiTemuConfirmed'
-            )
-        );
+        return view('pasien.dashboard', compact(
+            'dokter',
+            'belumVerifikasi',
+            'janjiTemuMendatang',
+            'janjiTemuConfirmed'
+        ));
     }
 
+    /**
+     * Mencari dokter berdasarkan keyword
+     */
+    public function cariDokter(Request $request)
+    {
+        $user = Auth::user();
+        $query = Dokter::where('status', 'tersedia')->with('user');
 
-    public function cariDokter(Request $request) {
-        $query = Dokter::with('user');
-        $User = Auth::user();
-
-        $belumVerifikasi = !$User->nik || !$User->nomor_telp || !$User->tanggal_lahir;
-
+        // Search berdasarkan nama dokter
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
-                $q->where('nama_lengkap', 'like', "%{$search}%");
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        return view('pasien.dashboard', [
-            'dokter' => $query->paginate(6),
-            'belumVerifikasi' => $belumVerifikasi,
-        ]);
+        $dokter = $query->paginate(6);
+        $belumVerifikasi = !$user->nik || !$user->nomor_telp || !$user->tanggal_lahir;
+
+        // Ambil janji temu untuk sidebar
+        $pasien = $user->pasien;
+        $janjiTemuMendatang = collect();
+        $janjiTemuConfirmed = collect();
+
+        if ($pasien) {
+            $janjiTemuMendatang = JanjiTemu::where('pasien_id', $pasien->id)
+                ->where('status', 'pending')
+                ->with('dokter.user')
+                ->orderBy('tanggal', 'asc')
+                ->get();
+
+            $janjiTemuConfirmed = JanjiTemu::where('pasien_id', $pasien->id)
+                ->where('status', 'confirmed')
+                ->with('dokter.user')
+                ->orderBy('tanggal', 'asc')
+                ->get();
+        }
+
+        return view('pasien.dashboard', compact(
+            'dokter',
+            'belumVerifikasi',
+            'janjiTemuMendatang',
+            'janjiTemuConfirmed'
+        ));
     }
 
+    /**
+     * Menampilkan detail dokter
+     */
     public function detailDokter(Request $request, $id)
     {
         $tanggalDipilih = $request->input('tanggal');
 
+        // Generate jadwal format untuk 7 hari ke depan
         $jadwalFormat = collect(range(0, 6))->map(function ($i) {
-            return now()->addDays($i)->locale('id')->isoFormat('YYYY-MM-DD');
+            return now()->addDays($i)->format('Y-m-d');
         });
 
+        // Ambil semua jadwal praktek dokter berdasarkan tanggal
         $jadwalHari = JadwalPraktek::where('dokter_id', $id)
-            ->where('status', 'available')
+            ->whereIn('status', ['available', 'aktif'])
             ->whereIn('tanggal', $jadwalFormat)
             ->get();
 
+        // Ambil jam praktek jika tanggal sudah dipilih
         $jamPraktek = [];
         if ($tanggalDipilih) {
+            // Ambil jam praktek berdasarkan tanggal
             $jamPraktek = JadwalPraktek::where('dokter_id', $id)
-                ->where('status', 'available')
+                ->whereIn('status', ['available', 'aktif'])
                 ->where('tanggal', $tanggalDipilih)
-                ->pluck('jam_mulai');
+                ->get()
+                ->map(function ($jadwal) {
+                    // Generate jam-jam yang tersedia dari jam_mulai sampai jam_selesai
+                    $jamMulai = \Carbon\Carbon::parse($jadwal->jam_mulai);
+                    $jamSelesai = \Carbon\Carbon::parse($jadwal->jam_selesai);
+                    $jamTersedia = [];
+                    
+                    while ($jamMulai->lt($jamSelesai)) {
+                        $jamTersedia[] = $jamMulai->format('H:i');
+                        $jamMulai->addHour(); // Tambah 1 jam
+                    }
+                    
+                    return $jamTersedia;
+                })
+                ->flatten()
+                ->unique()
+                ->sort()
+                ->values()
+                ->toArray();
         }
 
         $dokter = Dokter::with('user')->findOrFail($id);
@@ -104,68 +161,86 @@ class PasienController extends Controller
         ));
     }
 
-
+    /**
+     * Membuat janji temu baru
+     */
     public function buatJanjiTemu(Request $request)
     {
-
         $request->validate([
-            'dokter_id' => 'required',
-            'pasien_id' => 'required',
+            'dokter_id' => 'required|exists:dokter,id',
+            'pasien_id' => 'required|exists:pasien,id',
             'jam_mulai' => 'required',
-            'keluhan' => 'required',
-            'foto_gigi' => 'required|image',
-            'tanggal' => 'required',
-            'status' => 'required',
+            'keluhan' => 'required|string|max:500',
+            'foto_gigi' => 'required|image|max:2048',
+            'tanggal' => 'required|date',
+            'status' => 'required|in:pending,confirmed',
         ]);
 
+        // Upload foto gigi
         $fotoPath = $request->file('foto_gigi')->store('foto_gigi', 'public');
 
-        JanjiTemu::create([
+        // Buat janji temu
+        $janjiTemu = JanjiTemu::create([
             'dokter_id' => $request->dokter_id,
             'pasien_id' => $request->pasien_id,
             'tanggal' => $request->tanggal,
             'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => Carbon::parse($request->jam_mulai)->addHour()->format('H:i:s'),
             'foto_gigi' => $fotoPath,
             'keluhan' => $request->keluhan,
             'status' => $request->status,
         ]);
 
-        $jadwalDokter = JadwalPraktek::where('dokter_id', $request->dokter_id)->where('jam_mulai', $request->jam_mulai)->first();
-        $jadwalDokter->status = 'booked';
-        $jadwalDokter->save();
+        // Update status jadwal praktek menjadi booked
+        $jadwalDokter = JadwalPraktek::where('dokter_id', $request->dokter_id)
+            ->where('jam_mulai', $request->jam_mulai)
+            ->where('tanggal', $request->tanggal)
+            ->first();
 
-        return redirect()->route('pasien.dashboard')->with('success', 'Janji temu berhasil dibuat.');
+        if ($jadwalDokter) {
+            $jadwalDokter->update(['status' => 'booked']);
+        }
+
+        return redirect()
+            ->route('pasien.dashboard')
+            ->with('success', 'Janji temu berhasil dibuat.');
     }
 
-    public function detailJanjiTemu() {
+    /**
+     * Menampilkan detail janji temu
+     */
+    public function detailJanjiTemu($id)
+    {
         $user = Auth::user();
+        $pasien = $user->pasien;
 
-        $janjiTemuIncoming = JanjiTemu::with('dokter.user')
-            ->where('pasien_id', $user->pasien->id)
-            ->where('status', 'pending')
-            ->first();
+        if (!$pasien) {
+            return redirect()->route('pasien.dashboard')
+                ->with('error', 'Data pasien tidak ditemukan.');
+        }
 
-        $janjiTemuConfirmed = JanjiTemu::with('dokter.user')
-            ->where('pasien_id', $user->pasien->id)
-            ->where('status', 'confirmed')
-            ->first();
+        $janjiTemu = JanjiTemu::with(['dokter.user', 'pasien.user'])
+            ->where('pasien_id', $pasien->id)
+            ->findOrFail($id);
 
-        $janjiTemu = $janjiTemuIncoming ?? $janjiTemuConfirmed;
+        $tanggalFormat = Carbon::parse($janjiTemu->tanggal)
+            ->locale('id')
+            ->isoFormat('dddd, DD MMMM YYYY');
 
-        $tanggalFormat = Carbon::parse($janjiTemu->tanggal)->locale('id')->isoFormat('dddd, DD MMMM YYYY');
-        
         return view('pasien.janji-temu.detail', compact('janjiTemu', 'tanggalFormat'));
     }
 
-    public function janjiTemuSaya()
+    /**
+     * Menampilkan daftar janji temu pasien
+     */
+    public function janjiTemuSaya(Request $request)
     {
         $user = Auth::user();
+        $pasien = $user->pasien;
 
-        $pasienId = optional($user->pasien)->id;
-
-        if (!$pasienId) {
-            // paginator kosong
-            $janjiTemu = new \Illuminate\Pagination\LengthAwarePaginator(
+        // Buat paginator kosong jika pasien belum ada
+        if (!$pasien) {
+            $janjiTemu = new LengthAwarePaginator(
                 [],
                 0,
                 10,
@@ -173,13 +248,14 @@ class PasienController extends Controller
                 ['path' => request()->url()]
             );
         } else {
-            $status = request('status') ?? 'pending';
+            $status = $request->get('status', 'pending');
 
-            $janjiTemu = JanjiTemu::where('pasien_id', $pasienId)
+            $janjiTemu = JanjiTemu::where('pasien_id', $pasien->id)
                 ->where('status', $status)
                 ->with(['dokter.user'])
-                ->paginate(6);
-                
+                ->orderBy('tanggal', 'desc')
+                ->orderBy('jam_mulai', 'desc')
+                ->paginate(10);
         }
 
         $belumVerifikasi = !$user->nik || !$user->nomor_telp || !$user->tanggal_lahir;
@@ -187,22 +263,56 @@ class PasienController extends Controller
         return view('pasien.janji-temu.index', compact('janjiTemu', 'belumVerifikasi'));
     }
 
-    public function cancelJanjiTemu() {
-        $janjiTemu = JanjiTemu::findOrFail(request('id'));
-        $janjiTemu->status = 'canceled';
-        $janjiTemu->save();
+    /**
+     * Membatalkan janji temu
+     */
+    public function cancelJanjiTemu(Request $request, $id)
+    {
+        $user = Auth::user();
+        $pasien = $user->pasien;
 
-        return redirect()->route('pasien.janji-temu.index')->with('success', 'Janji temu berhasil dibatalkan');
+        if (!$pasien) {
+            return redirect()->route('pasien.janji-temu')
+                ->with('error', 'Data pasien tidak ditemukan.');
+        }
+
+        $janjiTemu = JanjiTemu::where('pasien_id', $pasien->id)
+            ->findOrFail($id);
+
+        // Hanya bisa dibatalkan jika status masih pending
+        if ($janjiTemu->status !== 'pending') {
+            return redirect()->route('pasien.janji-temu')
+                ->with('error', 'Janji temu ini tidak dapat dibatalkan.');
+        }
+
+        $janjiTemu->update(['status' => 'canceled']);
+
+        // Update status jadwal praktek kembali menjadi available
+        $jadwalDokter = JadwalPraktek::where('dokter_id', $janjiTemu->dokter_id)
+            ->where('jam_mulai', $janjiTemu->jam_mulai)
+            ->where('tanggal', $janjiTemu->tanggal)
+            ->first();
+
+        if ($jadwalDokter) {
+            $jadwalDokter->update(['status' => 'available']);
+        }
+
+        return redirect()
+            ->route('pasien.janji-temu')
+            ->with('success', 'Janji temu berhasil dibatalkan.');
     }
 
-    //Rekam Medis
+    /**
+     * Menampilkan daftar rekam medis pasien
+     */
     public function rekamMedis()
     {
         $user = Auth::user();
-        $pasien = $user->pasien; // relasi pasien dari user
+        $pasien = $user->pasien;
 
+        // Buat paginator kosong jika pasien belum ada
         if (!$pasien) {
-            $rekamMedis = new \Illuminate\Pagination\LengthAwarePaginator(
+            $rekamMedis = new LengthAwarePaginator(
                 [],
                 0,
                 10,
@@ -210,13 +320,15 @@ class PasienController extends Controller
                 ['path' => request()->url()]
             );
         } else {
-            $janjiTemuIds = JanjiTemu::where('pasien_id', $pasien->id)->pluck('id');
-            $tanggalJanji = JanjiTemu::where('pasien_id', $pasien->id)->pluck('tanggal');
+            // Ambil ID janji temu pasien
+            $janjiTemuIds = JanjiTemu::where('pasien_id', $pasien->id)
+                ->pluck('id');
 
+            // Ambil rekam medis berdasarkan janji temu
             $rekamMedis = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
                 ->with(['janjiTemu.dokter.user'])
                 ->orderBy('created_at', 'desc')
-                ->paginate(6);
+                ->paginate(10);
         }
 
         $belumVerifikasi = !$user->nik || !$user->nomor_telp || !$user->tanggal_lahir;
@@ -224,9 +336,26 @@ class PasienController extends Controller
         return view('pasien.rekam-medis.index', compact('rekamMedis', 'belumVerifikasi'));
     }
 
+    /**
+     * Menampilkan detail rekam medis
+     */
     public function rekamMedisDetail($id)
     {
-        $rekam = RekamMedis::with(['janjiTemu.dokter.user'])
+        $user = Auth::user();
+        $pasien = $user->pasien;
+
+        if (!$pasien) {
+            return redirect()->route('pasien.rekam-medis')
+                ->with('error', 'Data pasien tidak ditemukan.');
+        }
+
+        // Ambil ID janji temu pasien
+        $janjiTemuIds = JanjiTemu::where('pasien_id', $pasien->id)
+            ->pluck('id');
+
+        // Pastikan rekam medis milik pasien ini
+        $rekam = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
+            ->with(['janjiTemu.dokter.user', 'janjiTemu.pasien.user'])
             ->findOrFail($id);
 
         return view('pasien.rekam-medis.detail', compact('rekam'));

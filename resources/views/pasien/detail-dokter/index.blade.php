@@ -10,9 +10,24 @@
             {{-- DETAIL DOKTER --}}
             <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
                 <div class="flex flex-col lg:flex-row lg:items-center gap-6">
-                    <div class="w-60 h-60 bg-gray-200 rounded-md flex items-center justify-center text-gray-400 text-xl">
-                        <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" alt="Foto Dokter"
-                            class="w-full h-full object-cover rounded-md">
+                    <div class="w-60 h-60 rounded-md flex items-center justify-center overflow-hidden">
+                        @if($dokter->user && $dokter->user->foto_profil)
+                            <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" 
+                                 alt="Foto Dokter"
+                                 class="w-full h-full object-cover rounded-md"
+                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center hidden">
+                                <span class="text-gray-400 font-bold text-4xl">
+                                    {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                                </span>
+                            </div>
+                        @else
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-400 font-bold text-4xl">
+                                    {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
                     <div>

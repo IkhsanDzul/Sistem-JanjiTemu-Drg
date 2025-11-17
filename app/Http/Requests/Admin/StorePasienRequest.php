@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreDokterRequest extends FormRequest
+class StorePasienRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -32,11 +32,10 @@ class StoreDokterRequest extends FormRequest
             'nomor_telp' => 'required|string|max:20',
             'alamat' => 'required|string',
             
-            // Data Dokter
-            'no_str' => 'required|string|max:50|unique:dokter,no_str',
-            'pengalaman_tahun' => 'required|string|max:100',
-            'spesialisasi_gigi' => 'required|string|max:100',
-            'status' => 'nullable|in:tersedia,tidak tersedia',
+            // Data Pasien
+            'alergi' => 'nullable|string|max:255',
+            'golongan_darah' => 'nullable|string|max:3|in:A,B,AB,O',
+            'riwayat_penyakit' => 'nullable|string|max:500',
             
             // Foto Profil
             'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -70,11 +69,9 @@ class StoreDokterRequest extends FormRequest
             'nomor_telp.required' => 'Nomor telepon wajib diisi.',
             'nomor_telp.max' => 'Nomor telepon maksimal 20 karakter.',
             'alamat.required' => 'Alamat wajib diisi.',
-            'no_str.required' => 'Nomor STR wajib diisi.',
-            'no_str.unique' => 'Nomor STR sudah terdaftar.',
-            'pengalaman_tahun.required' => 'Pengalaman tahun wajib diisi.',
-            'spesialisasi_gigi.required' => 'Spesialisasi gigi wajib diisi.',
-            'status.in' => 'Status harus Tersedia atau Tidak Tersedia.',
+            'golongan_darah.max' => 'Golongan darah maksimal 3 karakter.',
+            'golongan_darah.in' => 'Golongan darah harus A, B, AB, atau O.',
+            'riwayat_penyakit.max' => 'Riwayat penyakit maksimal 500 karakter.',
             'foto_profil.image' => 'File foto profil harus berupa gambar.',
             'foto_profil.mimes' => 'Foto profil harus berformat: jpeg, png, jpg, atau gif.',
             'foto_profil.max' => 'Ukuran foto profil maksimal 2MB.',
