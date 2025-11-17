@@ -106,11 +106,4 @@
         </div>
     </aside>
     <!-- Overlay for mobile -->
-    <div
-        x-cloak
-        x-show="open"
-        x-transition.opacity.duration.300ms
-        @click="open = false"
-        class="fixed inset-0 bg-gray-900 bg-opacity-50 z-[10] lg:hidden">
-    </div>
 </aside>

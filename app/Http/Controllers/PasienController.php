@@ -10,17 +10,26 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 
 class PasienController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $dokter = Dokter::where('status', 'tersedia')->with('user')->paginate(6);
         $Dokter = Dokter::with('user')->paginate(6);
         $user = User::paginate(6);
         $User = Auth::user();
+
+        $dokter = Dokter::where('status', 'tersedia')
+            ->with('user')
+            ->when($request->has('search') && $request->search != '', function ($query) use ($request) {
+                return $query->where(function ($q) use ($request) {
+                    $q->whereHas('user', function ($q) use ($request) {
+                        $q->where('nama_lengkap', 'LIKE', '%' . $request->search . '%');
+                    });
+                    $q->orWhere('spesialisasi_gigi', 'LIKE', '%' . $request->search . '%');
+                });
+            })
+            ->paginate(6);
 
         // Aman, tidak error meskipun pasien belum ada
         if (optional($User->pasien)->id) {
@@ -50,26 +59,6 @@ class PasienController extends Controller
                 'janjiTemuConfirmed'
             )
         );
-    }
-
-
-    public function cariDokter(Request $request) {
-        $query = Dokter::with('user');
-        $User = Auth::user();
-
-        $belumVerifikasi = !$User->nik || !$User->nomor_telp || !$User->tanggal_lahir;
-
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('nama_lengkap', 'like', "%{$search}%");
-            });
-        }
-
-        return view('pasien.dashboard', [
-            'dokter' => $query->paginate(6),
-            'belumVerifikasi' => $belumVerifikasi,
-        ]);
     }
 
     public function detailDokter(Request $request, $id)

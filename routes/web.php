@@ -35,25 +35,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-<<<<<<< Updated upstream
-// Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    
-    //Manajemen Dokter
-    Route::get('/kelola-dokter', [AdminController::class, 'kelolaDokter'])->name('kelola-dokter');
-    Route::get('/edit-dokter/{id}', [AdminController::class, 'editDokter'])->name('edit-dokter');
-    Route::patch('/update-dokter/{id}', [AdminController::class, 'updateDokter'])->name('update-dokter');
-    Route::delete('/delete-dokter/{id}', [AdminController::class, 'deleteDokter'])->name('delete-dokter');
-    Route::get('/tambah-dokter', [AdminController::class, 'tambahDokter'])->name('tambah-dokter');
-    Route::post('/tambah-dokter', [AdminController::class, 'daftarkanDokter'])->name('daftarkan-dokter');
-    
-    //Janji Temu
-    Route::get('/janji-temu', [AdminJanjiTemuController::class, 'index'])->name('janji-temu.index');
-    Route::get('/janji-temu/{id}', [AdminJanjiTemuController::class, 'show'])->name('janji-temu.show');
-    Route::post('/janji-temu/{id}/update-status', [AdminJanjiTemuController::class, 'updateStatus'])->name('janji-temu.update-status');
-=======
     // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -96,12 +77,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         })->name('dokter.resepobat');
     });
 
-    // Pasien routes
-    Route::middleware('role:pasien')->group(function () {
-        Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
-    });
->>>>>>> Stashed changes
-});
 
 // Dokter Routes
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
@@ -119,15 +94,15 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
         return view('dokter.rekam-medis.index');
     })->name('rekam-medis');
 
-     // Detail rekam medis
-    Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
-     ->name('rekam-medis.show');
-    Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
-     ->name('rekam-medis.edit');
-    Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
-     ->name('rekam-medis.update');
-     Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
-     ->name('rekam-medis.destroy');
+    //  // Detail rekam medis
+    // Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
+    //  ->name('rekam-medis.show');
+    // Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
+    //  ->name('rekam-medis.edit');
+    // Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
+    //  ->name('rekam-medis.update');
+    //  Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
+    //  ->name('rekam-medis.destroy');
 
        // Halaman daftar & kelola janji temu
     Route::get('/janji-temu', [\App\Http\Controllers\Dokter\JanjiTemuController::class, 'index'])
@@ -148,7 +123,7 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
     Route::get('/dashboard', [PasienController::class, 'index'])->name('dashboard');
 
     //cari dokter
-    Route::get('/cari-dokter', [PasienController::class, 'cariDokter'])->name('cariDokter');
+    Route::get('/cari-dokter', [PasienController::class, 'index'])->name('cariDokter');
 
     //Detail Dokter
     Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
