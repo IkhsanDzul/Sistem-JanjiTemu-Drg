@@ -66,72 +66,111 @@
             </div>
         </div>
 
-        <!-- Informasi Rekam Medis -->
-        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Informasi Rekam Medis
-            </h3>
-            <div class="space-y-4">
-                @if($rekam->biaya)
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Biaya</p>
-                    <p class="text-2xl font-bold text-green-600 mt-1">
-                        Rp {{ number_format($rekam->biaya, 0, ',', '.') }}
-                    </p>
-                </div>
-                @endif
-                <div>
-                    <p class="text-sm font-medium text-gray-600">Tanggal Dibuat</p>
-                    <p class="text-base text-gray-900 mt-1">
-                        {{ $rekam->created_at->locale('id')->isoFormat('dddd, DD MMMM YYYY HH:mm') }} WIB
-                    </p>
-                </div>
-            </div>
+        {{-- Tanggal --}}
+        <div class="mb-4">
+            <p class="text-gray-600 text-sm">Tanggal Pemeriksaan</p>
+            <p class="text-lg text-gray-800">
+                {{ \Carbon\Carbon::parse($rekam->tanggal)->format('d M Y') }}
+            </p>
         </div>
 
-        <!-- Diagnosa -->
-        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Diagnosa
-            </h3>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-base text-gray-900 whitespace-pre-line">{{ $rekam->diagnosa ?? '-' }}</p>
-            </div>
+        {{-- Diagnosa --}}
+        <div class="mb-4">
+            <p class="text-gray-600 text-sm">Diagnosa</p>
+            <p class="text-gray-800">
+                {{ $rekam->diagnosa }}
+            </p>
         </div>
 
-        <!-- Tindakan -->
-        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-                Tindakan
-            </h3>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-base text-gray-900 whitespace-pre-line">{{ $rekam->tindakan ?? '-' }}</p>
-            </div>
+        {{-- Tindakan --}}
+        <div class="mb-4">
+            <p class="text-gray-600 text-sm">Tindakan</p>
+            <p class="text-gray-800">
+                {{ $rekam->tindakan }}
+            </p>
         </div>
 
-        <!-- Catatan -->
-        @if($rekam->catatan)
-        <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6 lg:col-span-2">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                Catatan Dokter
-            </h3>
-            <div class="bg-gray-50 rounded-lg p-4">
-                <p class="text-base text-gray-900 whitespace-pre-line">{{ $rekam->catatan }}</p>
+        {{-- Catatan Dokter --}}
+        <div class="mb-4">
+            <p class="text-gray-600 text-sm">Catatan Dokter</p>
+            <div class="text-gray-800 whitespace-pre-line bg-gray-50 border p-3 rounded">
+                {{ $rekam->catatan }}
+            </div>
+
+            <!-- Riwayat Rekam Medis -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Form Input Rekam Medis Baru -->
+                @if($janjiTemuTersedia->count() > 0)
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Input Rekam Medis Baru</h3>
+                    
+                    <form action="{{ route('dokter.rekam-medis.store') }}" method="POST">
+                        @csrf
+                        
+                        <!-- Pilih Janji Temu -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Janji Temu</label>
+                            <select name="janji_temu_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA700] focus:border-transparent" required>
+                                <option value="">-- Pilih Janji Temu --</option>
+                                @foreach($janjiTemuTersedia as $jt)
+                                <option value="{{ $jt->id }}">
+                                    {{ \Carbon\Carbon::parse($jt->tanggal)->format('d M Y') }} - 
+                                    {{ \Carbon\Carbon::parse($jt->jam_mulai)->format('H:i') }} - 
+                                    {{ $jt->keluhan }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Diagnosa -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Diagnosa *</label>
+                            <textarea name="diagnosa" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA700] focus:border-transparent" placeholder="Contoh: Karies dentis pada gigi 16 (geraham kiri atas)" required></textarea>
+                        </div>
+
+                        <!-- Tindakan -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tindakan *</label>
+                            <textarea name="tindakan" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA700] focus:border-transparent" placeholder="Contoh: Pembersihan karies, penambalan dengan komposit resin" required></textarea>
+                        </div>
+
+                        <!-- Catatan -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                            <textarea name="catatan" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FFA700] focus:border-transparent" placeholder="Catatan tambahan..."></textarea>
+                        </div>
+
+        {{-- Optional: Resep Obat --}}
+        @if (!empty($rekam->resep))
+        <div class="mb-4">
+            <p class="text-gray-600 text-sm">Resep Obat</p>
+            <div class="text-gray-800 whitespace-pre-line bg-gray-50 border p-3 rounded">
+                {{ $rekam->resep }}
             </div>
         </div>
         @endif
+
+        {{-- Tombol Aksi --}}
+        <div class="mt-6 flex gap-3">
+
+            {{-- Back --}}
+            <a href="{{ route('pasien.rekam-medis') }}"
+                class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
+                Kembali
+            </a>
+
+            {{-- Button PDF (Optional → tinggal diaktifkan jika PDF ready) --}}
+            {{--
+            <a href="{{ route('pasien.rekam-medis.pdf', $rekam->id) }}"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Download PDF
+            </a>
+            --}}
+        </div>
+
     </div>
+
 </div>
+
 @endsection
