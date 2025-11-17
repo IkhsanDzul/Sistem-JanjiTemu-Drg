@@ -88,8 +88,11 @@
                             </div>
                             <h3 class="text-lg font-semibold text-gray-800">Janji Temu Terbaru</h3>
                         </div>
-                        <a href="#" class="text-sm text-[#005248] hover:text-[#007a6a] font-medium">Lihat Semua</a>
-                    </div>
+                        <a href="{{ route('dokter.janji-temu.index') }}" 
+                        class="text-sm text-[#005248] hover:text-[#007a6a] font-medium">
+                        Lihat Semua
+                     </a>
+                                         </div>
                 </div>
                 <div class="p-8 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\RekamMedisController;
+use App\Http\Controllers\Dokter\JanjiTemuController; 
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
@@ -94,24 +95,21 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
         return view('dokter.rekam-medis.index');
     })->name('rekam-medis');
 
-    //  // Detail rekam medis
-    // Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
-    //  ->name('rekam-medis.show');
-    // Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
-    //  ->name('rekam-medis.edit');
-    // Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
-    //  ->name('rekam-medis.update');
-    //  Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
-    //  ->name('rekam-medis.destroy');
+     // Detail rekam medis
+    Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
+     ->name('rekam-medis.show');
+    Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
+     ->name('rekam-medis.edit');
+    Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
+     ->name('rekam-medis.update');
+     Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
+     ->name('rekam-medis.destroy');
 
-       // Halaman daftar & kelola janji temu
-    Route::get('/janji-temu', [\App\Http\Controllers\Dokter\JanjiTemuController::class, 'index'])
-    ->name('janji-temu.index');
-
-// Detail janji temu (opsional)
-Route::get('/janji-temu/{id}', [\App\Http\Controllers\Dokter\JanjiTemuController::class, 'show'])
-    ->name('janji-temu.show');
-
+     Route::get('/janji-temu', [JanjiTemuController::class, 'index'])->name('janji-temu.index');
+     Route::get('/janji-temu/{id}', [JanjiTemuController::class, 'show'])->name('janji-temu.show');
+     Route::patch('/janji-temu/{id}/approve', [JanjiTemuController::class, 'approve'])->name('janji-temu.approve');
+     Route::patch('/janji-temu/{id}/reject', [JanjiTemuController::class, 'reject'])->name('janji-temu.reject');
+     
     // Resep Obat
     Route::get('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'index'])->name('resep-obat.index');
     Route::post('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'store'])->name('resep-obat.store');
