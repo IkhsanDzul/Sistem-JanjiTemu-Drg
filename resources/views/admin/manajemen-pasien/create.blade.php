@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Dokter')
+@section('title', 'Tambah Pasien')
 
 @section('content')
 <div class="space-y-6">
     <!-- Header Section -->
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900">Tambah Dokter</h2>
-            <p class="text-sm text-gray-600 mt-1">Isi form di bawah ini untuk menambahkan dokter baru</p>
+            <h2 class="text-2xl font-bold text-gray-900">Tambah Pasien</h2>
+            <p class="text-sm text-gray-600 mt-1">Isi form di bawah ini untuk menambahkan pasien baru</p>
         </div>
-        <a href="{{ route('admin.dokter.index') }}" 
+        <a href="{{ route('admin.pasien.index') }}" 
            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -37,7 +37,7 @@
     @endif
 
     <!-- Form Section -->
-    <form action="{{ route('admin.dokter.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
+    <form action="{{ route('admin.pasien.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
         @csrf
 
         <!-- Data Pribadi -->
@@ -221,79 +221,62 @@
             </div>
         </div>
 
-        <!-- Data Dokter -->
+        <!-- Data Medis Pasien -->
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                Data Dokter
+                Data Medis
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- No. STR -->
+                <!-- Golongan Darah -->
                 <div>
-                    <label for="no_str" class="block text-sm font-medium text-gray-700 mb-2">
-                        Nomor STR <span class="text-red-500">*</span>
+                    <label for="golongan_darah" class="block text-sm font-medium text-gray-700 mb-2">
+                        Golongan Darah
                     </label>
-                    <input type="text" 
-                           id="no_str" 
-                           name="no_str" 
-                           value="{{ old('no_str') }}"
-                           required
-                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('no_str') border-red-500 @enderror"
-                           placeholder="STR-YYYY-XXXXXX">
-                    @error('no_str')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Spesialisasi Gigi -->
-                <div>
-                    <label for="spesialisasi_gigi" class="block text-sm font-medium text-gray-700 mb-2">
-                        Spesialisasi Gigi <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           id="spesialisasi_gigi" 
-                           name="spesialisasi_gigi" 
-                           value="{{ old('spesialisasi_gigi') }}"
-                           required
-                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('spesialisasi_gigi') border-red-500 @enderror"
-                           placeholder="Contoh: Konservasi Gigi, Bedah Mulut, dll">
-                    @error('spesialisasi_gigi')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Pengalaman Tahun -->
-                <div>
-                    <label for="pengalaman_tahun" class="block text-sm font-medium text-gray-700 mb-2">
-                        Pengalaman (Tahun) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           id="pengalaman_tahun" 
-                           name="pengalaman_tahun" 
-                           value="{{ old('pengalaman_tahun') }}"
-                           required
-                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('pengalaman_tahun') border-red-500 @enderror"
-                           placeholder="Contoh: 5, 10, 15">
-                    @error('pengalaman_tahun')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Status -->
-                <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                        Status <span class="text-red-500">*</span>
-                    </label>
-                    <select id="status" 
-                            name="status" 
-                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('status') border-red-500 @enderror">
-                        <option value="tersedia" {{ old('status', 'tersedia') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
-                        <option value="tidak tersedia" {{ old('status') == 'tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
+                    <select id="golongan_darah" 
+                            name="golongan_darah" 
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('golongan_darah') border-red-500 @enderror">
+                        <option value="">Pilih Golongan Darah</option>
+                        <option value="A" {{ old('golongan_darah') == 'A' ? 'selected' : '' }}>A</option>
+                        <option value="B" {{ old('golongan_darah') == 'B' ? 'selected' : '' }}>B</option>
+                        <option value="AB" {{ old('golongan_darah') == 'AB' ? 'selected' : '' }}>AB</option>
+                        <option value="O" {{ old('golongan_darah') == 'O' ? 'selected' : '' }}>O</option>
                     </select>
-                    @error('status')
+                    @error('golongan_darah')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Alergi -->
+                <div>
+                    <label for="alergi" class="block text-sm font-medium text-gray-700 mb-2">
+                        Alergi
+                    </label>
+                    <input type="text" 
+                           id="alergi" 
+                           name="alergi" 
+                           value="{{ old('alergi') }}"
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('alergi') border-red-500 @enderror"
+                           placeholder="Contoh: Debu, Kacang, dll">
+                    @error('alergi')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Riwayat Penyakit -->
+                <div class="md:col-span-2">
+                    <label for="riwayat_penyakit" class="block text-sm font-medium text-gray-700 mb-2">
+                        Riwayat Penyakit
+                    </label>
+                    <textarea id="riwayat_penyakit" 
+                              name="riwayat_penyakit" 
+                              rows="3"
+                              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('riwayat_penyakit') border-red-500 @enderror"
+                              placeholder="Masukkan riwayat penyakit jika ada">{{ old('riwayat_penyakit') }}</textarea>
+                    @error('riwayat_penyakit')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -302,7 +285,7 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center justify-end gap-4 pt-4 border-t border-gray-200">
-            <a href="{{ route('admin.dokter.index') }}" 
+            <a href="{{ route('admin.pasien.index') }}" 
                class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
                 Batal
             </a>
@@ -311,7 +294,7 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                Tambah Dokter
+                Tambah Pasien
             </button>
         </div>
     </form>
@@ -337,5 +320,4 @@ function previewImage(input) {
 }
 </script>
 @endsection
-
 

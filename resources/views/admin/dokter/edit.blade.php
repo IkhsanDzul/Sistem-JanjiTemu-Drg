@@ -37,7 +37,7 @@
     @endif
 
     <!-- Form Section -->
-    <form action="{{ route('admin.dokter.update', $dokter->id) }}" method="POST" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
+    <form action="{{ route('admin.dokter.update', $dokter->id) }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
         @csrf
         @method('PUT')
 
@@ -197,6 +197,35 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Foto Profil -->
+                <div class="md:col-span-2">
+                    <label for="foto_profil" class="block text-sm font-medium text-gray-700 mb-2">
+                        Foto Profil <span class="text-gray-500 text-xs">(Kosongkan jika tidak ingin mengubah)</span>
+                    </label>
+                    @if($dokter->user->foto_profil)
+                        <div class="mb-3">
+                            <p class="text-sm text-gray-600 mb-2">Foto saat ini:</p>
+                            <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" 
+                                 alt="Foto Profil" 
+                                 class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                        </div>
+                    @endif
+                    <input type="file" 
+                           id="foto_profil" 
+                           name="foto_profil" 
+                           accept="image/jpeg,image/png,image/jpg,image/gif"
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('foto_profil') border-red-500 @enderror"
+                           onchange="previewImage(this)">
+                    <p class="mt-1 text-xs text-gray-500">Format: JPEG, PNG, JPG, atau GIF. Maksimal 2MB.</p>
+                    @error('foto_profil')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    <div id="preview-container" class="mt-3 hidden">
+                        <p class="text-sm text-gray-600 mb-2">Preview foto baru:</p>
+                        <img id="preview-image" src="" alt="Preview Foto" class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -296,6 +325,26 @@
         </div>
     </form>
 </div>
+
+<script>
+function previewImage(input) {
+    const previewContainer = document.getElementById('preview-container');
+    const previewImage = document.getElementById('preview-image');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            previewContainer.classList.remove('hidden');
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        previewContainer.classList.add('hidden');
+    }
+}
+</script>
 @endsection
 
 

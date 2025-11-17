@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -55,6 +56,12 @@ class ProfileController extends Controller
 
         // Upload foto
         if ($request->hasFile('foto_profil')) {
+            // Hapus foto lama jika ada
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            
+            // Simpan foto baru
             $path = $request->file('foto_profil')->store('foto_profil', 'public');
             $user->update(['foto_profil' => $path]);
         }

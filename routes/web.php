@@ -8,6 +8,8 @@ use App\Http\Controllers\PasienController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
 use App\Http\Controllers\Admin\DokterController as AdminDokterController;
+use App\Http\Controllers\Admin\PasienController as AdminPasienController;
+use App\Http\Controllers\Admin\RekamMedisController as AdminRekamMedisController;
 use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -34,8 +36,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-
     // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -68,6 +68,28 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}', [AdminJanjiTemuController::class, 'show'])->name('show');
             Route::patch('/{id}/status', [AdminJanjiTemuController::class, 'updateStatus'])->name('update-status');
         });
+        
+        // Pasien Routes (CRUD)
+        Route::prefix('admin/pasien')->name('admin.pasien.')->group(function () {
+            Route::get('/', [AdminPasienController::class, 'index'])->name('index');
+            Route::get('/create', [AdminPasienController::class, 'create'])->name('create');
+            Route::post('/', [AdminPasienController::class, 'store'])->name('store');
+            Route::get('/{id}', [AdminPasienController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [AdminPasienController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [AdminPasienController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AdminPasienController::class, 'destroy'])->name('destroy');
+        });
+        
+        // Rekam Medis Routes (CRUD)
+        Route::prefix('admin/rekam-medis')->name('admin.rekam-medis.')->group(function () {
+            Route::get('/', [AdminRekamMedisController::class, 'index'])->name('index');
+            Route::get('/create', [AdminRekamMedisController::class, 'create'])->name('create');
+            Route::post('/', [AdminRekamMedisController::class, 'store'])->name('store');
+            Route::get('/{id}', [AdminRekamMedisController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [AdminRekamMedisController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [AdminRekamMedisController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AdminRekamMedisController::class, 'destroy'])->name('destroy');
+        });
     });
 
     // Dokter routes
@@ -77,6 +99,11 @@ Route::middleware('auth')->group(function () {
             return view('dokter.resepobat');
         })->name('dokter.resepobat');
     });
+
+    // Pasien routes
+    Route::middleware('role:pasien')->group(function () {
+        Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
+    });  
 
 
 // Dokter Routes

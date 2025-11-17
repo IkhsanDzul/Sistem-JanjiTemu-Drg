@@ -36,18 +36,34 @@ class JadwalPraktekSeeder extends Seeder
                 ];
 
                 foreach ($jadwalDokter1 as $jadwal) {
-                    JadwalPraktek::firstOrCreate(
-                        [
-                            'dokter_id' => $dokter->id,
+                    // Cari jadwal yang sudah ada dengan tanggal NULL atau tidak ada
+                    $existingJadwal = JadwalPraktek::where('dokter_id', $dokter->id)
+                        ->where('jam_mulai', $jadwal['jam_mulai'])
+                        ->where('jam_selesai', $jadwal['jam_selesai'])
+                        ->whereNull('tanggal')
+                        ->first();
+
+                    if ($existingJadwal) {
+                        // Update jadwal yang sudah ada dengan tanggal
+                        $existingJadwal->update([
                             'tanggal' => $jadwal['tanggal'],
-                        ],
-                        [
-                            'id' => Str::uuid(),
-                            'jam_mulai' => $jadwal['jam_mulai'],
-                            'jam_selesai' => $jadwal['jam_selesai'],
                             'status' => $jadwal['status'],
-                        ]
-                    );
+                        ]);
+                    } else {
+                        // Buat jadwal baru jika belum ada
+                        JadwalPraktek::updateOrCreate(
+                            [
+                                'dokter_id' => $dokter->id,
+                                'tanggal' => $jadwal['tanggal'],
+                                'jam_mulai' => $jadwal['jam_mulai'],
+                            ],
+                            [
+                                'id' => Str::uuid(),
+                                'jam_selesai' => $jadwal['jam_selesai'],
+                                'status' => $jadwal['status'],
+                            ]
+                        );
+                    }
                 }
             }
 
@@ -64,18 +80,34 @@ class JadwalPraktekSeeder extends Seeder
                 ];
 
                 foreach ($jadwalDokter2 as $jadwal) {
-                    JadwalPraktek::firstOrCreate(
-                        [
-                            'dokter_id' => $dokter->id,
+                    // Cari jadwal yang sudah ada dengan tanggal NULL atau tidak ada
+                    $existingJadwal = JadwalPraktek::where('dokter_id', $dokter->id)
+                        ->where('jam_mulai', $jadwal['jam_mulai'])
+                        ->where('jam_selesai', $jadwal['jam_selesai'])
+                        ->whereNull('tanggal')
+                        ->first();
+
+                    if ($existingJadwal) {
+                        // Update jadwal yang sudah ada dengan tanggal
+                        $existingJadwal->update([
                             'tanggal' => $jadwal['tanggal'],
-                        ],
-                        [
-                            'id' => Str::uuid(),
-                            'jam_mulai' => $jadwal['jam_mulai'],
-                            'jam_selesai' => $jadwal['jam_selesai'],
                             'status' => $jadwal['status'],
-                        ]
-                    );
+                        ]);
+                    } else {
+                        // Buat jadwal baru jika belum ada
+                        JadwalPraktek::updateOrCreate(
+                            [
+                                'dokter_id' => $dokter->id,
+                                'tanggal' => $jadwal['tanggal'],
+                                'jam_mulai' => $jadwal['jam_mulai'],
+                            ],
+                            [
+                                'id' => Str::uuid(),
+                                'jam_selesai' => $jadwal['jam_selesai'],
+                                'status' => $jadwal['status'],
+                            ]
+                        );
+                    }
                 }
             }
         }

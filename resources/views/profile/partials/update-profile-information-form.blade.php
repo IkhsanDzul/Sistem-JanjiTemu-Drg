@@ -22,9 +22,23 @@
                 <div>
                     <x-input-label for="foto_profil" :value="__('Foto Profil')" />
                     <div class="my-2 flex justify-center md:justify-center">
-                        <img src="{{ asset('storage/' . $user->foto_profil) }}"
-                            alt="Foto Profil"
-                            class="w-32 h-32 md:w-36 md:h-36 rounded-full object-cover shadow-md">
+                        @if ($user->foto_profil)
+                            <img src="{{ asset('storage/' . $user->foto_profil) }}"
+                                alt="Foto Profil"
+                                class="w-32 h-32 md:w-36 md:h-36 rounded-full object-cover shadow-md"
+                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-[#005248] flex items-center justify-center shadow-md hidden">
+                                <span class="text-white font-bold text-4xl md:text-5xl">
+                                    {{ strtoupper(substr($user->nama_lengkap ?? 'U', 0, 1)) }}
+                                </span>
+                            </div>
+                        @else
+                            <div class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-[#005248] flex items-center justify-center shadow-md">
+                                <span class="text-white font-bold text-4xl md:text-5xl">
+                                    {{ strtoupper(substr($user->nama_lengkap ?? 'U', 0, 1)) }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
                     <x-text-input id="foto_profil" name="foto_profil" type="file" accept="image/*"

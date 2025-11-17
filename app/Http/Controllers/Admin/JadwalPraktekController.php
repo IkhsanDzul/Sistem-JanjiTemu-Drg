@@ -19,7 +19,8 @@ class JadwalPraktekController extends Controller
         $dokter = Dokter::with('user')->findOrFail($dokterId);
         
         $jadwalPraktek = JadwalPraktek::where('dokter_id', $dokterId)
-            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('jam_mulai', 'asc')
             ->get();
 
         return view('admin.jadwal-praktek.index', compact('dokter', 'jadwalPraktek'))
@@ -32,14 +33,8 @@ class JadwalPraktekController extends Controller
     public function create($dokterId)
     {
         $dokter = Dokter::with('user')->findOrFail($dokterId);
-        
-        // Ambil hari yang sudah ada jadwal
-        $hariTerpakai = JadwalPraktek::where('dokter_id', $dokterId)
-            ->where('status', 'aktif')
-            ->pluck('hari')
-            ->toArray();
 
-        return view('admin.jadwal-praktek.create', compact('dokter', 'hariTerpakai'))
+        return view('admin.jadwal-praktek.create', compact('dokter'))
             ->with('title', 'Tambah Jadwal Praktek');
     }
 
@@ -49,13 +44,14 @@ class JadwalPraktekController extends Controller
     public function store(Request $request, $dokterId)
     {
         $request->validate([
-            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
+            'tanggal' => 'required|date|after_or_equal:today',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|in:aktif,nonaktif',
+            'status' => 'required|in:available,booked',
         ], [
-            'hari.required' => 'Hari wajib dipilih.',
-            'hari.in' => 'Hari tidak valid.',
+            'tanggal.required' => 'Tanggal wajib dipilih.',
+            'tanggal.date' => 'Format tanggal tidak valid.',
+            'tanggal.after_or_equal' => 'Tanggal harus hari ini atau setelahnya.',
             'jam_mulai.required' => 'Jam mulai wajib diisi.',
             'jam_mulai.date_format' => 'Format jam mulai tidak valid.',
             'jam_selesai.required' => 'Jam selesai wajib diisi.',
@@ -65,21 +61,22 @@ class JadwalPraktekController extends Controller
             'status.in' => 'Status tidak valid.',
         ]);
 
-        // Cek apakah hari sudah ada
+        // Cek apakah jadwal untuk tanggal dan jam yang sama sudah ada
         $jadwalExist = JadwalPraktek::where('dokter_id', $dokterId)
-            ->where('hari', $request->hari)
+            ->where('tanggal', $request->tanggal)
+            ->where('jam_mulai', $request->jam_mulai)
             ->first();
 
         if ($jadwalExist) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Jadwal untuk hari ' . $request->hari . ' sudah ada. Silakan edit jadwal yang sudah ada.');
+                ->with('error', 'Jadwal untuk tanggal dan jam tersebut sudah ada. Silakan edit jadwal yang sudah ada.');
         }
 
-        // Cek konflik waktu dengan jadwal lain
+        // Cek konflik waktu dengan jadwal lain pada tanggal yang sama
         $konflik = JadwalPraktek::where('dokter_id', $dokterId)
-            ->where('hari', $request->hari)
-            ->where('status', 'aktif')
+            ->where('tanggal', $request->tanggal)
+            ->where('status', 'available')
             ->where(function($q) use ($request) {
                 $q->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
                   ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
@@ -93,13 +90,13 @@ class JadwalPraktekController extends Controller
         if ($konflik) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada.');
+                ->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada pada tanggal yang sama.');
         }
 
         JadwalPraktek::create([
             'id' => Str::uuid(),
             'dokter_id' => $dokterId,
-            'hari' => $request->hari,
+            'tanggal' => $request->tanggal,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'status' => $request->status,
@@ -128,13 +125,14 @@ class JadwalPraktekController extends Controller
     public function update(Request $request, $dokterId, $id)
     {
         $request->validate([
-            'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
+            'tanggal' => 'required|date|after_or_equal:today',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|in:aktif,nonaktif',
+            'status' => 'required|in:available,booked',
         ], [
-            'hari.required' => 'Hari wajib dipilih.',
-            'hari.in' => 'Hari tidak valid.',
+            'tanggal.required' => 'Tanggal wajib dipilih.',
+            'tanggal.date' => 'Format tanggal tidak valid.',
+            'tanggal.after_or_equal' => 'Tanggal harus hari ini atau setelahnya.',
             'jam_mulai.required' => 'Jam mulai wajib diisi.',
             'jam_mulai.date_format' => 'Format jam mulai tidak valid.',
             'jam_selesai.required' => 'Jam selesai wajib diisi.',
@@ -147,23 +145,24 @@ class JadwalPraktekController extends Controller
         $jadwal = JadwalPraktek::where('dokter_id', $dokterId)
             ->findOrFail($id);
 
-        // Cek apakah hari sudah ada (kecuali jadwal yang sedang diedit)
+        // Cek apakah jadwal untuk tanggal dan jam yang sama sudah ada (kecuali jadwal yang sedang diedit)
         $jadwalExist = JadwalPraktek::where('dokter_id', $dokterId)
-            ->where('hari', $request->hari)
+            ->where('tanggal', $request->tanggal)
+            ->where('jam_mulai', $request->jam_mulai)
             ->where('id', '!=', $id)
             ->first();
 
         if ($jadwalExist) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Jadwal untuk hari ' . $request->hari . ' sudah ada.');
+                ->with('error', 'Jadwal untuk tanggal dan jam tersebut sudah ada.');
         }
 
-        // Cek konflik waktu
+        // Cek konflik waktu pada tanggal yang sama
         $konflik = JadwalPraktek::where('dokter_id', $dokterId)
-            ->where('hari', $request->hari)
+            ->where('tanggal', $request->tanggal)
             ->where('id', '!=', $id)
-            ->where('status', 'aktif')
+            ->where('status', 'available')
             ->where(function($q) use ($request) {
                 $q->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
                   ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
@@ -177,11 +176,11 @@ class JadwalPraktekController extends Controller
         if ($konflik) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada.');
+                ->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada pada tanggal yang sama.');
         }
 
         $jadwal->update([
-            'hari' => $request->hari,
+            'tanggal' => $request->tanggal,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
             'status' => $request->status,
