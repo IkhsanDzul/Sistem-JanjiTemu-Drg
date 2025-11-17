@@ -35,7 +35,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
     // Admin routes
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
@@ -105,6 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pasien/dashboard', [PasienController::class, 'index'])->name('pasien.dashboard');
     });  
 
+
 // Dokter Routes
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
       // Dashboard
@@ -150,7 +150,7 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
     Route::get('/dashboard', [PasienController::class, 'index'])->name('dashboard');
 
     //cari dokter
-    Route::get('/cari-dokter', [PasienController::class, 'cariDokter'])->name('cariDokter');
+    Route::get('/cari-dokter', [PasienController::class, 'index'])->name('cariDokter');
 
     //Detail Dokter
     Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
