@@ -25,13 +25,14 @@ class JadwalPraktekSeeder extends Seeder
         foreach ($dokters as $dokter) {
             // Jadwal untuk dokter pertama (Dr. Ahmad Wijaya)
             if ($dokter->user->email === 'dokter@gmail.com') {
+                $now = date('Y-m-d');
                 $jadwalDokter1 = [
-                    ['tanggal' => '2024-07-01', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-02', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-03', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-04', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-05', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-06', 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'available'],
+                    ['tanggal' => $now, 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+1 days')), 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+2 days')), 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+3 days')), 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+4 days')), 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+5 days')), 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'available'],
                 ];
 
                 foreach ($jadwalDokter1 as $jadwal) {
@@ -52,13 +53,14 @@ class JadwalPraktekSeeder extends Seeder
 
             // Jadwal untuk dokter kedua (Dr. Siti Nurhaliza)
             if ($dokter->user->email === 'dokter2@gmail.com') {
+                $now = date('Y-m-d');
                 $jadwalDokter2 = [
-                    ['tanggal' => '2024-07-01', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-02', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-03', 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-04', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-05', 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
-                    ['tanggal' => '2024-07-06', 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'available'],
+                    ['tanggal' => $now, 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+1 days')), 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+2 days')), 'jam_mulai' => '13:00', 'jam_selesai' => '17:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+3 days')), 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+4 days')), 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],
+                    ['tanggal' => date('Y-m-d', strtotime('+5 days')), 'jam_mulai' => '09:00', 'jam_selesai' => '13:00', 'status' => 'available'],
                 ];
 
                 foreach ($jadwalDokter2 as $jadwal) {

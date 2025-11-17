@@ -52,21 +52,42 @@
 
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Buat Janji dengan Dokter</h2>
 
+                    {{-- Pilih Tanggal --}}
                     <div class="mb-4">
-                        <label for="tanggal" class="block text-gray-700 mb-2">Pilih Tanggal</label>
-                        <select id="tanggal" name="tanggal" class="w-full border border-gray-300 rounded-md p-2">
-                            @foreach($jadwalHari as $index => $tanggal)
-                            <option value="{{$tanggal->tanggal}}" {{ request('tanggal') == $tanggal->tanggal ? 'selected' : '' }}>{{ $jadwalFormat[$index] }}</option>
+                        <label for="tanggal" class="block text-gray-700 mb-2 font-semibold">Pilih Tanggal</label>
+
+                        <select id="tanggal" name="tanggal"
+                            class="w-full p-2 border border-gray-300 rounded"
+                            onchange="window.location='?tanggal=' + this.value">
+                            <option value="">-- Pilih Tanggal --</option>
+
+                            @foreach ($jadwalFormat as $tgl)
+                            <option value="{{ $tgl }}"
+                                {{ isset($tanggalDipilih) && $tanggalDipilih == $tgl ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::parse($tgl)->locale('id')->isoFormat('ddd, DD MMM YYYY') }}
+                            </option>
                             @endforeach
                         </select>
                     </div>
 
+                    {{-- Pilih Jam --}}
                     <div class="mb-4">
-                        <label for="jam_mulai" class="block text-gray-700 mb-2">Pilih Jam</label>
-                        <select id="jam_mulai" name="jam_mulai" class="w-full border border-gray-300 rounded-md p-2">
-                            @foreach($jamPraktek as $jam)
-                            <option value="{{ $jam }}">{{ \Carbon\Carbon::parse($jam)->format('H:i') }}</option>
-                            @endforeach
+                        <label for="jam_mulai" class="block text-gray-700 mb-2 font-semibold">Pilih Jam</label>
+
+                        <select id="jam_mulai" name="jam_mulai" class="w-full p-2 border border-gray-300 rounded" {{ !$tanggalDipilih ? 'disabled' : '' }}>
+
+                            @if(!$tanggalDipilih)
+                            <option>Silakan pilih tanggal dulu</option>
+                            @else
+                            @forelse ($jamPraktek as $jam)
+                            <option value="{{ $jam }}">
+                                {{ \Carbon\Carbon::parse($jam)->format('H:i') }}
+                            </option>
+                            @empty
+                            <option>Tidak ada jam tersedia</option>
+                            @endforelse
+                            @endif
+
                         </select>
                     </div>
 

@@ -24,7 +24,7 @@ Route::get('/', function () {
         }
     }
     return view('welcome');
-});
+})->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -103,9 +103,14 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
     Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
 
     // Janji Temu
-    Route::get('janji-temu', [PasienController::class, 'janjiTemu'])->name('janji-temu');
+    Route::get('janji-temu', [PasienController::class, 'janjiTemuSaya'])->name('janji-temu');
     Route::post('buat-janji', [PasienController::class, 'buatJanjiTemu'])->name('buat-janji');
     Route::get('janji-temu/{id}', [PasienController::class, 'detailJanjiTemu'])->name('detail-janji-temu');
+    Route::post('janji-temu/{id}/cancel', [PasienController::class, 'cancelJanjiTemu'])->name('cancel-janji-temu');
+    
+    //Rekam Medis
+    Route::get('/rekam-medis', [PasienController::class, 'rekamMedis'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [PasienController::class, 'rekamMedisDetail'])->name('rekam-medis.detail');
 });
 
 require __DIR__.'/auth.php';

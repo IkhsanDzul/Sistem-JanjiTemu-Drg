@@ -3,25 +3,16 @@
 @section('title', 'Dashboard Pasien')
 
 @section('content')
-<div x-data="{ showModal: {{ $belumVerifikasi ? 'true' : 'false' }}, 
-              showModalClick: false }"
-    class="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
-    {{-- Popup verifikasi --}}
-    <div
-        x-show="showModal || showModalClick"
-        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-        x-cloak>
-        <div class="bg-white w-96 rounded-xl p-6 shadow-lg text-center">
-            <h2 class="text-lg font-semibold text-gray-800 mb-3">Verifikasi Data Diri</h2>
-            <p class="text-sm text-gray-500 mb-4">Silakan lengkapi nomor telepon dan upload foto KTP untuk melanjutkan.</p>
-            <div class="flex space-x-4 justify-center">
-                <a href="{{route ('profile.edit')}}">
-                    <button class="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-green-400">Profil</button>
-                </a>
-                <button @click="showModal = false; showModalClick = false" class="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Close</button>
-            </div>
-        </div>
+<div class="flex flex-col lg:flex h-screen bg-gray-50 overflow-hidden">
+    {{-- Jika belum verifikasi --}}
+    @if($belumVerifikasi ?? false)
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded">
+        <p>Anda harus melengkapi data diri terlebih dahulu sebelum dapat membuat janji temu.</p>
+        <a href="{{ route('profile.edit') }}" class="text-yellow-800 font-semibold underline">
+            Lengkapi Data Sekarang
+        </a>
     </div>
+    @endif
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-full overflow-hidden">
