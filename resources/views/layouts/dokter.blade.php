@@ -22,7 +22,10 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col overflow-hidden lg:ml-64">
             <!-- Header -->
-            <x-dokter-header :title="$title ?? 'Dashboard Dokter'" />
+            @php
+                $pageTitle = trim(View::yieldContent('title', 'Dashboard Dokter'));
+            @endphp
+            <x-dokter-header :title="$pageTitle" />
 
             <!-- Page Content -->
             <main class="flex-1 overflow-y-auto bg-gray-50 p-6" style="background-color: #f9fafb;">

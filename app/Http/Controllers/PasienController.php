@@ -125,29 +125,41 @@ class PasienController extends Controller
         // Ambil jam praktek jika tanggal sudah dipilih
         $jamPraktek = [];
         if ($tanggalDipilih) {
-            // Ambil jam praktek berdasarkan tanggal
-            $jamPraktek = JadwalPraktek::where('dokter_id', $id)
-                ->whereIn('status', ['available', 'aktif'])
+            // Ambil jam praktek berdasarkan tanggal (hanya yang available)
+            $jadwalPraktek = JadwalPraktek::where('dokter_id', $id)
+                ->where('status', 'available')
                 ->where('tanggal', $tanggalDipilih)
-                ->get()
-                ->map(function ($jadwal) {
-                    // Generate jam-jam yang tersedia dari jam_mulai sampai jam_selesai
-                    $jamMulai = \Carbon\Carbon::parse($jadwal->jam_mulai);
-                    $jamSelesai = \Carbon\Carbon::parse($jadwal->jam_selesai);
-                    $jamTersedia = [];
-                    
-                    while ($jamMulai->lt($jamSelesai)) {
-                        $jamTersedia[] = $jamMulai->format('H:i');
-                        $jamMulai->addHour(); // Tambah 1 jam
-                    }
-                    
-                    return $jamTersedia;
+                ->get();
+            
+            // Ambil janji temu yang sudah confirmed/completed untuk tanggal tersebut
+            $janjiTemuTerpakai = JanjiTemu::where('dokter_id', $id)
+                ->where('tanggal', $tanggalDipilih)
+                ->whereIn('status', ['confirmed', 'completed'])
+                ->pluck('jam_mulai')
+                ->map(function($jam) {
+                    return date('H:i', strtotime($jam));
                 })
-                ->flatten()
-                ->unique()
-                ->sort()
-                ->values()
                 ->toArray();
+            
+            // Generate jam-jam yang tersedia dari semua jadwal praktek
+            $jamTersedia = [];
+            foreach ($jadwalPraktek as $jadwal) {
+                $jamMulai = \Carbon\Carbon::parse($jadwal->jam_mulai);
+                $jamSelesai = \Carbon\Carbon::parse($jadwal->jam_selesai);
+                
+                while ($jamMulai->lt($jamSelesai)) {
+                    $jamFormat = $jamMulai->format('H:i');
+                    // Hanya tambahkan jika jam belum terpakai
+                    if (!in_array($jamFormat, $janjiTemuTerpakai)) {
+                        $jamTersedia[] = $jamFormat;
+                    }
+                    $jamMulai->addHour(); // Tambah 1 jam
+                }
+            }
+            
+            // Remove duplicate dan sort
+            $jamPraktek = array_values(array_unique($jamTersedia));
+            sort($jamPraktek);
         }
 
         $dokter = Dokter::with('user')->findOrFail($id);
@@ -191,15 +203,38 @@ class PasienController extends Controller
             'status' => $request->status,
         ]);
 
-        // Update status jadwal praktek menjadi booked
-        $jadwalDokter = JadwalPraktek::where('dokter_id', $request->dokter_id)
-            ->where('jam_mulai', $request->jam_mulai)
+        // Validasi: Cek apakah jam yang dipilih masih tersedia
+        // (tidak ada janji temu lain yang sudah confirmed/completed di jam tersebut)
+        $janjiTemuKonflik = JanjiTemu::where('dokter_id', $request->dokter_id)
             ->where('tanggal', $request->tanggal)
-            ->first();
+            ->where('jam_mulai', $request->jam_mulai)
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->exists();
 
-        if ($jadwalDokter) {
-            $jadwalDokter->update(['status' => 'booked']);
+        if ($janjiTemuKonflik) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Jam yang dipilih sudah tidak tersedia. Silakan pilih jam lain.');
         }
+
+        // Cek apakah jam yang dipilih ada dalam jadwal praktek yang available
+        $jamBooking = Carbon::parse($request->jam_mulai)->format('H:i');
+        $jadwalTersedia = JadwalPraktek::where('dokter_id', $request->dokter_id)
+            ->where('tanggal', $request->tanggal)
+            ->where('status', 'available')
+            ->where('jam_mulai', '<=', $jamBooking)
+            ->where('jam_selesai', '>', $jamBooking)
+            ->exists();
+
+        if (!$jadwalTersedia) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Jam yang dipilih tidak tersedia dalam jadwal praktek dokter.');
+        }
+
+        // Catatan: Jadwal praktek TIDAK diupdate menjadi 'booked'
+        // Status jadwal tetap 'available' karena masih ada slot lain yang tersedia
+        // Sistem akan cek ketersediaan berdasarkan janji temu yang sudah ada
 
         return redirect()
             ->route('pasien.dashboard')
@@ -279,23 +314,17 @@ class PasienController extends Controller
         $janjiTemu = JanjiTemu::where('pasien_id', $pasien->id)
             ->findOrFail($id);
 
-        // Hanya bisa dibatalkan jika status masih pending
-        if ($janjiTemu->status !== 'pending') {
+        // Hanya bisa dibatalkan jika status masih pending atau confirmed
+        if (!in_array($janjiTemu->status, ['pending', 'confirmed'])) {
             return redirect()->route('pasien.janji-temu')
                 ->with('error', 'Janji temu ini tidak dapat dibatalkan.');
         }
 
         $janjiTemu->update(['status' => 'canceled']);
 
-        // Update status jadwal praktek kembali menjadi available
-        $jadwalDokter = JadwalPraktek::where('dokter_id', $janjiTemu->dokter_id)
-            ->where('jam_mulai', $janjiTemu->jam_mulai)
-            ->where('tanggal', $janjiTemu->tanggal)
-            ->first();
-
-        if ($jadwalDokter) {
-            $jadwalDokter->update(['status' => 'available']);
-        }
+        // Catatan: Tidak perlu mengupdate status jadwal praktek
+        // Karena jadwal praktek tetap 'available' dan ketersediaan dicek berdasarkan janji temu
+        // Dengan mengubah status menjadi 'canceled', jam tersebut otomatis tersedia lagi
 
         return redirect()
             ->route('pasien.janji-temu')

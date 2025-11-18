@@ -1,7 +1,33 @@
-<x-app-layout title="Dashboard Dokter">
-    <div class="max-w-6xl mx-auto space-y-6">
+@extends('layouts.dokter')
+
+@section('title', 'Dashboard Dokter')
+
+@section('content')
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Success/Error Messages -->
+    @if(session('success'))
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-sm">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-green-700 font-medium">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-sm">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <p class="text-red-700 font-medium">{{ session('error') }}</p>
+        </div>
+    </div>
+    @endif
         
-        <!-- Header dengan Gradient -->
+    <!-- Header dengan Gradient -->
         <div class="bg-gradient-to-r from-[#005248] to-[#007a6a] rounded-lg shadow-md p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
@@ -30,7 +56,7 @@
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-1">Total Pasien</p>
-                <h2 class="text-3xl font-bold text-gray-800">0</h2>
+                <h2 class="text-3xl font-bold text-gray-800">{{ $totalPasien ?? 0 }}</h2>
             </div>
 
             <!-- Janji Temu Hari Ini -->
@@ -43,7 +69,7 @@
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-1">Janji Temu Hari Ini</p>
-                <h2 class="text-3xl font-bold text-gray-800">0</h2>
+                <h2 class="text-3xl font-bold text-gray-800">{{ $janjiTemuHariIni ?? 0 }}</h2>
             </div>
 
             <!-- Status Pending -->
@@ -56,7 +82,7 @@
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-1">Status Pending</p>
-                <h2 class="text-3xl font-bold text-gray-800">0</h2>
+                <h2 class="text-3xl font-bold text-gray-800">{{ $statusPending ?? 0 }}</h2>
             </div>
 
             <!-- Status Selesai -->
@@ -69,7 +95,7 @@
                     </div>
                 </div>
                 <p class="text-sm text-gray-600 mb-1">Status Selesai</p>
-                <h2 class="text-3xl font-bold text-gray-800">0</h2>
+                <h2 class="text-3xl font-bold text-gray-800">{{ $statusSelesai ?? 0 }}</h2>
             </div>
         </div>
 
@@ -94,57 +120,103 @@
                      </a>
                                          </div>
                 </div>
-                <div class="p-8 text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
+                <div class="p-5">
+                    <div class="space-y-3">
+                        @forelse($janjiTemuTerbaru ?? [] as $janjiTemu)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-[#005248] rounded-full flex items-center justify-center text-white font-semibold">
+                                    {{ strtoupper(substr($janjiTemu->pasien->user->nama_lengkap ?? 'P', 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ $janjiTemu->pasien->user->nama_lengkap ?? 'N/A' }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ \Carbon\Carbon::parse($janjiTemu->tanggal)->locale('id')->isoFormat('D MMM YYYY') }} - 
+                                        {{ \Carbon\Carbon::parse($janjiTemu->jam_mulai)->format('H:i') }} WIB
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                @if($janjiTemu->status == 'pending') bg-yellow-100 text-yellow-800
+                                @elseif($janjiTemu->status == 'confirmed') bg-green-100 text-green-800
+                                @elseif($janjiTemu->status == 'completed') bg-blue-100 text-blue-800
+                                @else bg-gray-100 text-gray-800
+                                @endif">
+                                {{ ucfirst($janjiTemu->status) }}
+                            </span>
+                        </div>
+                        @empty
+                        <div class="text-center py-8">
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 text-sm font-medium">Belum ada janji temu</p>
+                            <p class="text-gray-400 text-xs mt-1">Janji temu akan muncul di sini</p>
+                        </div>
+                        @endforelse
                     </div>
-                    <p class="text-gray-500 text-sm font-medium">Belum ada janji temu</p>
-                    <p class="text-gray-400 text-xs mt-1">Janji temu akan muncul di sini</p>
                 </div>
             </div>
 
-            <!-- Aktivitas Terbaru -->
+            <!-- Jadwal Praktek Terdekat -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100">
                 <div class="p-5 border-b border-gray-100">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 bg-[#005248] rounded-lg flex items-center justify-center">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-800">Aktivitas Terbaru</h3>
+                            <h3 class="text-lg font-semibold text-gray-800">Jadwal Praktek Terdekat</h3>
                         </div>
-                        <a href="#" class="text-sm text-[#005248] hover:text-[#007a6a] font-medium">Lihat Semua</a>
+                        <a href="{{ route('dokter.jadwal-praktek.index') }}" class="text-sm text-[#005248] hover:text-[#007a6a] font-medium">Lihat Semua</a>
                     </div>
                 </div>
                 <div class="p-5">
-                    <div class="space-y-4">
-                        <!-- Empty State -->
-                        <div class="text-center py-4">
+                    <div class="space-y-3">
+                        @forelse($jadwalPraktekTerdekat ?? [] as $jadwal)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-[#005248] rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('D MMM YYYY') }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ date('H:i', strtotime($jadwal->jam_mulai)) }} - 
+                                        {{ date('H:i', strtotime($jadwal->jam_selesai)) }} WIB
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                @if($jadwal->status == 'available') bg-green-100 text-green-800
+                                @else bg-yellow-100 text-yellow-800
+                                @endif">
+                                {{ $jadwal->status == 'available' ? 'Tersedia' : 'Terbooking' }}
+                            </span>
+                        </div>
+                        @empty
+                        <div class="text-center py-8">
                             <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                             </div>
-                            <p class="text-gray-500 text-sm font-medium">Tidak ada aktivitas terbaru</p>
-                            <p class="text-gray-400 text-xs mt-1">Aktivitas akan ditampilkan di sini</p>
+                            <p class="text-gray-500 text-sm font-medium">Belum ada jadwal praktek</p>
+                            <p class="text-gray-400 text-xs mt-1">Tambahkan jadwal praktek untuk mengatur ketersediaan</p>
+                            <a href="{{ route('dokter.jadwal-praktek.create') }}" 
+                               class="inline-block mt-4 px-4 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#007a6a] transition-colors text-sm font-medium">
+                                Tambah Jadwal
+                            </a>
                         </div>
-
-                        <!-- Contoh jika ada aktivitas (commented out) -->
-                        <!-- 
-                        <div class="flex gap-3 items-start p-3 bg-gray-50 rounded-lg">
-                            <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-800">
-                                    <span class="font-medium">Dr. Ahmad</span> menyelesaikan konsultasi dengan pasien
-                                </p>
-                                <p class="text-xs text-gray-500 mt-1">5 menit yang lalu</p>
-                            </div>
-                        </div>
-                        -->
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -154,4 +226,4 @@
     
 
     </div>
-</x-app-layout>
+@endsection

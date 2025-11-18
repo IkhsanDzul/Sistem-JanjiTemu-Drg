@@ -25,6 +25,10 @@ class JadwalPraktek extends Model
         'status',
     ];
 
+    protected $casts = [
+        'tanggal' => 'date',
+    ];
+
     // Relasi ke Dokter
     public function dokter()
     {

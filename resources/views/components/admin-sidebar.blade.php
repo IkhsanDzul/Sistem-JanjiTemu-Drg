@@ -1,9 +1,23 @@
 @props([])
 
-<aside x-data="{ open: false }" 
-      @toggle-sidebar.window="open = !open"
-      :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-      class="w-64 bg-[#005248] flex flex-col h-screen fixed left-0 top-0 z-50 transition-all duration-300">
+<div x-data="{ open: false }" 
+     @toggle-sidebar.window="open = !open"
+     x-init="
+       $watch('open', value => {
+         try {
+           const body = $el.ownerDocument.body;
+           if (value) {
+             body.style.overflow = 'hidden';
+           } else {
+             body.style.overflow = '';
+           }
+         } catch(e) {
+           console.error('Error setting body overflow:', e);
+         }
+       });
+     ">
+<aside :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+      class="w-64 bg-[#005248] flex flex-col h-screen fixed left-0 top-0 z-50 transition-transform duration-300 ease-in-out">
     <!-- Logo Section -->
     <div class="p-6 border-b border-[#005248]/50">
         <div class="flex items-center justify-between">
@@ -132,6 +146,18 @@
 
 <!-- Overlay for mobile -->
 <div x-show="open" 
+     x-cloak
+     x-transition:enter="transition-opacity ease-linear duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity ease-linear duration-300"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
      @click="open = false"
-     class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden transition-opacity"></div>
+     class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden"></div>
+</div>
+
+<style>
+    [x-cloak] { display: none !important; }
+</style>
 
