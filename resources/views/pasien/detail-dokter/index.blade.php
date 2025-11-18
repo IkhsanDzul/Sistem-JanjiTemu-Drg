@@ -5,7 +5,7 @@
 @section('content')
 <div class="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
     <div class="flex-1 flex flex-col h-full overflow-hidden">
-        <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
+        <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 h-full ">
 
             {{-- DETAIL DOKTER --}}
             <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
