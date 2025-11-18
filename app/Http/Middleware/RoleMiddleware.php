@@ -18,6 +18,7 @@ class RoleMiddleware
 
         if (!in_array($user->role_id, $roles)) {
             dd('Role user:', $user->role_id, 'Roles yang diperbolehkan:', $roles);
+            // return redirect()->route('');
         }
 
         return $next($request);

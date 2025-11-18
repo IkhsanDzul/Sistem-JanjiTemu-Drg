@@ -17,11 +17,12 @@ return new class extends Migration
             $table->string('dokter_id');
             $table->date('tanggal')->notnull();
             $table->time('jam_mulai')->notnull();
-            $table->time('jam_selesai')->notnull();
+            $table->time('jam_selesai')->nullable();
+            $table->string('foto_gigi')->nullable();
             $table->string('keluhan')->notnull();
             $table->enum('status', ['pending', 'confirmed', 'completed', 'canceled'])->notnull();
-            $table->foreign('pasien_id')->references('id')->on('pasien');
-            $table->foreign('dokter_id')->references('id')->on('dokter');
+            $table->foreign('pasien_id')->references('id')->on('pasien')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('dokter_id')->references('id')->on('dokter')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

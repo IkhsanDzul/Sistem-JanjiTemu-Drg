@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('role_id');
             $table->string('nik', 16)->unique()->nullable();
             $table->string('nama_lengkap', 100);
-            $table->string('email', 50)->unique();
+            $table->string('email')->unique();
             $table->string('password');
             $table->string('foto_profil')->nullable();
             $table->text('alamat')->nullable();

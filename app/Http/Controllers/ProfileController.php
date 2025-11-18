@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Pasien;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -14,27 +17,66 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        $user = $request->user();
+        $pasien = Pasien::firstOrNew(['user_id' => $user->id]);
+
+        return view('profile.edit', compact('user', 'pasien'));
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user()->fill($request->validated());
+        // VALIDASI
+        $request->validate([
+            'nama_lengkap'      => 'required|string|max:255',
+            'alamat'            => 'nullable|string',
+            'nomor_telp'        => 'nullable|string|max:15',
+            'tanggal_lahir'     => 'nullable|date',
+            'jenis_kelamin'     => 'nullable|string',
+            'foto_profil'       => 'nullable|image|max:2048',
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+            'alergi'            => 'nullable|string',
+            'riwayat_penyakit'  => 'nullable|string',
+            'golongan_darah'    => 'nullable|string|max:3',
+        ]);
+
+        $user = $request->user();
+
+        // UPDATE USER
+        $user->update([
+            'nama_lengkap' => $request->nama_lengkap,
+            'email'        => $request->email,
+            'nik'          => $request->nik,
+            'alamat'       => $request->alamat,
+            'nomor_telp'   => $request->nomor_telp,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'jenis_kelamin' => $request->jenis_kelamin,
+        ]);
+
+        // Upload foto
+        if ($request->hasFile('foto_profil')) {
+            // Hapus foto lama jika ada
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            
+            // Simpan foto baru
+            $path = $request->file('foto_profil')->store('foto_profil', 'public');
+            $user->update(['foto_profil' => $path]);
         }
 
-        $request->user()->save();
+        // UPDATE / CREATE PASIEN
+        Pasien::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'alergi'            => $request->alergi,
+                'riwayat_penyakit'  => $request->riwayat_penyakit,
+                'golongan_darah'    => $request->golongan_darah,
+            ]
+        );
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return back()->with('status', 'Profile updated');
     }
 
     /**
