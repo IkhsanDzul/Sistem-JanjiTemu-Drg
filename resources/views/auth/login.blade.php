@@ -26,9 +26,9 @@
             <!-- Image Section - Hidden on mobile, shown on tablet and desktop -->
             <div class="hidden md:flex flex-1 flex-col justify-center items-center">
                 <img 
-                    src="{{ asset('storage/assets/dokter.jpg') }}" 
+                    src="{{ asset('storage/images/vektor-login.png') }}" 
                     alt="Tim Dokter Profesional" 
-                    class="w-full max-w-md object-cover rounded-lg"
+                    class="w-full max-w-md object-cover"
                 />
             </div>
 

@@ -22,9 +22,10 @@
 
         <!-- Main Content -->
         <div class="flex gap-8 items-stretch min-h-[400px]">
-            
             <!-- Left Section - Icons -->
-           
+            <div class="hidden md:flex justify-center items-center w-1/2">
+                <img src="{{asset('storage/images/vektor-register.png')}}" alt="">
+            </div>
 
             <!-- Right Section - Form -->
             <div class="flex-1 flex flex-col justify-center px-5">
