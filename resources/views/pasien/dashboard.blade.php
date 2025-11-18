@@ -6,25 +6,25 @@
 <div class="space-y-6">
     <!-- Success/Error Messages -->
     @if(session('success'))
-        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                {{ session('success') }}
-            </div>
+    <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {{ session('success') }}
         </div>
+    </div>
     @endif
 
     @if(session('error'))
-        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-            <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                {{ session('error') }}
-            </div>
+    <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            {{ session('error') }}
         </div>
+    </div>
     @endif
 
     <!-- Alert Verifikasi -->
@@ -44,55 +44,56 @@
         </div>
     </div>
     @endif
+
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Daftar Dokter -->
         <div class="lg:col-span-2 space-y-4">
             <!-- Search Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-                <form method="GET" action="{{ route('pasien.cariDokter') }}">
+                <form method="GET" action="{{ route('pasien.dashboard') }}">
                     <div class="flex gap-2">
-                        <input type="text"
+                        <input
+                            type="text"
                             name="search"
                             value="{{ request('search') }}"
                             placeholder="Cari nama dokter atau spesialisasi..."
-                            class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent">
-                        <button type="submit" 
-                            class="px-6 py-2.5 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors font-medium flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
+                            class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#005248]"
+                            autocomplete="off">
+                        <button type="submit" class="px-6 py-2.5 bg-[#005248] text-white rounded-lg hover:bg-[#003d35]">
                             Cari
                         </button>
                     </div>
-                </form>
+                </form> 
             </div>
 
             <!-- List Dokter -->
             @forelse ($dokter as $d)
             @php
-                $onclickAttr = !$belumVerifikasi ? 'onclick="window.location=\'' . route('pasien.detail-dokter', $d->id) . '\';"' : '';
+            $routeUrl = !$belumVerifikasi ? route('pasien.detail-dokter', $d->id) : '#';
+            $cursorClass = !$belumVerifikasi ? 'cursor-pointer hover:shadow-md hover:border-[#005248]' : 'cursor-not-allowed opacity-60';
             @endphp
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-[#005248] transition-all cursor-pointer group {{ $belumVerifikasi ? 'opacity-50 cursor-not-allowed' : '' }}"
-                {!! $onclickAttr !!}>
+            <a href="{{ $routeUrl }}"
+                class="block bg-white rounded-xl shadow-sm border border-gray-100 p-5 transition-all group {{ $cursorClass }}"
+                @if($belumVerifikasi) onclick="return false;" @endif>
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0">
                         @if($d->user && $d->user->foto_profil)
-                            <img src="{{ asset('storage/' . $d->user->foto_profil) }}" 
-                                 alt="Foto Dokter" 
-                                 class="w-16 h-16 rounded-lg object-cover"
-                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center hidden">
-                                <span class="text-gray-400 font-bold text-xl">
-                                    {{ strtoupper(substr($d->user->nama_lengkap ?? 'D', 0, 1)) }}
-                                </span>
-                            </div>
+                        <img src="{{ asset('storage/' . $d->user->foto_profil) }}"
+                            alt="Foto Dokter"
+                            class="w-16 h-16 rounded-lg object-cover border"
+                            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                        <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center hidden">
+                            <span class="text-gray-400 font-bold text-xl">
+                                {{ strtoupper(substr($d->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        </div>
                         @else
-                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                                <span class="text-gray-400 font-bold text-xl">
-                                    {{ strtoupper(substr($d->user->nama_lengkap ?? 'D', 0, 1)) }}
-                                </span>
-                            </div>
+                        <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <span class="text-gray-400 font-bold text-xl">
+                                {{ strtoupper(substr($d->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        </div>
                         @endif
                     </div>
                     <div class="flex-1 min-w-0">
@@ -107,27 +108,35 @@
                             </span>
                         </div>
                     </div>
+                    @unless($belumVerifikasi)
                     <div class="flex-shrink-0">
                         <svg class="w-5 h-5 text-gray-400 group-hover:text-[#005248] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </div>
+                    @endunless
                 </div>
-            </div>
+            </a>
             @empty
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada dokter</h3>
-                <p class="mt-1 text-sm text-gray-500">Belum ada data dokter yang tersedia.</p>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada dokter ditemukan</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    @if(request('search'))
+                    Tidak ada dokter yang cocok dengan "{{ request('search') }}".
+                    @else
+                    Belum ada data dokter yang tersedia.
+                    @endif
+                </p>
             </div>
             @endforelse
 
             <!-- Pagination -->
             @if($dokter->hasPages())
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 px-6 py-4">
-                {{ $dokter->links() }}
+                {{ $dokter->appends(request()->query())->links() }}
             </div>
             @endif
         </div>
@@ -151,8 +160,8 @@
                 </div>
                 <div class="space-y-3 max-h-96 overflow-y-auto">
                     @forelse ($janjiTemuMendatang as $janji)
-                    <a href="{{ route('pasien.detail-janji-temu', $janji->id) }}" 
-                       class="block p-4 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 hover:border-yellow-300 transition-all group">
+                    <a href="{{ route('pasien.detail-janji-temu', $janji->id) }}"
+                        class="block p-4 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 hover:border-yellow-300 transition-all group">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-900 group-hover:text-[#005248] transition-colors">
@@ -175,7 +184,7 @@
                         <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <p class="text-sm text-gray-500 mt-2">Belum ada janji temu mendatang</p>
+                        <p class="text-sm text-gray-500 mt-2">Belum ada janji temu</p>
                     </div>
                     @endforelse
                 </div>
@@ -198,8 +207,8 @@
                 </div>
                 <div class="space-y-3 max-h-96 overflow-y-auto">
                     @forelse ($janjiTemuConfirmed as $janji)
-                    <a href="{{ route('pasien.detail-janji-temu', $janji->id) }}" 
-                       class="block p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-all group">
+                    <a href="{{ route('pasien.detail-janji-temu', $janji->id) }}"
+                        class="block p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-all group">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-900 group-hover:text-[#005248] transition-colors">
@@ -222,7 +231,7 @@
                         <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <p class="text-sm text-gray-500 mt-2">Belum ada janji temu disetujui</p>
+                        <p class="text-sm text-gray-500 mt-2">Belum ada janji temu</p>
                     </div>
                     @endforelse
                 </div>

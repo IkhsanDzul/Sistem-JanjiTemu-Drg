@@ -2,7 +2,7 @@
     <!-- Decorative Elements -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-[#FFA700]/10 rounded-full blur-3xl"></div>
     <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#FFA700]/10 rounded-full blur-3xl"></div>
-    
+
     <div class="max-w-7xl mx-auto px-6 py-20 lg:py-32 relative z-10">
         <div class="grid md:grid-cols-2 gap-12 items-center">
             <!-- Konten Kiri -->
@@ -22,7 +22,7 @@
                             Pelajari Lebih Lanjut
                         </a>
                     </div>
-                    
+
                     <!-- Stats -->
                     <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-white/20">
                         <div>
@@ -45,10 +45,8 @@
             <div class="hidden md:block" x-data="{ loaded: false }" x-intersect="loaded = true">
                 <div x-show="loaded" x-transition:enter="transition ease-out duration-1000 delay-300" x-transition:enter-start="opacity-0 translate-x-10" x-transition:enter-end="opacity-100 translate-x-0">
                     <div class="relative">
-                        <div class="w-full h-96 bg-gradient-to-br from-white/10 to-white/5 rounded-2xl backdrop-blur-sm border border-white/20 flex items-center justify-center p-8">
-                            <svg class="w-full h-full text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
+                        <div class="flex justify-center items-center gap-4 w-full h-full">
+                            <img src="{{asset('images/landing.png')}}" class="z-10 w-full h-full object-contain" alt="">
                         </div>
                         <!-- Floating Elements -->
                         <div class="absolute -top-4 -right-4 w-20 h-20 bg-[#FFA700] rounded-full opacity-80 animate-pulse"></div>
@@ -58,7 +56,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Gelombang Pemisah -->
     <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-0 pointer-events-none">
         <svg class="relative block w-full h-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 80" preserveAspectRatio="none">
@@ -66,4 +64,3 @@
         </svg>
     </div>
 </section>
-

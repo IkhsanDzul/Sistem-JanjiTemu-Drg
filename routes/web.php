@@ -4,14 +4,17 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\Dokter\JanjiTemuController; 
-use App\Http\Controllers\PasienController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\JanjiTemuController as AdminJanjiTemuController;
 use App\Http\Controllers\Admin\DokterController as AdminDokterController;
 use App\Http\Controllers\Admin\PasienController as AdminPasienController;
 use App\Http\Controllers\Admin\RekamMedisController as AdminRekamMedisController;
 use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
+use App\Http\Controllers\Pasien\JanjiTemuController as PasienJanjiTemuController;
+use App\Http\Controllers\Pasien\PasienController;
+use App\Http\Controllers\Pasien\RekamMedisController as PasienRekamMedisController;
+use App\Http\Controllers\Pasien\ResepObatController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -170,14 +173,19 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
     Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
 
     // Janji Temu
-    Route::get('janji-temu', [PasienController::class, 'janjiTemuSaya'])->name('janji-temu');
     Route::post('buat-janji', [PasienController::class, 'buatJanjiTemu'])->name('buat-janji');
-    Route::get('janji-temu/{id}', [PasienController::class, 'detailJanjiTemu'])->name('detail-janji-temu');
-    Route::post('janji-temu/{id}/cancel', [PasienController::class, 'cancelJanjiTemu'])->name('cancel-janji-temu');
+    Route::get('janji-temu', [PasienJanjiTemuController::class, 'janjiTemuSaya'])->name('janji-temu');
+    Route::get('janji-temu/{id}', [PasienJanjiTemuController::class, 'detailJanjiTemu'])->name('detail-janji-temu');
+    Route::post('janji-temu/{id}/cancel', [PasienJanjiTemuController::class, 'cancelJanjiTemu'])->name('cancel-janji-temu');
     
     //Rekam Medis
-    Route::get('/rekam-medis', [PasienController::class, 'rekamMedis'])->name('rekam-medis');
-    Route::get('/rekam-medis/{id}', [PasienController::class, 'rekamMedisDetail'])->name('rekam-medis.detail');
+    Route::get('/rekam-medis', [PasienRekamMedisController::class, 'rekamMedis'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [PasienRekamMedisController::class, 'rekamMedisDetail'])->name('rekam-medis.detail');
+    Route::get('/rekam-medis/{id}/pdf', [PasienRekamMedisController::class, 'downloadPdf'])->name('rekam-medis.pdf');
+
+    //Resep Obat
+    Route::get('/resep-obat/{rekam_id}', [ResepObatController::class, 'show'])->name('resep-obat.show');
+    Route::get('/resep-obat/{rekam_id}/pdf', [ResepObatController::class, 'downloadPdf'])->name('resep-obat.pdf');
 });
 
 require __DIR__.'/auth.php';

@@ -4,13 +4,13 @@
 
 @section('content')
 <div class="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
-    <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <div class="flex-1 flex flex-col h-full overflow-y-auto">
         <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 h-full ">
 
             {{-- DETAIL DOKTER --}}
             <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
                 <div class="flex flex-col lg:flex-row lg:items-center gap-6">
-                    <div class="w-60 h-60 rounded-md flex items-center justify-center overflow-hidden">
+                    <div class="w-md h-48 md:w-48 md:h-48 bg-gray-200 rounded-md flex items-center justify-center overflow-hidden">
                         @if($dokter->user && $dokter->user->foto_profil)
                             <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" 
                                  alt="Foto Dokter"
