@@ -22,22 +22,10 @@
 
         <!-- Main Content -->
         <div class="flex gap-8 items-stretch min-h-[400px]">
-            
             <!-- Left Section - Icons -->
-            <div class="flex-1 flex flex-col justify-end pb-5">
-                <div class="bg-teal-800 rounded-full px-5 py-3 flex gap-3 items-center justify-center flex-wrap">
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🏊</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🏠</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🏰</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">⛱</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🎡</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🎢</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🎪</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🏢</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🛏</span>
-                    <span class="text-3xl cursor-pointer hover:scale-110 transition-transform">🧭</span>
+                <div class="flex justify-center items-center w-1/2">
+                    <img src="{{asset('storage/images/vektor-register.png')}}" alt="">
                 </div>
-            </div>
 
             <!-- Right Section - Form -->
             <div class="flex-1 flex flex-col justify-center px-5">

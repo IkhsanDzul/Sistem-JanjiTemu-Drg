@@ -23,10 +23,10 @@
             
             <div class="flex-1 flex flex-col justify-center items-center">
                 <img 
-                src="{{ asset('storage/assets/dokter.jpg') }}" 
-                alt="Tim Dokter Profesional" 
-                class="w-full max-w-md object-cover"
-            />
+                    src="{{ asset('storage/images/vektor-login.png') }}" 
+                    alt="Tim Dokter Profesional" 
+                    class="w-full max-w-md object-cover"
+                />
             </div>
 
             <div class="flex-1 flex flex-col justify-center px-5">
