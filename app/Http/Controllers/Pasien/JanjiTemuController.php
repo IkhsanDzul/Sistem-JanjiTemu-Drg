@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pasien;
 
 use App\Http\Controllers\Controller;
 use App\Models\JanjiTemu;
+use App\Models\RekamMedis;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -21,6 +22,8 @@ class JanjiTemuController extends Controller
                 ->with('error', 'Data pasien tidak ditemukan.');
         }
 
+        $rekamMedisId = RekamMedis::where('janji_temu_id', $id)->value('id');
+
         $janjiTemu = JanjiTemu::with(['dokter.user', 'pasien.user'])
             ->where('pasien_id', $pasien->id)
             ->findOrFail($id);
@@ -29,7 +32,7 @@ class JanjiTemuController extends Controller
             ->locale('id')
             ->isoFormat('dddd, DD MMMM YYYY');
 
-        return view('pasien.janji-temu.detail', compact('janjiTemu', 'tanggalFormat'));
+        return view('pasien.janji-temu.detail', compact('janjiTemu', 'tanggalFormat', 'rekamMedisId'));
     }
 
     /**

@@ -17,13 +17,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
             <div class="space-y-4">
-
                 <!-- Foto -->
                 <div>
                     <x-input-label for="foto_profil" :value="__('Foto Profil')" />
                     <div class="my-2 flex justify-center md:justify-center">
                         @if ($user->foto_profil)
-                            <img src="{{ asset('storage/' . $user->foto_profil) }}"
+                            <img src="{{ asset('storage/' . $user->foto_profil) ?? '' }}"
                                 alt="Foto Profil"
                                 class="w-32 h-32 md:w-36 md:h-36 rounded-full object-cover shadow-md"
                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -39,10 +38,15 @@
                                 </span>
                             </div>
                         @endif
+
+                        <div class="mt-2 hidden" id="preview-container">
+                            <img id="preview-image" src="" alt="Preview Foto" class="w-full h-full rounded-full object-cover shadow-md">
+                        </div>
                     </div>
 
                     <x-text-input id="foto_profil" name="foto_profil" type="file" accept="image/*"
-                        class="mt-1 block w-full" />
+                        class="mt-1 block w-full"
+                        onchange="previewImage(this)" />
                     <x-input-error :messages="$errors->get('foto_profil')" class="mt-2" />
                 </div>
 
