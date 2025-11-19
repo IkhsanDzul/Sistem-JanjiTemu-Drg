@@ -4,31 +4,55 @@ namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\ResepObat;
 
 class ResepObatController extends Controller
 {
     /**
-     * Tampilkan daftar resep obat atau pilih pasien
+     * Tampilkan daftar obat yang tersedia untuk digunakan pada rekam medis
      */
     public function index(Request $request)
     {
-        $pasienId = $request->query('pasien_id');
+        $user = Auth::user();
+        $dokter = $user->dokter;
         
-        // Jika tidak ada pasien_id, tampilkan daftar pasien untuk dipilih
-        if (!$pasienId) {
-            return redirect()->route('dokter.dashboard')
-                ->with('error', 'Silakan pilih pasien terlebih dahulu.');
+        if (!$dokter) {
+            $dokter = \App\Models\Dokter::where('user_id', $user->id)->first();
         }
         
+        if (!$dokter) {
+            return redirect()->route('dokter.dashboard')
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
 
-        // Jika ada pasien_id, tampilkan form resep obat
-        $pasien = \App\Models\Pasien::findOrFail($pasienId);
-        $obat = \App\Models\Obat::all();
-        $listResep = \App\Models\ResepObat::where('pasien_id', $pasienId)
-            ->with('obat')
+        // Ambil semua resep obat dari semua dokter (obat yang tersedia di sistem)
+        $resepObat = ResepObat::orderBy('nama_obat', 'asc')
+            ->orderBy('tanggal_resep', 'desc')
             ->get();
 
-        return view('dokter.resep-obat.index', compact('pasien', 'obat', 'listResep'));
+        // Kelompokkan berdasarkan nama_obat dan hitung statistik
+        $obatTersedia = $resepObat->groupBy('nama_obat')->map(function ($items) {
+            $dosis = $items->pluck('dosis')->filter();
+            $aturanPakai = $items->pluck('aturan_pakai')->unique()->values();
+            
+            return [
+                'nama_obat' => $items->first()->nama_obat,
+                'dosis_min' => $dosis->min(),
+                'dosis_max' => $dosis->max(),
+                'dosis_avg' => $dosis->avg(),
+                'aturan_pakai_umum' => $aturanPakai->toArray(),
+                'jumlah_penggunaan' => $items->count(),
+                'terakhir_digunakan' => $items->max('tanggal_resep'),
+            ];
+        })->sortByDesc('jumlah_penggunaan')->values();
+
+        // Hitung statistik
+        $totalObat = $obatTersedia->count();
+        $totalResep = ResepObat::count(); // Total semua resep di sistem
+
+        return view('dokter.resep-obat.index', compact('obatTersedia', 'totalObat', 'totalResep'));
     }
 
     /**
@@ -36,33 +60,31 @@ class ResepObatController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
-        $validated = $request->validate([
-            'pasien_id'    => 'required|exists:pasien,id',
-            'obat_id'      => 'required|exists:obat,id',
-            'dosis'        => 'required|string',
-            'aturan_pakai' => 'required|string',
-            'jumlah'       => 'required|integer|min:1',
-            'keterangan'   => 'nullable|string',
-        ]);
-
-        // Cek stok obat
-        $obat = \App\Models\Obat::findOrFail($validated['obat_id']);
-        if ($obat->stok < $validated['jumlah']) {
-            return redirect()
-                ->back()
-                ->with('error', 'Stok obat tidak mencukupi.')
-                ->withInput();
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()->back()->with('error', 'Data dokter tidak ditemukan.');
         }
 
-        // Simpan resep
-        \App\Models\ResepObat::create($validated);
+        // Validasi input
+        $validated = $request->validate([
+            'rekam_medis_id' => 'required|exists:rekam_medis,id',
+            'nama_obat'      => 'required|string|max:255',
+            'jumlah'         => 'required|integer|min:1',
+            'dosis'          => 'required|integer|min:0',
+            'aturan_pakai'   => 'required|string',
+        ]);
 
-        // Kurangi stok obat
-        $obat->decrement('stok', $validated['jumlah']);
+        // Tambahkan dokter_id dan tanggal_resep
+        $validated['dokter_id'] = $dokter->id;
+        $validated['tanggal_resep'] = now()->toDateString();
+
+        // Simpan resep
+        ResepObat::create($validated);
 
         return redirect()
-            ->route('dokter.resep-obat.index', ['pasien_id' => $validated['pasien_id']])
+            ->route('dokter.resep-obat.index')
             ->with('success', 'Resep obat berhasil ditambahkan.');
     }
 
@@ -71,20 +93,11 @@ class ResepObatController extends Controller
      */
     public function destroy($id)
     {
-        $resep = \App\Models\ResepObat::findOrFail($id);
-        
-        // Kembalikan stok obat
-        $obat = \App\Models\Obat::find($resep->obat_id);
-        if ($obat) {
-            $obat->increment('stok', $resep->jumlah);
-        }
-        
-        // Hapus resep
-        $pasienId = $resep->pasien_id;
+        $resep = ResepObat::findOrFail($id);
         $resep->delete();
 
         return redirect()
-            ->route('dokter.resep-obat.index', ['pasien_id' => $pasienId])
+            ->route('dokter.resep-obat.index')
             ->with('success', 'Resep obat berhasil dihapus.');
     }
 }
