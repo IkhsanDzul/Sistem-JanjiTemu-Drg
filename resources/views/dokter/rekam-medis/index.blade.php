@@ -1,4 +1,8 @@
-<x-app-layout title="Rekam Medis Pasien">
+@extends('layouts.dokter')
+
+@section('title', 'Rekam Medis Pasien')
+
+@section('content')
     <div class="max-w-7xl mx-auto">
         
         <!-- Header Section -->
@@ -143,34 +147,34 @@
                         @forelse($pasiens ?? [] as $pasien)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-medium text-gray-900">{{ $pasien->no_rm }}</span>
+                                <span class="text-sm font-medium text-gray-900">RM-{{ str_pad($pasien->id, 6, '0', STR_PAD_LEFT) }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($pasien->nama) }}&background=005248&color=fff" 
-                                         alt="{{ $pasien->nama }}" 
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($pasien->user->nama_lengkap ?? 'Pasien') }}&background=005248&color=fff" 
+                                         alt="{{ $pasien->user->nama_lengkap ?? 'Pasien' }}" 
                                          class="w-10 h-10 rounded-full mr-3">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-900">{{ $pasien->nama }}</p>
+                                        <p class="text-sm font-medium text-gray-900">{{ $pasien->user->nama_lengkap ?? 'N/A' }}</p>
                                         <p class="text-xs text-gray-500">
-                                            {{ $pasien->jenis_kelamin == 'L' ? 'L' : 'P' }}, 
-                                            {{ $pasien->umur ?? '-' }} tahun
+                                            {{ $pasien->user->jenis_kelamin ?? '-' }}, 
+                                            {{ $pasien->user->tanggal_lahir ? \Carbon\Carbon::parse($pasien->user->tanggal_lahir)->age . ' tahun' : '-' }}
                                         </p>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $pasien->rekam_medis_count ?? 0 }} Kunjungan
+                                    {{ $pasien->janji_temu_count ?? 0 }} Kunjungan
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($pasien->rekamMedis && $pasien->rekamMedis->count() > 0)
+                                @if($pasien->kunjungan_terakhir)
                                     <p class="text-sm text-gray-900">
-                                        {{ $pasien->rekamMedis->first()->tanggal_kunjungan->format('d M Y') }}
+                                        {{ \Carbon\Carbon::parse($pasien->kunjungan_terakhir->tanggal)->format('d M Y') }}
                                     </p>
                                     <p class="text-xs text-gray-500">
-                                        {{ $pasien->rekamMedis->first()->tanggal_kunjungan->format('H:i') }} WIB
+                                        {{ \Carbon\Carbon::parse($pasien->kunjungan_terakhir->jam_mulai)->format('H:i') }} WIB
                                     </p>
                                 @else
                                     <span class="text-sm text-gray-400 italic">Belum ada kunjungan</span>
@@ -222,4 +226,4 @@
         </div>
 
     </div>
-</x-app-layout>
+@endsection

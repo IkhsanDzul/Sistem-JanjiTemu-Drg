@@ -61,7 +61,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                Hari
+                                Tanggal
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                                 Jam Praktek
@@ -84,11 +84,13 @@
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                                             <span class="text-blue-600 font-semibold text-sm">
-                                                {{ substr($jadwal->hari, 0, 1) }}
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal)->format('d') }}
                                             </span>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">{{ $jadwal->hari }}</div>
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -108,10 +110,16 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
-                                        $statusColor = $jadwal->status == 'aktif' 
-                                            ? 'bg-green-100 text-green-800' 
-                                            : 'bg-gray-100 text-gray-800';
-                                        $statusLabel = $jadwal->status == 'aktif' ? 'Aktif' : 'Nonaktif';
+                                        $statusColors = [
+                                            'available' => 'bg-green-100 text-green-800',
+                                            'booked' => 'bg-yellow-100 text-yellow-800',
+                                        ];
+                                        $statusLabels = [
+                                            'available' => 'Tersedia',
+                                            'booked' => 'Terbooking',
+                                        ];
+                                        $statusColor = $statusColors[$jadwal->status] ?? 'bg-gray-100 text-gray-800';
+                                        $statusLabel = $statusLabels[$jadwal->status] ?? ucfirst($jadwal->status);
                                     @endphp
                                     <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $statusColor }}">
                                         {{ $statusLabel }}

@@ -92,10 +92,11 @@ class PasienController extends Controller
                 ->where('tanggal', $tanggalDipilih)
                 ->get();
 
-            // Ambil janji temu yang sudah confirmed/completed untuk tanggal tersebut
+            // Ambil janji temu yang sudah pending/confirmed/completed untuk tanggal tersebut
+            // Catatan: Pending juga dianggap terpakai untuk mencegah double booking
             $janjiTemuTerpakai = JanjiTemu::where('dokter_id', $id)
                 ->where('tanggal', $tanggalDipilih)
-                ->whereIn('status', ['confirmed', 'completed'])
+                ->whereIn('status', ['pending', 'confirmed', 'completed'])
                 ->pluck('jam_mulai')
                 ->map(function ($jam) {
                     return date('H:i', strtotime($jam));
@@ -149,27 +150,13 @@ class PasienController extends Controller
             'status' => 'required|in:pending,confirmed',
         ]);
 
-        // Upload foto gigi
-        $fotoPath = $request->file('foto_gigi')->store('foto_gigi', 'public');
-
-        // Buat janji temu
-        $janjiTemu = JanjiTemu::create([
-            'dokter_id' => $request->dokter_id,
-            'pasien_id' => $request->pasien_id,
-            'tanggal' => $request->tanggal,
-            'jam_mulai' => $request->jam_mulai,
-            'jam_selesai' => Carbon::parse($request->jam_mulai)->addHour()->format('H:i:s'),
-            'foto_gigi' => $fotoPath,
-            'keluhan' => $request->keluhan,
-            'status' => $request->status,
-        ]);
-
         // Validasi: Cek apakah jam yang dipilih masih tersedia
-        // (tidak ada janji temu lain yang sudah confirmed/completed di jam tersebut)
+        // (tidak ada janji temu lain yang sudah confirmed/completed/pending di jam tersebut)
+        // Catatan: Pending juga dicek untuk mencegah double booking sebelum dokter approve
         $janjiTemuKonflik = JanjiTemu::where('dokter_id', $request->dokter_id)
             ->where('tanggal', $request->tanggal)
             ->where('jam_mulai', $request->jam_mulai)
-            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereIn('status', ['pending', 'confirmed', 'completed'])
             ->exists();
 
         if ($janjiTemuKonflik) {
@@ -192,6 +179,21 @@ class PasienController extends Controller
                 ->withInput()
                 ->with('error', 'Jam yang dipilih tidak tersedia dalam jadwal praktek dokter.');
         }
+
+        // Upload foto gigi (setelah validasi berhasil)
+        $fotoPath = $request->file('foto_gigi')->store('foto_gigi', 'public');
+
+        // Buat janji temu (setelah semua validasi berhasil)
+        $janjiTemu = JanjiTemu::create([
+            'dokter_id' => $request->dokter_id,
+            'pasien_id' => $request->pasien_id,
+            'tanggal' => $request->tanggal,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => Carbon::parse($request->jam_mulai)->addHour()->format('H:i:s'),
+            'foto_gigi' => $fotoPath,
+            'keluhan' => $request->keluhan,
+            'status' => $request->status,
+        ]);
 
         // Catatan: Jadwal praktek TIDAK diupdate menjadi 'booked'
         // Status jadwal tetap 'available' karena masih ada slot lain yang tersedia

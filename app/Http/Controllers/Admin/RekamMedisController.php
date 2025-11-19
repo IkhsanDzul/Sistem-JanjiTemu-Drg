@@ -88,10 +88,13 @@ class RekamMedisController extends Controller
     public function create(Request $request)
     {
         // Ambil janji temu yang belum memiliki rekam medis
+        // Bisa untuk janji temu dengan status 'confirmed' atau 'completed'
+        // Saat membuat rekam medis, status akan otomatis menjadi 'completed'
         $janjiTemu = JanjiTemu::with(['pasien.user', 'dokter.user'])
             ->whereDoesntHave('rekamMedis')
-            ->where('status', 'completed')
+            ->whereIn('status', ['confirmed', 'completed'])
             ->orderBy('tanggal', 'desc')
+            ->orderBy('jam_mulai', 'desc')
             ->get();
 
         // Jika ada parameter janji_temu_id, set sebagai selected
@@ -128,6 +131,11 @@ class RekamMedisController extends Controller
                 'catatan' => $request->catatan,
                 'biaya' => $request->biaya ?? 0,
             ]);
+
+            // Update status janji temu menjadi completed (konsisten dengan dokter)
+            if ($janjiTemu->status !== 'completed') {
+                $janjiTemu->update(['status' => 'completed']);
+            }
 
             DB::commit();
 

@@ -127,20 +127,13 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
         return view('dokter.daftar-pasien.index');
     })->name('daftar-pasien');
 
-    // Rekam Medis - Simple Route
-    Route::get('/rekam-medis', function () {
-        return view('dokter.rekam-medis.index');
-    })->name('rekam-medis');
-
-    //  // Detail rekam medis
-    // Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
-    //  ->name('rekam-medis.show');
-    // Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
-    //  ->name('rekam-medis.edit');
-    // Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
-    //  ->name('rekam-medis.update');
-    //  Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
-    //  ->name('rekam-medis.destroy');
+    // Rekam Medis Routes
+    Route::get('/rekam-medis', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'index'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'show'])->name('rekam-medis.show');
+    Route::post('/rekam-medis', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'store'])->name('rekam-medis.store');
+    Route::get('/rekam-medis/{id}/edit', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'edit'])->name('rekam-medis.edit');
+    Route::put('/rekam-medis/{id}', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'update'])->name('rekam-medis.update');
+    Route::delete('/rekam-medis/{id}', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'destroy'])->name('rekam-medis.destroy');
 
      Route::get('/janji-temu', [JanjiTemuController::class, 'index'])->name('janji-temu.index');
      Route::get('/janji-temu/{id}', [JanjiTemuController::class, 'show'])->name('janji-temu.show');

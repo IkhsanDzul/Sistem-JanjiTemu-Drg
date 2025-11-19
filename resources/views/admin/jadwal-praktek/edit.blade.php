@@ -104,8 +104,8 @@
                         name="status" 
                         required
                         class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('status') border-red-500 @enderror">
-                    <option value="aktif" {{ old('status', $jadwal->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="nonaktif" {{ old('status', $jadwal->status) == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                    <option value="available" {{ old('status', $jadwal->status) == 'available' ? 'selected' : '' }}>Tersedia</option>
+                    <option value="booked" {{ old('status', $jadwal->status) == 'booked' ? 'selected' : '' }}>Terbooking</option>
                 </select>
                 @error('status')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

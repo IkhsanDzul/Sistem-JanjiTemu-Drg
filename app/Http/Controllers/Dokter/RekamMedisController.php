@@ -94,11 +94,14 @@ class RekamMedisController extends Controller
         ])->findOrFail($id);
 
         // Ambil janji temu yang belum memiliki rekam medis
+        // Bisa untuk janji temu dengan status 'confirmed' atau 'completed'
+        // Saat membuat rekam medis, status akan otomatis menjadi 'completed'
         $janjiTemuTersedia = JanjiTemu::where('pasien_id', $id)
-            ->where('status', 'completed')
+            ->whereIn('status', ['confirmed', 'completed'])
             ->whereDoesntHave('rekamMedis')
             ->with('dokter.user')
             ->orderBy('tanggal', 'desc')
+            ->orderBy('jam_mulai', 'desc')
             ->get();
 
         return view('dokter.rekam-medis.show', compact('pasien', 'janjiTemuTersedia'));
