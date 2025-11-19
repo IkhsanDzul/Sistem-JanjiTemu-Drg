@@ -22,88 +22,94 @@
 
         <!-- Main Content -->
         <div class="flex gap-8 items-stretch min-h-[400px]">
-            <!-- Left Section - Icons -->
+
+            <!-- Left Section -->
             <div class="hidden md:flex justify-center items-center w-1/2">
-                <img src="{{asset('images/vektor-register.png')}}" alt="Vektor Register">
+                <img src="{{ asset('images/vektor-register.png') }}" alt="Vektor Register">
             </div>
 
             <!-- Right Section - Form -->
             <div class="flex-1 flex flex-col justify-center px-5">
                 
-                <!-- Welcome Text -->
                 <h1 class="text-orange-500 text-4xl font-bold mb-3 leading-tight">
                     Belum punya akun?
                 </h1>
                 <p class="text-orange-500 text-sm mb-6">
-                    yuk daftar sekarang dan nikmati semua layanan kami !!
+                    Yuk daftar sekarang dan nikmati semua layanan kami!
                 </p>
 
-                <!-- Session Status -->
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                <!-- Register Form -->
                 <form method="POST" action="{{ route('register') }}">
                     @csrf
 
-                    <!-- Nama Lengkap Field -->
+                    <!-- Nama Lengkap -->
                     <div class="mb-4">
-                        <label for="nama_lengkap" class="block text-orange-500 text-lg font-semibold mb-2">
+                        <label class="block text-orange-500 text-lg font-semibold mb-2">
                             Nama Lengkap
                         </label>
                         <input 
                             id="nama_lengkap" 
-                            type="text" 
                             name="nama_lengkap" 
+                            type="text"
                             value="{{ old('nama_lengkap') }}"
-                            class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400" 
-                            required 
-                            autofocus 
-                            autocomplete="nama_lengkap"
+                            required
+                            autofocus
+                            class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
                         />
                         @error('nama_lengkap')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Email Field -->
+                    <!-- Email -->
                     <div class="mb-4">
-                        <label for="email" class="block text-orange-500 text-lg font-semibold mb-2">
+                        <label class="block text-orange-500 text-lg font-semibold mb-2">
                             Email
                         </label>
                         <input 
                             id="email" 
-                            type="email" 
-                            name="email" 
+                            name="email"
+                            type="email"
                             value="{{ old('email') }}"
-                            class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400" 
-                            required 
-                            autocomplete="username"
+                            required
+                            class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
                         />
                         @error('email')
                             <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Password Field -->
+                    <!-- Password -->
                     <div class="mb-4">
-                        <label for="password" class="block text-orange-500 text-lg font-semibold mb-2">
+                        <label class="block text-orange-500 text-lg font-semibold mb-2">
                             Password
                         </label>
                         <div class="relative">
                             <input 
                                 id="password" 
-                                type="password" 
                                 name="password"
-                                class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400" 
-                                required 
+                                type="password"
+                                required
                                 autocomplete="new-password"
+                                class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
                             />
+
                             <span 
-                                onclick="togglePassword('password')" 
-                                class="absolute right-6 top-1/2 -translate-y-1/2 text-xl cursor-pointer"
-                                id="toggle-password"
-                            >
-                                👁
+                                onclick="togglePassword('password','eye1','eyeSlash1')" 
+                                class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer">
+
+                                <!-- Eye Open -->
+                                <svg id="eye1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+
+                                <!-- Eye Slash -->
+                                <svg id="eyeSlash1" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+
                             </span>
                         </div>
                         @error('password')
@@ -111,26 +117,36 @@
                         @enderror
                     </div>
 
-                    <!-- Confirm Password Field -->
+                    <!-- Confirm Password -->
                     <div class="mb-6">
-                        <label for="password_confirmation" class="block text-orange-500 text-lg font-semibold mb-2">
+                        <label class="block text-orange-500 text-lg font-semibold mb-2">
                             Konfirmasi Password
                         </label>
                         <div class="relative">
                             <input 
                                 id="password_confirmation" 
-                                type="password" 
                                 name="password_confirmation"
-                                class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400" 
-                                required 
+                                type="password"
+                                required
                                 autocomplete="new-password"
+                                class="w-full px-6 py-3 rounded-full bg-teal-800 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
                             />
+
                             <span 
-                                onclick="togglePassword('password_confirmation')" 
-                                class="absolute right-6 top-1/2 -translate-y-1/2 text-xl cursor-pointer"
-                                id="toggle-password-confirmation"
-                            >
-                                👁
+                                onclick="togglePassword('password_confirmation','eye2','eyeSlash2')" 
+                                class="absolute right-6 top-1/2 -translate-y-1/2 cursor-pointer">
+
+                                <!-- Eye Open -->
+                                <svg id="eye2" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+
+                                <!-- Eye Slash -->
+                                <svg id="eyeSlash2" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-300 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                </svg>
+
                             </span>
                         </div>
                         @error('password_confirmation')
@@ -138,7 +154,7 @@
                         @enderror
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Submit -->
                     <button 
                         type="submit" 
                         class="w-full bg-orange-500 text-white py-3 rounded-full text-lg font-bold hover:bg-orange-600 transition-all hover:shadow-lg flex items-center justify-center gap-3"
@@ -147,12 +163,12 @@
                         <span class="text-2xl">→</span>
                     </button>
 
-                    <!-- Login Link -->
                     <div class="text-center mt-4">
                         <a href="{{ route('login') }}" class="text-orange-500 text-sm hover:underline">
                             Sudah punya akun? Login di sini
                         </a>
                     </div>
+
                 </form>
 
             </div>
@@ -160,17 +176,21 @@
         </div>
     </div>
 
+    <!-- SCRIPT TOGGLE PASSWORD -->
     <script>
-        function togglePassword(fieldId) {
-            const passwordInput = document.getElementById(fieldId);
-            const toggleIcon = event.target;
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.textContent = '🙈';
+        function togglePassword(inputId, eyeOpenId, eyeCloseId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(eyeOpenId);
+            const eyeSlash = document.getElementById(eyeCloseId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                eye.classList.add("hidden");
+                eyeSlash.classList.remove("hidden");
             } else {
-                passwordInput.type = 'password';
-                toggleIcon.textContent = '👁';
+                input.type = "password";
+                eye.classList.remove("hidden");
+                eyeSlash.classList.add("hidden");
             }
         }
     </script>

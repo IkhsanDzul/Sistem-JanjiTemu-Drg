@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PasienController as AdminPasienController;
 use App\Http\Controllers\Admin\RekamMedisController as AdminRekamMedisController;
 use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
+use App\Http\Controllers\Dokter\DaftarPasienController;
 use App\Http\Controllers\Pasien\JanjiTemuController as PasienJanjiTemuController;
 use App\Http\Controllers\Pasien\PasienController;
 use App\Http\Controllers\Pasien\RekamMedisController as PasienRekamMedisController;
@@ -123,9 +124,13 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
       // Dashboard - menggunakan controller yang sudah ada
       Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard');
 
-    Route::get('/daftar-pasien', function () {
-        return view('dokter.daftar-pasien.index');
-    })->name('daftar-pasien');
+      Route::get('/daftar-pasien', 
+      [DaftarPasienController::class, 'index']
+)->name('daftar-pasien');
+
+Route::get('/daftar-pasien/{id}', [DaftarPasienController::class, 'show'])
+->name('daftar-pasien.show');
+
 
     // Rekam Medis Routes
     Route::get('/rekam-medis', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'index'])->name('rekam-medis');
