@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class JanjiTemuController extends Controller
 {
-    public function detailJanjiTemu($id)
+    public function index($id)
     {
         $user = Auth::user();
         $pasien = $user->pasien;
@@ -39,7 +39,7 @@ class JanjiTemuController extends Controller
     /**
      * Menampilkan daftar janji temu pasien
      */
-    public function janjiTemuSaya(Request $request)
+    public function show(Request $request)
     {
         $user = Auth::user();
         $pasien = $user->pasien;
@@ -72,7 +72,7 @@ class JanjiTemuController extends Controller
     /**
      * Membatalkan janji temu
      */
-    public function cancelJanjiTemu(Request $request, $id)
+    public function cancel(Request $request, $id)
     {
         $user = Auth::user();
         $pasien = $user->pasien;

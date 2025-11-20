@@ -27,7 +27,7 @@ class ResepObatController extends Controller
         return view('pasien.resep-obat.show', compact('rekam'));
     }
 
-    public function downloadPdf($rekam_id)
+    public function export($rekam_id)
     {
         $user = auth()->user();
         $pasien = $user->pasien;

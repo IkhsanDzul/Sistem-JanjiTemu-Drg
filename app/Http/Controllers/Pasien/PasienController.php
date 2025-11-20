@@ -138,7 +138,7 @@ class PasienController extends Controller
     /**
      * Membuat janji temu baru
      */
-    public function buatJanjiTemu(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'dokter_id' => 'required|exists:dokter,id',

@@ -15,7 +15,7 @@ class RekamMedisController extends Controller
     /**
      * Menampilkan daftar rekam medis pasien
      */
-    public function rekamMedis()
+    public function index()
     {
         $user = Auth::user();
         $pasien = $user->pasien;
@@ -49,7 +49,7 @@ class RekamMedisController extends Controller
     /**
      * Menampilkan detail rekam medis
      */
-    public function rekamMedisDetail($id)
+    public function detail($id)
     {
         $user = Auth::user();
         $pasien = $user->pasien;
@@ -72,7 +72,7 @@ class RekamMedisController extends Controller
         return view('pasien.rekam-medis.detail', compact('rekam'));
     }
 
-    public function downloadPdf($id)
+    public function export($id)
     {
         $user = auth()->user();
         $pasien = $user->pasien;

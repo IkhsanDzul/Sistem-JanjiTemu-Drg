@@ -175,19 +175,19 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
     Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
 
     // Janji Temu
-    Route::post('buat-janji', [PasienController::class, 'buatJanjiTemu'])->name('buat-janji');
-    Route::get('janji-temu', [PasienJanjiTemuController::class, 'janjiTemuSaya'])->name('janji-temu');
-    Route::get('janji-temu/{id}', [PasienJanjiTemuController::class, 'detailJanjiTemu'])->name('detail-janji-temu');
-    Route::post('janji-temu/{id}/cancel', [PasienJanjiTemuController::class, 'cancelJanjiTemu'])->name('cancel-janji-temu');
+    Route::post('buat-janji', [PasienController::class, 'store'])->name('buat-janji');
+    Route::get('janji-temu', [PasienJanjiTemuController::class, 'show'])->name('janji-temu');
+    Route::get('janji-temu/{id}', [PasienJanjiTemuController::class, 'index'])->name('detail-janji-temu');
+    Route::post('janji-temu/{id}/cancel', [PasienJanjiTemuController::class, 'cancel'])->name('cancel-janji-temu');
     
     //Rekam Medis
-    Route::get('/rekam-medis', [PasienRekamMedisController::class, 'rekamMedis'])->name('rekam-medis');
-    Route::get('/rekam-medis/{id}', [PasienRekamMedisController::class, 'rekamMedisDetail'])->name('rekam-medis.detail');
-    Route::get('/rekam-medis/{id}/pdf', [PasienRekamMedisController::class, 'downloadPdf'])->name('rekam-medis.pdf');
+    Route::get('/rekam-medis', [PasienRekamMedisController::class, 'index'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [PasienRekamMedisController::class, 'detail'])->name('rekam-medis.detail');
+    Route::get('/rekam-medis/{id}/pdf', [PasienRekamMedisController::class, 'export'])->name('rekam-medis.pdf');
 
     //Resep Obat
     Route::get('/resep-obat/{rekam_id}', [ResepObatController::class, 'show'])->name('resep-obat.show');
-    Route::get('/resep-obat/{rekam_id}/pdf', [ResepObatController::class, 'downloadPdf'])->name('resep-obat.pdf');
+    Route::get('/resep-obat/{rekam_id}/pdf', [ResepObatController::class, 'export'])->name('resep-obat.pdf');
 });
 
 require __DIR__.'/auth.php';
