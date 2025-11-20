@@ -22,15 +22,16 @@ class JanjiTemuController extends Controller
                 ->with('error', 'Data pasien tidak ditemukan.');
         }
 
-        $rekamMedisId = RekamMedis::where('janji_temu_id', $id)->value('id');
-
-        $janjiTemu = JanjiTemu::with(['dokter.user', 'pasien.user'])
+        $janjiTemu = JanjiTemu::with(['dokter.user', 'pasien.user', 'rekamMedis'])
             ->where('pasien_id', $pasien->id)
             ->findOrFail($id);
 
         $tanggalFormat = Carbon::parse($janjiTemu->tanggal)
             ->locale('id')
             ->isoFormat('dddd, DD MMMM YYYY');
+
+        // Ambil ID rekam medis jika ada
+        $rekamMedisId = $janjiTemu->rekamMedis ? $janjiTemu->rekamMedis->id : null;
 
         return view('pasien.janji-temu.detail', compact('janjiTemu', 'tanggalFormat', 'rekamMedisId'));
     }

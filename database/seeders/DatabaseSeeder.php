@@ -51,15 +51,19 @@ class DatabaseSeeder extends Seeder
         $this->command->info('📝 Seeding Janji Temu...');
         $this->call(JanjiTemuSeeder::class);
 
-        // 7. Seed rekam medis
+        // 7. Seed master obat (harus sebelum resep obat)
+        $this->command->info('💊 Seeding Master Obat...');
+        $this->call(MasterObatSeeder::class);
+
+        // 8. Seed rekam medis
         $this->command->info('🏥 Seeding Rekam Medis...');
         $this->call(RekamMedisSeeder::class);
 
-        // 8. Seed resep obat
+        // 9. Seed resep obat
         $this->command->info('💊 Seeding Resep Obat...');
         $this->call(ResepObatSeeder::class);
 
-        // 9. Seed logs
+        // 10. Seed logs
         $this->command->info('📊 Seeding Logs...');
         $this->call(LogSeeder::class);
 

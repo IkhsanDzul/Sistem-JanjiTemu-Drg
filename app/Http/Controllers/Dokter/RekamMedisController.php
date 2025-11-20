@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Pasien;
 use App\Models\RekamMedis;
 use App\Models\JanjiTemu;
+use App\Models\ResepObat;
+use App\Models\MasterObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class RekamMedisController extends Controller
@@ -104,22 +107,51 @@ class RekamMedisController extends Controller
             ->orderBy('jam_mulai', 'desc')
             ->get();
 
-        return view('dokter.rekam-medis.show', compact('pasien', 'janjiTemuTersedia'));
+        // Ambil master obat yang aktif untuk dropdown
+        $obatTersedia = MasterObat::where('aktif', true)
+            ->orderBy('nama_obat', 'asc')
+            ->get()
+            ->map(function ($obat) {
+                return [
+                    'nama_obat' => $obat->nama_obat,
+                    'dosis' => $obat->dosis_default ?? 0,
+                    'aturan_pakai' => $obat->aturan_pakai_default ?? '',
+                ];
+            });
+
+        return view('dokter.rekam-medis.show', compact('pasien', 'janjiTemuTersedia', 'obatTersedia'));
     }
 
     /**
      * Menyimpan rekam medis baru
      * Sesuai dengan struktur database: janji_temu_id, diagnosa, tindakan, catatan, biaya
+     * Juga menangani penyimpanan resep obat jika ada
      */
     public function store(Request $request)
     {
+        // Validasi rekam medis
         $validated = $request->validate([
             'janji_temu_id' => 'required|exists:janji_temu,id',
             'diagnosa' => 'required|string',
             'tindakan' => 'required|string',
             'catatan' => 'nullable|string',
-            'biaya' => 'required|numeric|min:0'
+            'biaya' => 'required|numeric|min:0',
+            'resep_obat' => 'nullable|array',
+            'resep_obat.*.nama_obat' => 'required_with:resep_obat|string|max:255',
+            'resep_obat.*.jumlah' => 'required_with:resep_obat|integer|min:1',
+            'resep_obat.*.dosis' => 'required_with:resep_obat|integer|min:0',
+            'resep_obat.*.aturan_pakai' => 'required_with:resep_obat|string',
         ]);
+
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()
+                ->back()
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
 
         DB::beginTransaction();
         try {
@@ -136,11 +168,41 @@ class RekamMedisController extends Controller
             JanjiTemu::where('id', $validated['janji_temu_id'])
                 ->update(['status' => 'completed']);
 
+            // Simpan resep obat jika ada
+            if (!empty($validated['resep_obat'])) {
+                foreach ($validated['resep_obat'] as $resep) {
+                    // Skip jika data tidak lengkap
+                    if (empty($resep['nama_obat']) || empty($resep['jumlah']) || empty($resep['aturan_pakai'])) {
+                        continue;
+                    }
+
+                    ResepObat::create([
+                        'rekam_medis_id' => $rekamMedis->id,
+                        'dokter_id' => $dokter->id,
+                        'tanggal_resep' => now()->toDateString(),
+                        'nama_obat' => $resep['nama_obat'],
+                        'jumlah' => $resep['jumlah'],
+                        'dosis' => $resep['dosis'] ?? 0,
+                        'aturan_pakai' => $resep['aturan_pakai'],
+                    ]);
+                }
+            }
+
             DB::commit();
+
+            $message = 'Rekam medis berhasil disimpan';
+            if (!empty($validated['resep_obat'])) {
+                $count = count(array_filter($validated['resep_obat'], function($r) {
+                    return !empty($r['nama_obat']) && !empty($r['jumlah']) && !empty($r['aturan_pakai']);
+                }));
+                if ($count > 0) {
+                    $message .= ' beserta ' . $count . ' resep obat';
+                }
+            }
 
             return redirect()
                 ->back()
-                ->with('success', 'Rekam medis berhasil disimpan');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollback();

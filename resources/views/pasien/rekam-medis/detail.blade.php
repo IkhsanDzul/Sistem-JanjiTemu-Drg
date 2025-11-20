@@ -119,7 +119,9 @@
             <!-- Tanggal -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                 <p class="text-xs text-gray-500 font-medium mb-1">Tanggal Pemeriksaan</p>
-                <p class="text-lg text-gray-900">{{ \Carbon\Carbon::parse($rekam->tanggal)->format('d F Y') }}</p>
+                <p class="text-lg text-gray-900">
+                    {{ $rekam->janjiTemu?->tanggal ? \Carbon\Carbon::parse($rekam->janjiTemu->tanggal)->locale('id')->isoFormat('dddd, DD MMMM YYYY') : 'N/A' }}
+                </p>
             </div>
 
             <!-- Diagnosa -->

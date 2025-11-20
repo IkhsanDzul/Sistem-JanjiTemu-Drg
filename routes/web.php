@@ -156,7 +156,11 @@ Route::get('/daftar-pasien/{id}', [DaftarPasienController::class, 'show'])
      
     // Resep Obat
     Route::get('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'index'])->name('resep-obat.index');
+    Route::get('/resep-obat/create', [\App\Http\Controllers\Dokter\ResepObatController::class, 'create'])->name('resep-obat.create');
+    Route::post('/resep-obat/master', [\App\Http\Controllers\Dokter\ResepObatController::class, 'storeMasterObat'])->name('resep-obat.store-master');
     Route::post('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'store'])->name('resep-obat.store');
+    Route::get('/resep-obat/{id}/edit', [\App\Http\Controllers\Dokter\ResepObatController::class, 'edit'])->name('resep-obat.edit');
+    Route::put('/resep-obat/{id}', [\App\Http\Controllers\Dokter\ResepObatController::class, 'update'])->name('resep-obat.update');
     Route::delete('/resep-obat/{id}', [\App\Http\Controllers\Dokter\ResepObatController::class, 'destroy'])->name('resep-obat.destroy');
 });
 
