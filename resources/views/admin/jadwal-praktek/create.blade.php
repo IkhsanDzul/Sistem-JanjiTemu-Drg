@@ -70,39 +70,24 @@
 
         <!-- Form Fields -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Hari -->
+            <!-- Tanggal -->
             <div>
-                <label for="hari" class="block text-sm font-medium text-gray-700 mb-2">
-                    Hari <span class="text-red-500">*</span>
+                <label for="tanggal" class="block text-sm font-medium text-gray-700 mb-2">
+                    Tanggal <span class="text-red-500">*</span>
                 </label>
-                <select id="hari" 
-                        name="hari" 
-                        required
-                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('hari') border-red-500 @enderror">
-                    <option value="">Pilih Hari</option>
-                    @php
-                        $hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-                    @endphp
-                    @foreach($hariList as $hari)
-                        @if(!in_array($hari, $hariTerpakai))
-                            <option value="{{ $hari }}" {{ old('hari') == $hari ? 'selected' : '' }}>
-                                {{ $hari }}
-                            </option>
-                        @else
-                            <option value="{{ $hari }}" disabled style="color: #999;">
-                                {{ $hari }} (Sudah ada jadwal)
-                            </option>
-                        @endif
-                    @endforeach
-                </select>
-                @error('hari')
+                <input type="date" 
+                       id="tanggal" 
+                       name="tanggal" 
+                       value="{{ old('tanggal') }}"
+                       min="{{ date('Y-m-d') }}"
+                       required
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('tanggal') border-red-500 @enderror">
+                @error('tanggal')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                @if(count($hariTerpakai) > 0)
-                    <p class="mt-1 text-xs text-gray-500">
-                        Hari yang sudah terpakai: {{ implode(', ', $hariTerpakai) }}
-                    </p>
-                @endif
+                <p class="mt-1 text-xs text-gray-500">
+                    Pilih tanggal untuk jadwal praktek (minimal hari ini)
+                </p>
             </div>
 
             <!-- Status -->
