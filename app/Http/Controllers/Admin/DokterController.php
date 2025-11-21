@@ -119,6 +119,7 @@ class DokterController extends Controller
                 'id' => Str::uuid(),
                 'user_id' => $user->id,
                 'no_str' => $request->no_str,
+                'pendidikan' => $request->pendidikan,
                 'pengalaman_tahun' => $request->pengalaman_tahun,
                 'spesialisasi_gigi' => $request->spesialisasi_gigi,
                 'status' => $request->status ?? 'tersedia',
@@ -129,8 +130,18 @@ class DokterController extends Controller
             return redirect()->route('admin.dokter.index')
                 ->with('success', 'Data dokter berhasil ditambahkan.');
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            // Validation exception akan otomatis redirect back dengan errors
+            throw $e;
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Log error untuk debugging
+            \Log::error('Error saat menyimpan data dokter: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
             
             return redirect()->back()
                 ->withInput()
@@ -216,6 +227,7 @@ class DokterController extends Controller
             // Update data dokter
             $dokter->update([
                 'no_str' => $request->no_str,
+                'pendidikan' => $request->pendidikan,
                 'pengalaman_tahun' => $request->pengalaman_tahun,
                 'spesialisasi_gigi' => $request->spesialisasi_gigi,
                 'status' => $request->status,

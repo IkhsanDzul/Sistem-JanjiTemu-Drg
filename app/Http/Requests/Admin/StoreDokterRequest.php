@@ -23,17 +23,18 @@ class StoreDokterRequest extends FormRequest
     {
         return [
             // Data User
-            'nik' => 'required|string|size:16|unique:users,nik',
+            'nik' => 'required|string|size:16|regex:/^[0-9]+$/|unique:users,nik',
             'nama_lengkap' => 'required|string|max:100',
             'email' => 'required|email|max:50|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date|before:today',
-            'nomor_telp' => 'required|string|max:20',
+            'nomor_telp' => 'required|string|max:20|regex:/^[0-9+\-() ]+$/',
             'alamat' => 'required|string',
             
             // Data Dokter
             'no_str' => 'required|string|max:50|unique:dokter,no_str',
+            'pendidikan' => 'required|string|max:255',
             'pengalaman_tahun' => 'required|string|max:100',
             'spesialisasi_gigi' => 'required|string|max:100',
             'status' => 'nullable|in:tersedia,tidak tersedia',
@@ -53,6 +54,7 @@ class StoreDokterRequest extends FormRequest
         return [
             'nik.required' => 'NIK wajib diisi.',
             'nik.size' => 'NIK harus terdiri dari 16 digit.',
+            'nik.regex' => 'NIK hanya boleh berisi angka.',
             'nik.unique' => 'NIK sudah terdaftar.',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
             'nama_lengkap.max' => 'Nama lengkap maksimal 100 karakter.',
@@ -69,9 +71,12 @@ class StoreDokterRequest extends FormRequest
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',
             'nomor_telp.required' => 'Nomor telepon wajib diisi.',
             'nomor_telp.max' => 'Nomor telepon maksimal 20 karakter.',
+            'nomor_telp.regex' => 'Format nomor telepon tidak valid. Hanya boleh berisi angka, +, -, (), dan spasi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'no_str.required' => 'Nomor STR wajib diisi.',
             'no_str.unique' => 'Nomor STR sudah terdaftar.',
+            'pendidikan.required' => 'Pendidikan wajib diisi.',
+            'pendidikan.max' => 'Pendidikan maksimal 255 karakter.',
             'pengalaman_tahun.required' => 'Pengalaman tahun wajib diisi.',
             'spesialisasi_gigi.required' => 'Spesialisasi gigi wajib diisi.',
             'status.in' => 'Status harus Tersedia atau Tidak Tersedia.',
