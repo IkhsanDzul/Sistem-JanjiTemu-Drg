@@ -33,9 +33,10 @@
     <!-- List Rekam Medis -->
     <div class="space-y-4">
         @forelse ($rekamMedis as $rm)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="flex items-center gap-4 flex-1">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <!-- Icon + Info Dokter -->
+                <div class="flex items-start gap-4 flex-1">
                     <!-- Icon -->
                     <div class="flex-shrink-0">
                         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -56,7 +57,7 @@
                                 {{ $rm->janjiTemu->tanggal ? \Carbon\Carbon::parse($rm->janjiTemu->tanggal)->locale('id')->isoFormat('dddd, DD MMMM YYYY') : 'N/A' }}
                             </p>
                             <p class="text-sm text-gray-600">
-                                <span class="font-medium">Dokter:</span>
+                                <span class="font-medium">Spesialisasi:</span>
                                 {{ $rm->janjiTemu->dokter->spesialisasi_gigi ?? 'N/A' }}
                             </p>
                         </div>
@@ -72,32 +73,28 @@
                     </div>
                 </div>
 
-        {{-- Tombol Detail --}}
-        <div class="mt-4 md:mt-0">
-            <a href="{{ route('pasien.rekam-medis.detail', $rm->id) }}"
-                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                Lihat Detail
-            </a>
+                <!-- Tombol Detail -->
+                <div class="mt-4 md:mt-0 self-start">
+                    <a href="{{ route('pasien.rekam-medis.detail', $rm->id) }}"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                        Lihat Detail
+                    </a>
+                </div>
+            </div>
         </div>
+        @empty
+        <!-- Tidak ada data -->
+        <div class="bg-gray-100 text-center py-10 rounded-lg text-gray-600">
+            Tidak ada rekam medis ditemukan.
+        </div>
+        @endforelse
 
+        <!-- Pagination -->
+        @if (method_exists($rekamMedis, 'hasPages') && $rekamMedis->hasPages())
+        <div class="mt-5">
+            {{ $rekamMedis->links() }}
+        </div>
+        @endif
     </div>
-    @empty
-
-    {{-- Tidak ada data --}}
-    <div class="bg-gray-100 text-center py-10 rounded-lg text-gray-600">
-        Tidak ada rekam medis ditemukan.
-    </div>
-
-    @endforelse
-
-
-    {{-- Pagination --}}
-    @if (method_exists($rekamMedis, 'hasPages') && $rekamMedis->hasPages())
-    <div class="mt-5">
-        {{ $rekamMedis->links() }}
-    </div>
-    @endif
-
 </div>
-
 @endsection
