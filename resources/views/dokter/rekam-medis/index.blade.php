@@ -165,7 +165,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    {{ $pasien->janji_temu_count ?? 0 }} Kunjungan
+                                    {{ $pasien->rekam_medis_count ?? 0 }} Kunjungan
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

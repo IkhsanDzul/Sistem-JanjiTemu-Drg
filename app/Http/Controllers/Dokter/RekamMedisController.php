@@ -20,16 +20,36 @@ class RekamMedisController extends Controller
      */
     public function index(Request $request)
     {
-        // Query dasar untuk pasien dengan relasi
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return view('dokter.rekam-medis.index', [
+                'pasiens' => collect([])->paginate(10),
+                'totalRekamMedis' => 0,
+                'rekamMedisBulanIni' => 0,
+                'rekamMedisHariIni' => 0,
+                'totalPasien' => 0
+            ]);
+        }
+
+        // Query dasar untuk pasien yang pernah membuat janji temu dengan dokter ini
+        // Hanya pasien yang memiliki rekam medis
+        $janjiTemuIds = JanjiTemu::where('dokter_id', $dokter->id)->pluck('id');
+        $rekamMedisJanjiTemuIds = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)->pluck('janji_temu_id');
+        $pasienIdsDariRekamMedis = JanjiTemu::whereIn('id', $rekamMedisJanjiTemuIds)->pluck('pasien_id')->unique();
+        
         $query = Pasien::with([
             'user', // Relasi ke tabel users
-            'janjiTemu' => function($q) {
-                $q->with(['dokter.user', 'rekamMedis'])
+            'janjiTemu' => function($q) use ($dokter) {
+                $q->where('dokter_id', $dokter->id)
+                  ->with(['dokter.user', 'rekamMedis'])
                   ->orderBy('tanggal', 'desc')
                   ->orderBy('jam_mulai', 'desc');
             }
         ])
-        ->withCount('janjiTemu'); // Hitung total janji temu per pasien
+        ->whereIn('id', $pasienIdsDariRekamMedis);
 
         // Filter pencarian berdasarkan nama atau NIK
         if ($request->filled('search')) {
@@ -43,17 +63,29 @@ class RekamMedisController extends Controller
         // Filter berdasarkan tanggal kunjungan
         if ($request->filled('tanggal')) {
             $tanggal = $request->tanggal;
-            $query->whereHas('janjiTemu', function($q) use ($tanggal) {
-                $q->where('tanggal', $tanggal);
+            $query->whereHas('janjiTemu', function($q) use ($tanggal, $dokter) {
+                $q->where('tanggal', $tanggal)
+                  ->where('dokter_id', $dokter->id);
             });
         }
 
         // Ambil data pasien dengan pagination
-        $pasiens = $query->paginate(10);
+        $pasiens = $query->distinct()->paginate(10);
 
-        // Tambahkan kunjungan terakhir untuk setiap pasien
-        $pasiens->getCollection()->transform(function ($pasien) {
+        // Tambahkan kunjungan terakhir dan jumlah rekam medis untuk setiap pasien
+        $pasiens->getCollection()->transform(function ($pasien) use ($dokter, $rekamMedisJanjiTemuIds) {
+            // Hitung jumlah rekam medis per pasien
+            $pasienJanjiTemuIds = $pasien->janjiTemu()
+                ->where('dokter_id', $dokter->id)
+                ->pluck('id');
+            $pasien->rekam_medis_count = RekamMedis::whereIn('janji_temu_id', $pasienJanjiTemuIds)
+                ->whereIn('janji_temu_id', $rekamMedisJanjiTemuIds)
+                ->count();
+            
+            // Kunjungan terakhir yang memiliki rekam medis
             $pasien->kunjungan_terakhir = $pasien->janjiTemu()
+                ->where('dokter_id', $dokter->id)
+                ->whereIn('id', $rekamMedisJanjiTemuIds)
                 ->where('status', 'completed')
                 ->orderBy('tanggal', 'desc')
                 ->orderBy('jam_mulai', 'desc')
@@ -61,17 +93,23 @@ class RekamMedisController extends Controller
             return $pasien;
         });
 
-        // Statistik berdasarkan struktur database yang sebenarnya
-        $totalRekamMedis = RekamMedis::count();
+        // Statistik hanya untuk dokter ini
+        // Ambil ID janji temu dokter ini
+        $janjiTemuIds = JanjiTemu::where('dokter_id', $dokter->id)->pluck('id');
         
-        $rekamMedisBulanIni = RekamMedis::whereMonth('created_at', Carbon::now()->month)
+        $totalRekamMedis = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)->count();
+        
+        $rekamMedisBulanIni = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
+            ->whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->count();
         
-        $rekamMedisHariIni = RekamMedis::whereDate('created_at', Carbon::today())
+        $rekamMedisHariIni = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
+            ->whereDate('created_at', Carbon::today())
             ->count();
         
-        $totalPasien = Pasien::count();
+        // Total pasien yang memiliki rekam medis
+        $totalPasien = Pasien::whereIn('id', $pasienIdsDariRekamMedis)->distinct()->count();
 
         return view('dokter.rekam-medis.index', compact(
             'pasiens',
@@ -87,19 +125,33 @@ class RekamMedisController extends Controller
      */
     public function show($id)
     {
-        $pasien = Pasien::with([
-            'user',
-            'janjiTemu' => function($q) {
-                $q->with(['dokter.user', 'rekamMedis'])
-                  ->orderBy('tanggal', 'desc')
-                  ->orderBy('jam_mulai', 'desc');
-            }
-        ])->findOrFail($id);
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()->route('dokter.rekam-medis')
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
 
-        // Ambil janji temu yang belum memiliki rekam medis
-        // Bisa untuk janji temu dengan status 'confirmed' atau 'completed'
-        // Saat membuat rekam medis, status akan otomatis menjadi 'completed'
+        // Pastikan pasien pernah membuat janji temu dengan dokter ini
+        $pasien = Pasien::whereHas('janjiTemu', function($query) use ($dokter) {
+                $query->where('dokter_id', $dokter->id);
+            })
+            ->with([
+                'user',
+                'janjiTemu' => function($q) use ($dokter) {
+                    $q->where('dokter_id', $dokter->id)
+                      ->with(['dokter.user', 'rekamMedis'])
+                      ->orderBy('tanggal', 'desc')
+                      ->orderBy('jam_mulai', 'desc');
+                }
+            ])
+            ->findOrFail($id);
+
+        // Ambil janji temu yang belum memiliki rekam medis (hanya untuk dokter ini)
         $janjiTemuTersedia = JanjiTemu::where('pasien_id', $id)
+            ->where('dokter_id', $dokter->id)
             ->whereIn('status', ['confirmed', 'completed'])
             ->whereDoesntHave('rekamMedis')
             ->with('dokter.user')
@@ -129,9 +181,29 @@ class RekamMedisController extends Controller
      */
     public function store(Request $request)
     {
+        // Ambil dokter yang sedang login terlebih dahulu
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()
+                ->back()
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
+
         // Validasi rekam medis
         $validated = $request->validate([
-            'janji_temu_id' => 'required|exists:janji_temu,id',
+            'janji_temu_id' => [
+                'required',
+                'exists:janji_temu,id',
+                function ($attribute, $value, $fail) use ($dokter) {
+                    // Pastikan janji temu ini milik dokter yang login
+                    $janjiTemu = JanjiTemu::find($value);
+                    if ($janjiTemu && $janjiTemu->dokter_id !== $dokter->id) {
+                        $fail('Janji temu yang dipilih tidak valid untuk dokter Anda.');
+                    }
+                },
+            ],
             'diagnosa' => 'required|string',
             'tindakan' => 'required|string',
             'catatan' => 'nullable|string',
@@ -142,16 +214,6 @@ class RekamMedisController extends Controller
             'resep_obat.*.dosis' => 'required_with:resep_obat|integer|min:0',
             'resep_obat.*.aturan_pakai' => 'required_with:resep_obat|string',
         ]);
-
-        // Ambil dokter yang sedang login
-        $user = Auth::user();
-        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
-        
-        if (!$dokter) {
-            return redirect()
-                ->back()
-                ->with('error', 'Data dokter tidak ditemukan.');
-        }
 
         DB::beginTransaction();
         try {
@@ -217,7 +279,20 @@ class RekamMedisController extends Controller
      */
     public function edit($id)
     {
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()->route('dokter.rekam-medis')
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
+
+        // Pastikan rekam medis ini milik dokter yang login
         $rekamMedis = RekamMedis::with(['janjiTemu.pasien.user', 'janjiTemu.dokter.user'])
+            ->whereHas('janjiTemu', function($q) use ($dokter) {
+                $q->where('dokter_id', $dokter->id);
+            })
             ->findOrFail($id);
 
         return view('dokter.rekam-medis.edit', compact('rekamMedis'));
@@ -228,6 +303,15 @@ class RekamMedisController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()->route('dokter.rekam-medis')
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
+
         $validated = $request->validate([
             'diagnosa' => 'required|string',
             'tindakan' => 'required|string',
@@ -236,7 +320,12 @@ class RekamMedisController extends Controller
         ]);
 
         try {
-            $rekamMedis = RekamMedis::findOrFail($id);
+            // Pastikan rekam medis ini milik dokter yang login
+            $rekamMedis = RekamMedis::whereHas('janjiTemu', function($q) use ($dokter) {
+                    $q->where('dokter_id', $dokter->id);
+                })
+                ->findOrFail($id);
+            
             $rekamMedis->update($validated);
 
             return redirect()
@@ -255,8 +344,22 @@ class RekamMedisController extends Controller
      */
     public function destroy($id)
     {
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()->route('dokter.rekam-medis')
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
+
         try {
-            $rekamMedis = RekamMedis::findOrFail($id);
+            // Pastikan rekam medis ini milik dokter yang login
+            $rekamMedis = RekamMedis::whereHas('janjiTemu', function($q) use ($dokter) {
+                    $q->where('dokter_id', $dokter->id);
+                })
+                ->findOrFail($id);
+            
             $rekamMedis->delete();
 
             return redirect()

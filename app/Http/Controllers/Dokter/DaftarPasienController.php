@@ -4,26 +4,46 @@ namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pasien;
+use App\Models\JanjiTemu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DaftarPasienController extends Controller
 {
     public function index(Request $request)
     {
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return view('dokter.daftar-pasien.index', [
+                'patients' => collect([])->paginate(5),
+                'search' => $request->input('search')
+            ]);
+        }
+
         // Fitur pencarian (optional)
         $search = $request->input('search');
 
+        // Hanya tampilkan pasien yang pernah membuat janji temu dengan dokter ini
         $patients = Pasien::query()
-        ->join('users', 'users.id', '=', 'pasien.user_id')
-        ->when($search, function ($query, $search) {
-            $query->where('users.nama_lengkap', 'like', "%$search%")
-                  ->orWhere('users.nomor_telp', 'like', "%$search%");
-        })
-        ->select('pasien.*', 'users.nama_lengkap as nama', 'users.nomor_telp')
-        ->orderBy('users.nama_lengkap', 'asc')
-        ->paginate(5)
-        ->withQueryString();
-    
+            ->join('users', 'users.id', '=', 'pasien.user_id')
+            ->whereHas('janjiTemu', function($query) use ($dokter) {
+                $query->where('dokter_id', $dokter->id);
+            })
+            ->when($search, function ($query, $search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('users.nama_lengkap', 'like', "%$search%")
+                      ->orWhere('users.nomor_telp', 'like', "%$search%")
+                      ->orWhere('pasien.id', 'like', "%$search%");
+                });
+            })
+            ->select('pasien.*', 'users.nama_lengkap as nama', 'users.nomor_telp')
+            ->distinct()
+            ->orderBy('users.nama_lengkap', 'asc')
+            ->paginate(5)
+            ->withQueryString();
     
         return view('dokter.daftar-pasien.index', compact('patients', 'search'));
     }
@@ -48,7 +68,21 @@ class DaftarPasienController extends Controller
      */
     public function show($id)
     {
-        $pasien = Pasien::with(['user', 'rekamMedis'])->findOrFail($id);
+        // Ambil dokter yang sedang login
+        $user = Auth::user();
+        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
+        
+        if (!$dokter) {
+            return redirect()->route('dokter.daftar-pasien')
+                ->with('error', 'Data dokter tidak ditemukan.');
+        }
+
+        // Pastikan pasien pernah membuat janji temu dengan dokter ini
+        $pasien = Pasien::whereHas('janjiTemu', function($query) use ($dokter) {
+                $query->where('dokter_id', $dokter->id);
+            })
+            ->with(['user', 'rekamMedis'])
+            ->findOrFail($id);
 
         return view('dokter.daftar-pasien.show', compact('pasien'));
         
