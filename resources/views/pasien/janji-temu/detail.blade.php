@@ -2,14 +2,15 @@
 
 @section('title', 'Detail Janji Temu')
 
+@php
+    $title = 'Detail Janji Temu';
+    $subtitle = 'Informasi lengkap tentang janji temu Anda';
+@endphp
+
 @section('content')
 <div class="space-y-6">
     <!-- Header Section -->
     <div class="flex items-center justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Detail Janji Temu</h2>
-            <p class="text-sm text-gray-600 mt-1">Informasi lengkap tentang janji temu Anda</p>
-        </div>
         <a href="{{ route('pasien.janji-temu') }}"
             class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

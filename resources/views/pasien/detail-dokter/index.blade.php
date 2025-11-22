@@ -1,6 +1,10 @@
 @extends('layouts.pasien')
 
 @section('title', 'Detail Dokter')
+@php
+    $title = 'Detail Dokter';
+    $subtitle = $dokter->user->nama_lengkap ?? 'Dokter Gigi';
+@endphp
 
 @section('content')
 <div class="flex flex-col lg:flex-row h-screen bg-gray-50 overflow-hidden">
@@ -12,21 +16,21 @@
                 <div class="flex flex-col lg:flex-row lg:items-center gap-6">
                     <div class="w-md h-48 md:w-48 md:h-48 bg-gray-200 rounded-md flex items-center justify-center overflow-hidden">
                         @if($dokter->user && $dokter->user->foto_profil)
-                            <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" 
-                                 alt="Foto Dokter"
-                                 class="w-full h-full object-cover rounded-md"
-                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="w-full h-full bg-gray-200 flex items-center justify-center hidden">
-                                <span class="text-gray-400 font-bold text-4xl">
-                                    {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
-                                </span>
-                            </div>
+                        <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}"
+                            alt="Foto Dokter"
+                            class="w-full h-full object-cover rounded-md"
+                            onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center hidden">
+                            <span class="text-gray-400 font-bold text-4xl">
+                                {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        </div>
                         @else
-                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                <span class="text-gray-400 font-bold text-4xl">
-                                    {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
-                                </span>
-                            </div>
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span class="text-gray-400 font-bold text-4xl">
+                                {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        </div>
                         @endif
                     </div>
 

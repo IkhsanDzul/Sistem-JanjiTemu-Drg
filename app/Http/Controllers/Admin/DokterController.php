@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Dokter;
 use App\Http\Requests\Admin\StoreDokterRequest;
 use App\Http\Requests\Admin\UpdateDokterRequest;
+use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -138,7 +139,7 @@ class DokterController extends Controller
             DB::rollBack();
             
             // Log error untuk debugging
-            \Log::error('Error saat menyimpan data dokter: ' . $e->getMessage(), [
+            Log::error('Error saat menyimpan data dokter: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);

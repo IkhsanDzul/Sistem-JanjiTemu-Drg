@@ -2,15 +2,13 @@
 
 @section('title', 'Rekam Medis Saya')
 
+@php
+    $title = 'Rekam Medis Saya';
+    $subtitle = 'Daftar rekam medis saya';
+@endphp
+
 @section('content')
 <div class="space-y-6">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Rekam Medis Saya</h2>
-            <p class="text-sm text-gray-600 mt-1">Riwayat rekam medis Anda</p>
-        </div>
-    </div>
 
     <!-- Alert Verifikasi -->
     @if($belumVerifikasi ?? false)

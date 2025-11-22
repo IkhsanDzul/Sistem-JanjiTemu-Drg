@@ -1,4 +1,7 @@
-@props(['title' => 'Dashboard'])
+@props([
+'title' => 'Dashboard',
+'subtitle' => 'Halaman Utama'
+])
 
 <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
     <div class="px-6 py-4 flex items-center justify-between">
@@ -12,44 +15,26 @@
         <!-- Page Title -->
         <div class="flex-1 ml-4 lg:ml-0">
             <h1 class="text-2xl font-bold text-gray-900">{{ $title }}</h1>
-            <p class="text-sm text-gray-500 mt-1">Halaman Utama</p>
+            <p class="text-sm text-gray-500 mt-1">{{ $subtitle }}</p>
         </div>
 
-        <!-- Right Side - Notifications, Profile, Date/Time -->
+        <!-- Right Side - Profile & Time -->
         <div class="flex items-center gap-4">
             <!-- Profile/User Menu -->
-            <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open"
-                    class="flex items-center gap-2 p-2 text-gray-600 hover:text-[#005248] hover:bg-gray-100 rounded-lg transition-colors">
+            <div class="relative">
+                <button class="flex items-center gap-2 p-2 text-gray-600 hover:text-[#005248] hover:bg-gray-100 rounded-lg transition-colors">
+                    @if (Auth::user()->foto_profil)
+                    <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}"
+                        alt="Avatar"
+                        class="w-8 h-8 rounded-full object-cover">
+                    @else
                     <div class="w-8 h-8 bg-[#005248] rounded-full flex items-center justify-center">
                         <span class="text-white font-semibold text-sm">
-                            @if (Auth::user()->foto_profil)
-                                <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
-                            @else
                             {{ strtoupper(substr(Auth::user()->nama_lengkap ?? 'A', 0, 1)) }}
-                            @endif
                         </span>
                     </div>
+                    @endif
                 </button>
-
-                <!-- Dropdown Menu -->
-                <div x-show="open"
-                    @click.away="open = false"
-                    x-cloak
-                    x-transition
-                    class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <a href="{{ route('profile.edit') }}"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Profile
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Logout
-                        </button>
-                    </form>
-                </div>
             </div>
 
             <!-- Date and Time -->
@@ -62,7 +47,6 @@
 </header>
 
 <script>
-    // Update time every minute
     function updateTime() {
         const now = new Date();
         const dateOptions = {
@@ -79,7 +63,6 @@
         document.getElementById('current-time').textContent = now.toLocaleTimeString('id-ID', timeOptions);
     }
 
-    // Update immediately and then every minute
     updateTime();
     setInterval(updateTime, 60000);
 </script>

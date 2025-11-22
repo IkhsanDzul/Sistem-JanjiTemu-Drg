@@ -2,14 +2,15 @@
 
 @section('title', 'Detail Rekam Medis')
 
+@php
+    $title = 'Detail Rekam Medis';
+    $subtitle = $rekam->pasien->user->nama_lengkap ?? 'Pasien';
+@endphp
+
 @section('content')
 <div class="max-w-6xl mx-auto space-y-8 px-4 sm:px-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Detail Rekam Medis</h1>
-            <p class="text-sm text-gray-600 mt-1">Informasi lengkap tentang kunjungan dan perawatan Anda</p>
-        </div>
         <a href="{{ route('pasien.rekam-medis') }}"
             class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,67 +22,74 @@
 
     <!-- Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Informasi Dokter -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div class="flex items-center gap-2 mb-5">
-                <svg class="w-5 h-5 text-[#005248]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <h2 class="text-lg font-semibold text-gray-900">Dokter Penanggung Jawab</h2>
-            </div>
-
-            <div class="flex items-start gap-5">
-                <!-- Foto Dokter -->
-                <div class="flex-shrink-0">
-                    @if($rekam->janjiTemu?->dokter?->user?->foto_profil)
-                    <img src="{{ asset('storage/' . $rekam->janjiTemu->dokter->user->foto_profil) }}"
-                        alt="Foto Dokter"
-                        class="w-20 h-20 rounded-xl object-cover border border-gray-200"
-                        onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
-                    <div class="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center hidden">
-                        <span class="text-gray-500 font-bold text-xl">
-                            {{ strtoupper(substr($rekam->janjiTemu->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
-                        </span>
-                    </div>
-                    @else
-                    <div class="w-32 h-32 bg-gray-100 rounded-xl flex items-center justify-center">
-                        <span class="text-gray-500 font-bold text-xl">
-                            {{ strtoupper(substr($rekam->janjiTemu?->dokter?->user?->nama_lengkap ?? 'D', 0, 1)) }}
-                        </span>
-                    </div>
-                    @endif
+        <!-- Informasi Dokter + Resep Obat (Mobile: Kolom Pertama) -->
+        <div class="space-y-6">
+            <!-- Card Dokter -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center gap-2 mb-5">
+                    <svg class="w-5 h-5 text-[#005248]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <h2 class="text-lg font-semibold text-gray-900">Dokter Penanggung Jawab</h2>
                 </div>
 
-                <!-- Info Dokter -->
-                <div class="min-w-0">
-                    <h3 class="text-lg font-semibold text-gray-900 truncate">
-                        {{ $rekam->janjiTemu?->dokter?->user?->nama_lengkap ?? 'Dokter Tidak Ditemukan' }}
-                    </h3>
-                    <p class="text-sm text-gray-600 mt-1">
-                        {{ $rekam->janjiTemu?->dokter?->spesialisasi_gigi ?? 'Spesialis Gigi' }}
-                    </p>
-                    <div class="mt-4">
-                        <p class="text-xs text-gray-500 font-medium">Tanggal Pemeriksaan</p>
-                        <p class="text-base text-gray-900">
-                            {{ $rekam->janjiTemu?->tanggal ? \Carbon\Carbon::parse($rekam->janjiTemu->tanggal)->locale('id')->isoFormat('dddd, DD MMMM YYYY') : 'N/A' }}
-                        </p>
+                <div class="flex items-start gap-4">
+                    <!-- Foto Dokter -->
+                    <div class="flex-shrink-0">
+                        @if($rekam->janjiTemu?->dokter?->user?->foto_profil)
+                        <img src="{{ asset('storage/' . $rekam->janjiTemu->dokter->user->foto_profil) }}"
+                            alt="Foto Dokter"
+                            class="w-16 h-16 md:w-20 md:h-20 rounded-xl object-cover border border-gray-200"
+                            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-xl flex items-center justify-center hidden">
+                            <span class="text-gray-500 font-bold text-lg md:text-xl">
+                                {{ strtoupper(substr($rekam->janjiTemu->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        </div>
+                        @else
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-xl flex items-center justify-center">
+                            <span class="text-gray-500 font-bold text-lg md:text-xl">
+                                {{ strtoupper(substr($rekam->janjiTemu?->dokter?->user?->nama_lengkap ?? 'D', 0, 1)) }}
+                            </span>
+                        </div>
+                        @endif
                     </div>
-                    <!-- Biaya Pemeriksaan -->
-                    <div class="mt-4">
-                        <p class="text-xs text-gray-500 font-medium mb-2">Biaya Pemeriksaan</p>
-                        <div class="text-base font-bold text-green-600">
-                            Rp{{ number_format($rekam->biaya, 0, ',', '.') }}
+
+                    <!-- Info Dokter -->
+                    <div class="min-w-0">
+                        <h3 class="text-base md:text-lg font-semibold text-gray-900 truncate">
+                            {{ $rekam->janjiTemu?->dokter?->user?->nama_lengkap ?? 'Dokter Tidak Ditemukan' }}
+                        </h3>
+                        <p class="text-xs md:text-sm text-gray-600 mt-1">
+                            {{ $rekam->janjiTemu?->dokter?->spesialisasi_gigi ?? 'Spesialis Gigi' }}
+                        </p>
+                        <div class="mt-3">
+                            <p class="text-xs text-gray-500 font-medium">Tanggal Pemeriksaan</p>
+                            <p class="text-sm md:text-base text-gray-900">
+                                {{ $rekam->janjiTemu?->tanggal ? \Carbon\Carbon::parse($rekam->janjiTemu->tanggal)->locale('id')->isoFormat('dddd, DD MMMM YYYY') : 'N/A' }}
+                            </p>
+                        </div>
+                        <div class="mt-3">
+                            <p class="text-xs text-gray-500 font-medium">Biaya Pemeriksaan</p>
+                            <p class="text-sm md:text-base font-bold text-green-600">
+                                Rp{{ number_format($rekam->biaya, 0, ',', '.') }}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- Resep Obat Section -->
-            <div class="mt-6">
-                <p class="text-xs text-gray-500 font-medium mb-2">Resep Obat</p>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.46 9.254 5 7.5 5S4.168 5.46 3 6.253v13C4.168 18.46 5.746 18 7.5 18s3.332.46 4.5 1.253z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-900">Resep Obat</h3>
+                </div>
 
                 @if($rekam->resepObat->isNotEmpty())
-                <!-- Jika ada resep obat -->
-                <div class="bg-white rounded-xl shadow-sm p-4">
+                <div class="bg-white rounded-xl p-4 border border-gray-200 mb-4">
                     <p class="text-sm text-gray-700 mb-3">
                         {{ $rekam->resepObat->count() }} obat diresepkan.
                     </p>
@@ -106,7 +114,6 @@
                     </a>
                 </div>
                 @else
-                <!-- Jika tidak ada resep obat -->
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
                     <p class="text-sm text-gray-600">Belum ada resep obat untuk kunjungan ini.</p>
                 </div>
@@ -114,7 +121,7 @@
             </div>
         </div>
 
-        <!-- Detail Rekam Medis -->
+        <!-- Detail Rekam Medis (Mobile: Kolom Kedua) -->
         <div class="space-y-6">
             <!-- Tanggal -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
