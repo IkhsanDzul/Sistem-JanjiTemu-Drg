@@ -22,8 +22,8 @@
     <div class="p-6 border-b border-[#005248]/50">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                    <span class="text-[#005248] font-bold text-lg">DT</span>
+                <div class="w-12 h-12 rounded-lg flex items-center justify-center">
+                <img src="{{ asset('images/gigi.png') }}" alt="Logo DentaTime" class="w-12 h-12 object-contain" />
                 </div>
                 <span class="text-white text-xl font-semibold">DentaTime</span>
             </div>

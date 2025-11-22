@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/edit', [AdminRekamMedisController::class, 'edit'])->name('edit');
             Route::put('/{id}', [AdminRekamMedisController::class, 'update'])->name('update');
             Route::delete('/{id}', [AdminRekamMedisController::class, 'destroy'])->name('destroy');
+            Route::get('/{id}/pdf', [AdminRekamMedisController::class, 'export'])->name('pdf');
         });
         
         // Laporan Routes

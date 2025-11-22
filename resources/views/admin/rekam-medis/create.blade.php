@@ -153,7 +153,7 @@
                 <!-- Biaya -->
                 <div>
                     <label for="biaya" class="block text-sm font-medium text-gray-700 mb-2">
-                        Biaya
+                        Biaya <span class="text-red-500">*</span>
                     </label>
                     <input type="number" 
                            id="biaya" 
@@ -161,9 +161,112 @@
                            value="{{ old('biaya') }}"
                            min="0"
                            step="0.01"
+                           required
                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('biaya') border-red-500 @enderror"
                            placeholder="0">
                     @error('biaya')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
+        <!-- Resep Obat Section -->
+        <div class="pt-6 border-t border-gray-200">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center mb-2">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                    Resep Obat
+                </h3>
+                <p class="text-sm text-gray-600">Pilih resep obat untuk pasien (opsional)</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Pilih Obat -->
+                <div>
+                    <label for="resep_obat_nama" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nama Obat
+                    </label>
+                    <select id="resep_obat_nama" 
+                            name="resep_obat_nama" 
+                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('resep_obat_nama') border-red-500 @enderror">
+                        <option value="">Pilih Obat (Opsional)</option>
+                        @if(!empty($obatTersedia) && count($obatTersedia) > 0)
+                            @foreach($obatTersedia as $obat)
+                                <option value="{{ $obat['nama_obat'] }}" 
+                                        data-dosis="{{ $obat['dosis'] ?? 0 }}"
+                                        data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                        {{ old('resep_obat_nama') == $obat['nama_obat'] ? 'selected' : '' }}>
+                                    {{ $obat['nama_obat'] }}
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                    @error('resep_obat_nama')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    @if(empty($obatTersedia) || count($obatTersedia) == 0)
+                        <p class="mt-2 text-sm text-yellow-600">
+                            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            Belum ada master obat tersedia.
+                        </p>
+                    @endif
+                </div>
+
+                <!-- Jumlah -->
+                <div>
+                    <label for="resep_obat_jumlah" class="block text-sm font-medium text-gray-700 mb-2">
+                        Jumlah
+                    </label>
+                    <input type="number" 
+                           id="resep_obat_jumlah" 
+                           name="resep_obat_jumlah" 
+                           value="{{ old('resep_obat_jumlah') }}"
+                           min="1"
+                           @if(!old('resep_obat_nama')) disabled @else required @endif
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2 @if(!old('resep_obat_nama')) bg-gray-50 @endif focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('resep_obat_jumlah') border-red-500 @enderror"
+                           placeholder="Masukkan jumlah obat">
+                    @error('resep_obat_jumlah')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Dosis (Auto-filled) -->
+                <div>
+                    <label for="resep_obat_dosis" class="block text-sm font-medium text-gray-700 mb-2">
+                        Dosis (mg)
+                    </label>
+                    <input type="number" 
+                           id="resep_obat_dosis" 
+                           name="resep_obat_dosis" 
+                           value="{{ old('resep_obat_dosis') }}"
+                           min="0"
+                           readonly
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('resep_obat_dosis') border-red-500 @enderror"
+                           placeholder="Akan terisi otomatis saat memilih obat">
+                    @error('resep_obat_dosis')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Aturan Pakai (Auto-filled) -->
+                <div>
+                    <label for="resep_obat_aturan_pakai" class="block text-sm font-medium text-gray-700 mb-2">
+                        Aturan Pakai
+                    </label>
+                    <textarea id="resep_obat_aturan_pakai" 
+                              name="resep_obat_aturan_pakai" 
+                              rows="2"
+                              class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('resep_obat_aturan_pakai') border-red-500 @enderror"
+                              placeholder="Akan terisi otomatis saat memilih obat"
+                              readonly
+                              onfocus="this.removeAttribute('readonly')"
+                              onblur="this.setAttribute('readonly', 'readonly')">{{ old('resep_obat_aturan_pakai') }}</textarea>
+                    @error('resep_obat_aturan_pakai')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -186,5 +289,118 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    // Auto-fill dosis dan aturan pakai saat memilih obat
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectObat = document.getElementById('resep_obat_nama');
+        const inputJumlah = document.getElementById('resep_obat_jumlah');
+        const inputDosis = document.getElementById('resep_obat_dosis');
+        const inputAturanPakai = document.getElementById('resep_obat_aturan_pakai');
+        
+        // Function untuk update field berdasarkan pilihan obat
+        function updateResepFields() {
+            if (!selectObat) return;
+            
+            if (selectObat.value) {
+                // Enable jumlah jika ada obat yang dipilih
+                if (inputJumlah) {
+                    inputJumlah.removeAttribute('disabled');
+                    inputJumlah.classList.remove('bg-gray-50');
+                    inputJumlah.setAttribute('required', 'required');
+                }
+                
+                // Auto-fill dosis dan aturan pakai dari selected option
+                const selectedOption = selectObat.options[selectObat.selectedIndex];
+                if (selectedOption) {
+                    const dosis = selectedOption.getAttribute('data-dosis') || '';
+                    const aturanPakai = selectedOption.getAttribute('data-aturan-pakai') || '';
+                    
+                    // Selalu update dosis dan aturan pakai saat obat dipilih
+                    if (inputDosis) {
+                        inputDosis.value = dosis;
+                        // Trigger input event untuk memastikan value terlihat
+                        inputDosis.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    if (inputAturanPakai) {
+                        inputAturanPakai.value = aturanPakai;
+                        // Trigger input event untuk memastikan value terlihat
+                        inputAturanPakai.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }
+            } else {
+                // Disable jumlah jika tidak ada obat yang dipilih
+                if (inputJumlah) {
+                    inputJumlah.setAttribute('disabled', 'disabled');
+                    inputJumlah.classList.add('bg-gray-50');
+                    inputJumlah.removeAttribute('required');
+                    inputJumlah.value = '';
+                }
+                // Clear dosis dan aturan pakai jika tidak ada obat
+                if (inputDosis) {
+                    inputDosis.value = '';
+                    inputDosis.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                if (inputAturanPakai) {
+                    inputAturanPakai.value = '';
+                    inputAturanPakai.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        }
+        
+        // Initialize pada page load
+        // Jika ada old value untuk resep_obat_nama, pastikan field enabled dan auto-fill
+        if (selectObat && selectObat.value) {
+            // Tunggu sebentar untuk memastikan DOM sudah siap
+            setTimeout(function() {
+                updateResepFields();
+            }, 100);
+        } else if (inputJumlah) {
+            // Pastikan disabled jika tidak ada obat yang dipilih
+            if (!inputJumlah.hasAttribute('required')) {
+                inputJumlah.setAttribute('disabled', 'disabled');
+                inputJumlah.classList.add('bg-gray-50');
+            }
+        }
+        
+        // Event listener untuk perubahan pilihan obat
+        if (selectObat) {
+            selectObat.addEventListener('change', function() {
+                updateResepFields();
+            });
+        }
+        
+        // Pastikan value ter-submit saat form di-submit
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Pastikan aturan pakai dan dosis terisi sebelum submit
+                if (selectObat && selectObat.value) {
+                    const selectedOption = selectObat.options[selectObat.selectedIndex];
+                    if (selectedOption) {
+                        const dosis = selectedOption.getAttribute('data-dosis') || '';
+                        const aturanPakai = selectedOption.getAttribute('data-aturan-pakai') || '';
+                        
+                        // Selalu update value sebelum submit untuk memastikan ter-submit
+                        if (inputDosis) {
+                            inputDosis.value = dosis || inputDosis.value;
+                            // Remove readonly untuk memastikan value ter-submit
+                            inputDosis.removeAttribute('readonly');
+                        }
+                        if (inputAturanPakai) {
+                            // Decode HTML entities jika ada
+                            const decodedAturanPakai = aturanPakai ? aturanPakai.replace(/&quot;/g, '"').replace(/&#39;/g, "'") : '';
+                            inputAturanPakai.value = decodedAturanPakai || inputAturanPakai.value;
+                            // Remove readonly untuk memastikan value ter-submit
+                            inputAturanPakai.removeAttribute('readonly');
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection
 
