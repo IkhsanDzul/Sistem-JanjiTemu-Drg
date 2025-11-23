@@ -22,7 +22,6 @@
         <div class="flex items-center gap-4">
             <!-- Profile/User Menu -->
             <div class="relative">
-                <button class="flex items-center gap-2 p-2 text-gray-600 hover:text-[#005248] hover:bg-gray-100 rounded-lg transition-colors">
                     @if (Auth::user()->foto_profil)
                     <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}"
                         alt="Avatar"
@@ -34,7 +33,6 @@
                         </span>
                     </div>
                     @endif
-                </button>
             </div>
 
             <!-- Date and Time -->

@@ -18,33 +18,11 @@
         <!-- Right Side - Notifications, Profile, Date/Time -->
         <div class="flex items-center gap-4">
             <!-- Profile/User Menu -->
-            <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open" 
-                        class="flex items-center gap-2 p-2 text-gray-600 hover:text-[#005248] hover:bg-gray-100 rounded-lg transition-colors">
-                    <div class="w-8 h-8 bg-[#005248] rounded-full flex items-center justify-center">
-                        <span class="text-white font-semibold text-sm">
-                            {{ strtoupper(substr(Auth::user()->nama_lengkap ?? 'A', 0, 1)) }}
-                        </span>
-                    </div>
-                </button>
-
-                <!-- Dropdown Menu -->
-                <div x-show="open" 
-                     @click.away="open = false"
-                     x-cloak
-                     x-transition
-                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <a href="{{ route('profile.edit') }}" 
-                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Profile
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" 
-                                class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Logout
-                        </button>
-                    </form>
+            <div x-data="{ open: false }" class="flex items-center gap-2 p-2 text-gray-600 rounded-lg transition-colors">
+                <div class="w-8 h-8 bg-[#005248] rounded-full flex items-center justify-center">
+                    <span class="text-white font-semibold text-sm">
+                        {{ strtoupper(substr(Auth::user()->nama_lengkap ?? 'A', 0, 1)) }}
+                    </span>
                 </div>
             </div>
 
@@ -61,15 +39,21 @@
     // Update time every minute
     function updateTime() {
         const now = new Date();
-        const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-        const timeOptions = { hour: '2-digit', minute: '2-digit' };
-        
+        const dateOptions = {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        };
+        const timeOptions = {
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+
         document.getElementById('current-date').textContent = now.toLocaleDateString('id-ID', dateOptions);
         document.getElementById('current-time').textContent = now.toLocaleTimeString('id-ID', timeOptions);
     }
-    
+
     // Update immediately and then every minute
     updateTime();
     setInterval(updateTime, 60000);
 </script>
-
