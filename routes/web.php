@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PasienController as AdminPasienController;
 use App\Http\Controllers\Admin\RekamMedisController as AdminRekamMedisController;
 use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
+use App\Http\Controllers\Admin\ResepObatController as AdminResepObatController;
 use App\Http\Controllers\Dokter\DaftarPasienController;
 use App\Http\Controllers\Pasien\JanjiTemuController as PasienJanjiTemuController;
 use App\Http\Controllers\Pasien\PasienController;
@@ -103,6 +104,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/pasien', [AdminLaporanController::class, 'pasien'])->name('pasien');
             Route::get('/jadwal-kunjungan', [AdminLaporanController::class, 'jadwalKunjungan'])->name('jadwal-kunjungan');
             Route::get('/dokter-aktif', [AdminLaporanController::class, 'dokterAktif'])->name('dokter-aktif');
+        });
+        
+        // Resep Obat Routes (View Only)
+        Route::prefix('admin/resep-obat')->name('admin.resep-obat.')->group(function () {
+            Route::get('/', [AdminResepObatController::class, 'index'])->name('index');
+            Route::get('/{id}', [AdminResepObatController::class, 'show'])->name('show');
         });
     });
 

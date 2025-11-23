@@ -1,28 +1,28 @@
 @extends('layouts.admin')
 
-@section('title', 'Rekam Medis')
+@section('title', 'Resep Obat')
 
 @section('content')
 <div class="space-y-6">
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900">Rekam Medis</h2>
-            <p class="text-sm text-gray-600 mt-1">Lihat dan cetak rekam medis semua pasien</p>
+            <h2 class="text-2xl font-bold text-gray-900">Resep Obat</h2>
+            <p class="text-sm text-gray-600 mt-1">Lihat daftar resep obat yang telah dibuat</p>
         </div>
     </div>
 
     <!-- Filter Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">
-        <form method="GET" action="{{ route('admin.rekam-medis.index') }}" class="space-y-4">
+        <form method="GET" action="{{ route('admin.resep-obat.index') }}" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Search -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Rekam Medis</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Resep Obat</label>
                     <input type="text" 
                            name="search" 
                            value="{{ request('search') }}"
-                           placeholder="Cari pasien, dokter, atau diagnosa..."
+                           placeholder="Cari nama obat, pasien, atau dokter..."
                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent">
                 </div>
 
@@ -53,7 +53,7 @@
                     </svg>
                     Filter
                 </button>
-                <a href="{{ route('admin.rekam-medis.index') }}" 
+                <a href="{{ route('admin.resep-obat.index') }}" 
                    class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
                     Reset
                 </a>
@@ -66,12 +66,12 @@
         <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Rekam Medis</p>
-                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalRekamMedis }}</p>
+                    <p class="text-sm font-medium text-gray-600">Total Resep Obat</p>
+                    <p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalResepObat }}</p>
                 </div>
                 <div class="p-3 bg-blue-50 rounded-full">
                     <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                     </svg>
                 </div>
             </div>
@@ -80,8 +80,8 @@
         <div class="bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-green-700">Total Biaya</p>
-                    <p class="text-2xl font-bold text-green-800 mt-1">Rp {{ number_format($totalBiaya, 0, ',', '.') }}</p>
+                    <p class="text-sm font-medium text-green-700">Obat Unik</p>
+                    <p class="text-2xl font-bold text-green-800 mt-1">{{ $totalObatUnik }}</p>
                 </div>
                 <div class="w-3 h-3 bg-green-400 rounded-full"></div>
             </div>
@@ -91,7 +91,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-purple-700">Bulan Ini</p>
-                    <p class="text-2xl font-bold text-purple-800 mt-1">{{ $rekamMedisBulanIni }}</p>
+                    <p class="text-2xl font-bold text-purple-800 mt-1">{{ $resepObatBulanIni }}</p>
                 </div>
                 <div class="w-3 h-3 bg-purple-400 rounded-full"></div>
             </div>
@@ -128,7 +128,10 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Tanggal
+                            Tanggal Resep
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Nama Obat
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                             Pasien
@@ -137,13 +140,10 @@
                             Dokter
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Diagnosa
+                            Jumlah
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Tindakan
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Biaya
+                            Dosis
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                             Aksi
@@ -151,82 +151,71 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($rekamMedis as $rm)
+                    @forelse($resepObat as $resep)
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                    {{ $rm->janjiTemu->tanggal ? \Carbon\Carbon::parse($rm->janjiTemu->tanggal)->format('d/m/Y') : 'N/A' }}
+                                    {{ $resep->tanggal_resep ? \Carbon\Carbon::parse($resep->tanggal_resep)->format('d/m/Y') : 'N/A' }}
                                 </div>
                                 <div class="text-xs text-gray-500">
-                                    {{ $rm->created_at->format('H:i') }}
+                                    {{ $resep->created_at->format('H:i') }}
                                 </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">{{ $resep->nama_obat }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <span class="text-blue-600 font-semibold text-sm">
-                                            {{ strtoupper(substr($rm->janjiTemu->pasien->user->nama_lengkap ?? 'P', 0, 1)) }}
-                                        </span>
+                                    <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                        @if($resep->rekamMedis && $resep->rekamMedis->janjiTemu && $resep->rekamMedis->janjiTemu->pasien && $resep->rekamMedis->janjiTemu->pasien->user && $resep->rekamMedis->janjiTemu->pasien->user->foto_profil)
+                                            <img src="{{ asset('storage/' . $resep->rekamMedis->janjiTemu->pasien->user->foto_profil) }}" 
+                                                 alt="Foto" 
+                                                 class="h-8 w-8 rounded-full object-cover">
+                                        @else
+                                            <span class="text-blue-600 font-semibold text-xs">
+                                                {{ strtoupper(substr($resep->rekamMedis->janjiTemu->pasien->user->nama_lengkap ?? 'P', 0, 1)) }}
+                                            </span>
+                                        @endif
                                     </div>
-                                    <div class="ml-4">
+                                    <div class="ml-3">
                                         <div class="text-sm font-medium text-gray-900">
-                                            {{ $rm->janjiTemu->pasien->user->nama_lengkap ?? 'N/A' }}
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            {{ $rm->janjiTemu->pasien->user->nik ?? 'N/A' }}
+                                            {{ $resep->rekamMedis->janjiTemu->pasien->user->nama_lengkap ?? 'N/A' }}
                                         </div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">
-                                    {{ $rm->janjiTemu->dokter->user->nama_lengkap ?? 'N/A' }}
+                                    {{ $resep->dokter->user->nama_lengkap ?? 'N/A' }}
                                 </div>
                                 <div class="text-xs text-gray-500">
-                                    {{ $rm->janjiTemu->dokter->spesialisasi_gigi ?? 'N/A' }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">
-                                    {{ strlen($rm->diagnosa) > 50 ? substr($rm->diagnosa, 0, 50) . '...' : $rm->diagnosa }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">
-                                    {{ strlen($rm->tindakan) > 50 ? substr($rm->tindakan, 0, 50) . '...' : $rm->tindakan }}
+                                    {{ $resep->dokter->spesialisasi_gigi ?? 'N/A' }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
-                                    Rp {{ number_format($rm->biaya, 0, ',', '.') }}
-                                </div>
+                                <div class="text-sm text-gray-900">{{ $resep->jumlah }} unit</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ number_format($resep->dosis, 0, ',', '.') }} mg</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.rekam-medis.show', $rm->id) }}" 
-                                       class="text-[#005248] hover:text-[#FFA700]" title="Detail">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                        </svg>
-                                    </a>
-                                    <a href="{{ route('admin.rekam-medis.pdf', $rm->id) }}" 
-                                       class="text-red-600 hover:text-red-800" title="Cetak PDF" target="_blank">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                        </svg>
-                                    </a>
-                                </div>
+                                <a href="{{ route('admin.resep-obat.show', $resep->id) }}" 
+                                   class="text-[#005248] hover:text-[#FFA700]" title="Detail">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="7" class="px-6 py-12 text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada rekam medis</h3>
-                                <p class="mt-1 text-sm text-gray-500">Belum ada data rekam medis yang tersedia.</p>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada resep obat</h3>
+                                <p class="mt-1 text-sm text-gray-500">Belum ada data resep obat yang tersedia.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -235,9 +224,9 @@
         </div>
 
         <!-- Pagination -->
-        @if($rekamMedis->hasPages())
+        @if($resepObat->hasPages())
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                {{ $rekamMedis->links() }}
+                {{ $resepObat->links() }}
             </div>
         @endif
     </div>

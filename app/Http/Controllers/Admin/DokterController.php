@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Dokter;
+use App\Models\Pasien;
+use App\Models\Admin;
 use App\Http\Requests\Admin\StoreDokterRequest;
 use App\Http\Requests\Admin\UpdateDokterRequest;
 use App\Models\Log;
@@ -257,6 +259,7 @@ class DokterController extends Controller
         
         try {
             $dokter = Dokter::with('user')->findOrFail($id);
+            $user = $dokter->user;
             
             // Cek apakah dokter memiliki janji temu yang belum selesai
             $janjiTemuAktif = $dokter->janjiTemu()
@@ -268,8 +271,22 @@ class DokterController extends Controller
                     ->with('error', 'Tidak dapat menghapus dokter yang masih memiliki janji temu aktif.');
             }
 
-            // Hapus user (akan cascade ke dokter karena foreign key)
-            $dokter->user->delete();
+            // Simpan user_id sebelum menghapus dokter
+            $userId = $user->id;
+            
+            // Hapus dokter terlebih dahulu (ini akan cascade delete ke jadwal_praktek)
+            // Karena foreign key di dokter tidak memiliki cascade delete, kita harus hapus dokter dulu
+            $dokter->delete();
+            
+            // Setelah dokter dihapus, cek apakah user masih digunakan di tabel lain
+            // (pasien atau admin) - seharusnya tidak karena satu user hanya punya satu role
+            $userStillUsed = Pasien::where('user_id', $userId)->exists() ||
+                           Admin::where('user_id', $userId)->exists();
+            
+            // Jika user tidak digunakan lagi, hapus user
+            if (!$userStillUsed) {
+                $user->delete();
+            }
 
             DB::commit();
 
