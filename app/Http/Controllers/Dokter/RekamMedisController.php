@@ -3,15 +3,19 @@
 namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreRekamMedisRequest;
+use App\Models\Dokter;
 use App\Models\Pasien;
 use App\Models\RekamMedis;
 use App\Models\JanjiTemu;
 use App\Models\ResepObat;
 use App\Models\MasterObat;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class RekamMedisController extends Controller
 {
@@ -20,13 +24,12 @@ class RekamMedisController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil dokter yang sedang login
         $user = Auth::user();
-        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
-        
+        $dokter = $user->dokter ?? Dokter::where('user_id', $user->id)->first();
+
         if (!$dokter) {
             return view('dokter.rekam-medis.index', [
-                'pasiens' => collect([])->paginate(10),
+                'rekamMedis' => collect()->paginate(10),
                 'totalRekamMedis' => 0,
                 'rekamMedisBulanIni' => 0,
                 'rekamMedisHariIni' => 0,
@@ -34,85 +37,61 @@ class RekamMedisController extends Controller
             ]);
         }
 
-        // Query dasar untuk pasien yang pernah membuat janji temu dengan dokter ini
-        // Hanya pasien yang memiliki rekam medis
+        // Ambil ID janji temu milik dokter ini
         $janjiTemuIds = JanjiTemu::where('dokter_id', $dokter->id)->pluck('id');
-        $rekamMedisJanjiTemuIds = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)->pluck('janji_temu_id');
-        $pasienIdsDariRekamMedis = JanjiTemu::whereIn('id', $rekamMedisJanjiTemuIds)->pluck('pasien_id')->unique();
-        
-        $query = Pasien::with([
-            'user', // Relasi ke tabel users
-            'janjiTemu' => function($q) use ($dokter) {
-                $q->where('dokter_id', $dokter->id)
-                  ->with(['dokter.user', 'rekamMedis'])
-                  ->orderBy('tanggal', 'desc')
-                  ->orderBy('jam_mulai', 'desc');
-            }
-        ])
-        ->whereIn('id', $pasienIdsDariRekamMedis);
 
-        // Filter pencarian berdasarkan nama atau NIK
+        // Query utama: Rekam Medis
+        $query = RekamMedis::with([
+            'janjiTemu.pasien.user',
+            'janjiTemu.dokter.user'
+        ])->whereIn('janji_temu_id', $janjiTemuIds);
+
+        // Filter pencarian: berdasarkan nama pasien
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
+            $query->whereHas('janjiTemu.pasien.user', function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
-                  ->orWhere('nik', 'like', "%{$search}%");
+                    ->orWhere('nik', 'like', "%{$search}%");
             });
         }
 
-        // Filter berdasarkan tanggal kunjungan
+        // Filter berdasarkan tanggal janji temu
         if ($request->filled('tanggal')) {
             $tanggal = $request->tanggal;
-            $query->whereHas('janjiTemu', function($q) use ($tanggal, $dokter) {
-                $q->where('tanggal', $tanggal)
-                  ->where('dokter_id', $dokter->id);
+            $query->whereHas('janjiTemu', function ($q) use ($tanggal) {
+                $q->whereDate('tanggal', $tanggal);
             });
         }
 
-        // Ambil data pasien dengan pagination
-        $pasiens = $query->distinct()->paginate(10);
+        // Urutkan: terbaru dulu
+        $query->orderBy('created_at', 'desc');
 
-        // Tambahkan kunjungan terakhir dan jumlah rekam medis untuk setiap pasien
-        $pasiens->getCollection()->transform(function ($pasien) use ($dokter, $rekamMedisJanjiTemuIds) {
-            // Hitung jumlah rekam medis per pasien
-            $pasienJanjiTemuIds = $pasien->janjiTemu()
-                ->where('dokter_id', $dokter->id)
-                ->pluck('id');
-            $pasien->rekam_medis_count = RekamMedis::whereIn('janji_temu_id', $pasienJanjiTemuIds)
-                ->whereIn('janji_temu_id', $rekamMedisJanjiTemuIds)
-                ->count();
-            
-            // Kunjungan terakhir yang memiliki rekam medis
-            $pasien->kunjungan_terakhir = $pasien->janjiTemu()
-                ->where('dokter_id', $dokter->id)
-                ->whereIn('id', $rekamMedisJanjiTemuIds)
-                ->where('status', 'completed')
-                ->orderBy('tanggal', 'desc')
-                ->orderBy('jam_mulai', 'desc')
-                ->first();
-            return $pasien;
-        });
+        // Pagination
+        $rekamMedis = $query->paginate(10);
 
-        // Statistik hanya untuk dokter ini
-        // Ambil ID janji temu dokter ini
-        $janjiTemuIds = JanjiTemu::where('dokter_id', $dokter->id)->pluck('id');
-        
+        // === STATISTIK ===
+        // Total rekam medis dokter ini
         $totalRekamMedis = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)->count();
-        
-        $rekamMedisBulanIni = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
-            ->whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year)
-            ->count();
-        
+
+        // Rekam medis hari ini
         $rekamMedisHariIni = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
             ->whereDate('created_at', Carbon::today())
             ->count();
-        
-        // Total pasien yang memiliki rekam medis
-        $totalPasien = Pasien::whereIn('id', $pasienIdsDariRekamMedis)->distinct()->count();
+
+        // Rekam medis bulan ini
+        $rekamMedisBulanIni = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->count();
+
+        // Total pasien unik yang punya rekam medis
+        $totalPasien = RekamMedis::whereIn('janji_temu_id', $janjiTemuIds)
+            ->join('janji_temu', 'rekam_medis.janji_temu_id', '=', 'janji_temu.id')
+            ->distinct('janji_temu.pasien_id')
+            ->count('janji_temu.pasien_id');
 
         return view('dokter.rekam-medis.index', compact(
-            'pasiens',
+            'rekamMedis',
             'totalRekamMedis',
             'rekamMedisBulanIni',
             'rekamMedisHariIni',
@@ -125,39 +104,54 @@ class RekamMedisController extends Controller
      */
     public function show($id)
     {
-        // Ambil dokter yang sedang login
-        $user = Auth::user();
-        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
-        
-        if (!$dokter) {
-            return redirect()->route('dokter.rekam-medis')
-                ->with('error', 'Data dokter tidak ditemukan.');
+        $rekamMedis = RekamMedis::with([
+            'janjiTemu.pasien.user',
+            'janjiTemu.dokter.user',
+            'resepObat'
+        ])->findOrFail($id);
+
+        $fotoGigiPath = $rekamMedis->janjiTemu->foto_gigi ?? null;
+
+        $fotoGigiUrl = $fotoGigiPath ? asset('storage/' . $fotoGigiPath) : null;
+
+        // Jika resep obat ada tapi aturan pakai kosong, ambil dari master obat
+        if ($rekamMedis->resepObat && $rekamMedis->resepObat->count() > 0) {
+            foreach ($rekamMedis->resepObat as $resep) {
+                if (empty($resep->aturan_pakai) || $resep->dosis == 0) {
+                    $masterObat = MasterObat::where('nama_obat', $resep->nama_obat)
+                        ->where('aktif', true)
+                        ->first();
+
+                    if ($masterObat) {
+                        if (empty($resep->aturan_pakai)) {
+                            $resep->aturan_pakai = $masterObat->aturan_pakai_default ?? '';
+                        }
+                        if ($resep->dosis == 0) {
+                            $resep->dosis = $masterObat->dosis_default ?? 0;
+                        }
+                    }
+                }
+            }
         }
 
-        // Pastikan pasien pernah membuat janji temu dengan dokter ini
-        $pasien = Pasien::whereHas('janjiTemu', function($query) use ($dokter) {
-                $query->where('dokter_id', $dokter->id);
-            })
-            ->with([
-                'user',
-                'janjiTemu' => function($q) use ($dokter) {
-                    $q->where('dokter_id', $dokter->id)
-                      ->with(['dokter.user', 'rekamMedis'])
-                      ->orderBy('tanggal', 'desc')
-                      ->orderBy('jam_mulai', 'desc');
-                }
-            ])
-            ->findOrFail($id);
+        return view('dokter.rekam-medis.show', compact('rekamMedis', 'fotoGigiUrl'))
+            ->with('title', 'Detail Rekam Medis');
+    }
 
-        // Ambil janji temu yang belum memiliki rekam medis (hanya untuk dokter ini)
-        $janjiTemuTersedia = JanjiTemu::where('pasien_id', $id)
-            ->where('dokter_id', $dokter->id)
-            ->whereIn('status', ['confirmed', 'completed'])
+    public function create(Request $request)
+    {
+        // Ambil janji temu yang belum memiliki rekam medis
+        // Bisa untuk janji temu dengan status 'confirmed' atau 'completed'
+        // Saat membuat rekam medis, status akan otomatis menjadi 'completed'
+        $janjiTemu = JanjiTemu::with(['pasien.user', 'dokter.user'])
             ->whereDoesntHave('rekamMedis')
-            ->with('dokter.user')
+            ->whereIn('status', ['confirmed', 'completed'])
             ->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'desc')
             ->get();
+
+        // Jika ada parameter janji_temu_id, set sebagai selected
+        $selectedJanjiTemuId = $request->get('janji_temu_id');
 
         // Ambil master obat yang aktif untuk dropdown
         $obatTersedia = MasterObat::where('aktif', true)
@@ -171,7 +165,8 @@ class RekamMedisController extends Controller
                 ];
             });
 
-        return view('dokter.rekam-medis.show', compact('pasien', 'janjiTemuTersedia', 'obatTersedia'));
+        return view('dokter.rekam-medis.create', compact('janjiTemu', 'selectedJanjiTemuId', 'obatTersedia'))
+            ->with('title', 'Tambah Rekam Medis');
     }
 
     /**
@@ -181,99 +176,87 @@ class RekamMedisController extends Controller
      */
     public function store(Request $request)
     {
-        // Ambil dokter yang sedang login terlebih dahulu
-        $user = Auth::user();
-        $dokter = $user->dokter ?? \App\Models\Dokter::where('user_id', $user->id)->first();
-        
-        if (!$dokter) {
-            return redirect()
-                ->back()
-                ->with('error', 'Data dokter tidak ditemukan.');
-        }
-
-        // Validasi rekam medis
-        $validated = $request->validate([
-            'janji_temu_id' => [
-                'required',
-                'exists:janji_temu,id',
-                function ($attribute, $value, $fail) use ($dokter) {
-                    // Pastikan janji temu ini milik dokter yang login
-                    $janjiTemu = JanjiTemu::find($value);
-                    if ($janjiTemu && $janjiTemu->dokter_id !== $dokter->id) {
-                        $fail('Janji temu yang dipilih tidak valid untuk dokter Anda.');
-                    }
-                },
-            ],
-            'diagnosa' => 'required|string',
-            'tindakan' => 'required|string',
-            'catatan' => 'nullable|string',
-            'biaya' => 'required|numeric|min:0',
-            'resep_obat' => 'nullable|array',
-            'resep_obat.*.nama_obat' => 'required_with:resep_obat|string|max:255',
-            'resep_obat.*.jumlah' => 'required_with:resep_obat|integer|min:1',
-            'resep_obat.*.dosis' => 'required_with:resep_obat|integer|min:0',
-            'resep_obat.*.aturan_pakai' => 'required_with:resep_obat|string',
-        ]);
-
         DB::beginTransaction();
+
         try {
-            // Simpan rekam medis sesuai struktur database
+            // Validasi janji temu
+            $janjiTemu = JanjiTemu::findOrFail($request->janji_temu_id);
+
+            // Cek apakah janji temu sudah memiliki rekam medis
+            if ($janjiTemu->rekamMedis) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Janji temu ini sudah memiliki rekam medis.');
+            }
+
+            // Buat rekam medis
             $rekamMedis = RekamMedis::create([
-                'janji_temu_id' => $validated['janji_temu_id'],
-                'diagnosa' => $validated['diagnosa'],
-                'tindakan' => $validated['tindakan'],
-                'catatan' => $validated['catatan'],
-                'biaya' => $validated['biaya']
+                'id' => Str::uuid(),
+                'janji_temu_id' => $request->janji_temu_id,
+                'diagnosa' => $request->diagnosa,
+                'tindakan' => $request->tindakan,
+                'catatan' => $request->catatan,
+                'biaya' => $request->biaya ?? 0,
             ]);
 
-            // Update status janji temu menjadi completed
-            JanjiTemu::where('id', $validated['janji_temu_id'])
-                ->update(['status' => 'completed']);
+            // Update status janji temu menjadi completed (konsisten dengan dokter)
+            if ($janjiTemu->status !== 'completed') {
+                $janjiTemu->update(['status' => 'completed']);
+            }
 
             // Simpan resep obat jika ada
-            if (!empty($validated['resep_obat'])) {
-                foreach ($validated['resep_obat'] as $resep) {
-                    // Skip jika data tidak lengkap
-                    if (empty($resep['nama_obat']) || empty($resep['jumlah']) || empty($resep['aturan_pakai'])) {
-                        continue;
-                    }
+            if ($request->filled('resep_obat_nama') && $request->filled('resep_obat_jumlah')) {
+                // Ambil dokter dari janji temu
+                $dokter = $janjiTemu->dokter;
 
-                    ResepObat::create([
-                        'rekam_medis_id' => $rekamMedis->id,
-                        'dokter_id' => $dokter->id,
-                        'tanggal_resep' => now()->toDateString(),
-                        'nama_obat' => $resep['nama_obat'],
-                        'jumlah' => $resep['jumlah'],
-                        'dosis' => $resep['dosis'] ?? 0,
-                        'aturan_pakai' => $resep['aturan_pakai'],
-                    ]);
+                // Ambil aturan pakai dari master obat jika field kosong
+                $aturanPakai = $request->resep_obat_aturan_pakai;
+                $dosis = $request->resep_obat_dosis ?? 0;
+
+                // Jika aturan pakai atau dosis kosong, ambil dari master obat
+                if (empty($aturanPakai) || $dosis == 0) {
+                    $masterObat = MasterObat::where('nama_obat', $request->resep_obat_nama)
+                        ->where('aktif', true)
+                        ->first();
+
+                    if ($masterObat) {
+                        if (empty($aturanPakai)) {
+                            $aturanPakai = $masterObat->aturan_pakai_default ?? '';
+                        }
+                        if ($dosis == 0) {
+                            $dosis = $masterObat->dosis_default ?? 0;
+                        }
+                    }
                 }
+
+                ResepObat::create([
+                    'rekam_medis_id' => $rekamMedis->id,
+                    'dokter_id' => $dokter->id ?? null,
+                    'tanggal_resep' => now()->toDateString(),
+                    'nama_obat' => $request->resep_obat_nama,
+                    'jumlah' => $request->resep_obat_jumlah,
+                    'dosis' => $dosis,
+                    'aturan_pakai' => $aturanPakai,
+                ]);
             }
 
             DB::commit();
 
-            $message = 'Rekam medis berhasil disimpan';
-            if (!empty($validated['resep_obat'])) {
-                $count = count(array_filter($validated['resep_obat'], function($r) {
-                    return !empty($r['nama_obat']) && !empty($r['jumlah']) && !empty($r['aturan_pakai']);
-                }));
-                if ($count > 0) {
-                    $message .= ' beserta ' . $count . ' resep obat';
-                }
+            $message = 'Rekam medis berhasil ditambahkan.';
+            if ($request->filled('resep_obat_nama') && $request->filled('resep_obat_jumlah')) {
+                $message .= ' beserta resep obat';
             }
 
-            return redirect()
-                ->back()
+            return redirect()->route('dokter.rekam-medis.show', $rekamMedis->id)
                 ->with('success', $message);
-
         } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()
-                ->back()
-                ->with('error', 'Gagal menyimpan rekam medis: ' . $e->getMessage());
+            DB::rollBack();
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
         }
     }
-
     /**
      * Menampilkan form edit rekam medis
      */
@@ -376,22 +359,17 @@ class RekamMedisController extends Controller
     /**
      * Export rekam medis ke PDF
      */
-    public function exportPdf($pasienId)
+    public function export($id)
     {
-        $pasien = Pasien::with([
-            'user',
-            'janjiTemu' => function($q) {
-                $q->with(['dokter.user', 'rekamMedis'])
-                  ->where('status', 'completed')
-                  ->orderBy('tanggal', 'desc');
-            }
-        ])->findOrFail($pasienId);
+        $rekam = RekamMedis::with([
+            'janjiTemu.dokter.user',
+            'janjiTemu.pasien.user'
+        ])->findOrFail($id);
 
-        // Generate PDF menggunakan package seperti DomPDF atau TCPDF
-        // Contoh dengan DomPDF:
-        // $pdf = PDF::loadView('dokter.rekam-medis.pdf', compact('pasien'));
-        // return $pdf->download('rekam-medis-'.$pasien->user->nama_lengkap.'.pdf');
+        // Generate PDF using the same template as pasien
+        $pdf = Pdf::loadView('admin.rekam-medis.pdf', compact('rekam'))
+            ->setPaper('A4', 'portrait');
 
-        return view('dokter.rekam-medis.pdf', compact('pasien'));
+        return $pdf->download("Rekam_Medis_{$rekam->id}.pdf");
     }
 }

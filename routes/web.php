@@ -12,6 +12,9 @@ use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekCont
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\ResepObatController as AdminResepObatController;
 use App\Http\Controllers\Dokter\DaftarPasienController;
+use App\Http\Controllers\Dokter\JadwalPraktekController;
+use App\Http\Controllers\Dokter\RekamMedisController as DokterRekamMedisController;
+use App\Http\Controllers\Dokter\ResepObatController as DokterResepObatController;
 use App\Http\Controllers\Pasien\JanjiTemuController as PasienJanjiTemuController;
 use App\Http\Controllers\Pasien\PasienController;
 use App\Http\Controllers\Pasien\RekamMedisController as PasienRekamMedisController;
@@ -89,13 +92,11 @@ Route::middleware('auth')->group(function () {
         // Rekam Medis Routes (CRUD)
         Route::prefix('admin/rekam-medis')->name('admin.rekam-medis.')->group(function () {
             Route::get('/', [AdminRekamMedisController::class, 'index'])->name('index');
-            Route::get('/create', [AdminRekamMedisController::class, 'create'])->name('create');
-            Route::post('/', [AdminRekamMedisController::class, 'store'])->name('store');
             Route::get('/{id}', [AdminRekamMedisController::class, 'show'])->name('show');
             Route::get('/{id}/edit', [AdminRekamMedisController::class, 'edit'])->name('edit');
             Route::put('/{id}', [AdminRekamMedisController::class, 'update'])->name('update');
             Route::delete('/{id}', [AdminRekamMedisController::class, 'destroy'])->name('destroy');
-            Route::get('/{id}/pdf', [AdminRekamMedisController::class, 'export'])->name('pdf');
+            
         });
         
         // Laporan Routes
@@ -129,24 +130,20 @@ Route::middleware('auth')->group(function () {
 
 // Dokter Routes
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
-      // Dashboard - menggunakan controller yang sudah ada
-      Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard');
-
-      Route::get('/daftar-pasien', 
-      [DaftarPasienController::class, 'index']
-)->name('daftar-pasien');
-
-Route::get('/daftar-pasien/{id}', [DaftarPasienController::class, 'show'])
-->name('daftar-pasien.show');
-
+    // Dashboard - menggunakan controller yang sudah ada
+    Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard');
+    Route::get('/daftar-pasien', [DaftarPasienController::class, 'index'])->name('daftar-pasien');
+    Route::get('/daftar-pasien/{id}', [DaftarPasienController::class, 'show'])->name('daftar-pasien.show');
 
     // Rekam Medis Routes
-    Route::get('/rekam-medis', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'index'])->name('rekam-medis');
-    Route::get('/rekam-medis/{id}', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'show'])->name('rekam-medis.show');
-    Route::post('/rekam-medis', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'store'])->name('rekam-medis.store');
-    Route::get('/rekam-medis/{id}/edit', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'edit'])->name('rekam-medis.edit');
-    Route::put('/rekam-medis/{id}', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'update'])->name('rekam-medis.update');
-    Route::delete('/rekam-medis/{id}', [\App\Http\Controllers\Dokter\RekamMedisController::class, 'destroy'])->name('rekam-medis.destroy');
+    Route::get('/rekam-medis', [DokterRekamMedisController::class, 'index'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [DokterRekamMedisController::class, 'show'])->name('rekam-medis.show');
+    Route::get('/create', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create');
+    Route::post('/rekam-medis', [DokterRekamMedisController::class, 'store'])->name('rekam-medis.store');
+    Route::get('/rekam-medis/{id}/edit', [DokterRekamMedisController::class, 'edit'])->name('rekam-medis.edit');
+    Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update');
+    Route::delete('/rekam-medis/{id}', [DokterRekamMedisController::class, 'destroy'])->name('rekam-medis.destroy');
+    Route::get('/{id}/pdf', [DokterRekamMedisController::class, 'export'])->name('rekam-medis.pdf');
 
      Route::get('/janji-temu', [JanjiTemuController::class, 'index'])->name('janji-temu.index');
      Route::get('/janji-temu/{id}', [JanjiTemuController::class, 'show'])->name('janji-temu.show');
@@ -155,21 +152,21 @@ Route::get('/daftar-pasien/{id}', [DaftarPasienController::class, 'show'])
      Route::patch('/janji-temu/{id}/complete', [JanjiTemuController::class, 'complete'])->name('janji-temu.complete');
      
     // Jadwal Praktek
-    Route::get('/jadwal-praktek', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'index'])->name('jadwal-praktek.index');
-    Route::get('/jadwal-praktek/create', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'create'])->name('jadwal-praktek.create');
-    Route::post('/jadwal-praktek', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'store'])->name('jadwal-praktek.store');
-    Route::get('/jadwal-praktek/{id}/edit', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'edit'])->name('jadwal-praktek.edit');
-    Route::put('/jadwal-praktek/{id}', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'update'])->name('jadwal-praktek.update');
-    Route::delete('/jadwal-praktek/{id}', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'destroy'])->name('jadwal-praktek.destroy');
+    Route::get('/jadwal-praktek', [JadwalPraktekController::class, 'index'])->name('jadwal-praktek.index');
+    Route::get('/jadwal-praktek/create', [JadwalPraktekController::class, 'create'])->name('jadwal-praktek.create');
+    Route::post('/jadwal-praktek', [JadwalPraktekController::class, 'store'])->name('jadwal-praktek.store');
+    Route::get('/jadwal-praktek/{id}/edit', [JadwalPraktekController::class, 'edit'])->name('jadwal-praktek.edit');
+    Route::put('/jadwal-praktek/{id}', [JadwalPraktekController::class, 'update'])->name('jadwal-praktek.update');
+    Route::delete('/jadwal-praktek/{id}', [JadwalPraktekController::class, 'destroy'])->name('jadwal-praktek.destroy');
      
     // Resep Obat
-    Route::get('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'index'])->name('resep-obat.index');
-    Route::get('/resep-obat/create', [\App\Http\Controllers\Dokter\ResepObatController::class, 'create'])->name('resep-obat.create');
-    Route::post('/resep-obat/master', [\App\Http\Controllers\Dokter\ResepObatController::class, 'storeMasterObat'])->name('resep-obat.store-master');
-    Route::post('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'store'])->name('resep-obat.store');
-    Route::get('/resep-obat/{id}/edit', [\App\Http\Controllers\Dokter\ResepObatController::class, 'edit'])->name('resep-obat.edit');
-    Route::put('/resep-obat/{id}', [\App\Http\Controllers\Dokter\ResepObatController::class, 'update'])->name('resep-obat.update');
-    Route::delete('/resep-obat/{id}', [\App\Http\Controllers\Dokter\ResepObatController::class, 'destroy'])->name('resep-obat.destroy');
+    Route::get('/resep-obat', [DokterResepObatController::class, 'index'])->name('resep-obat.index');
+    Route::get('/resep-obat/create', [DokterResepObatController::class, 'create'])->name('resep-obat.create');
+    Route::post('/resep-obat/master', [DokterResepObatController::class, 'storeMasterObat'])->name('resep-obat.store-master');
+    Route::post('/resep-obat', [DokterResepObatController::class, 'store'])->name('resep-obat.store');
+    Route::get('/resep-obat/{id}/edit', [DokterResepObatController::class, 'edit'])->name('resep-obat.edit');
+    Route::put('/resep-obat/{id}', [DokterResepObatController::class, 'update'])->name('resep-obat.update');
+    Route::delete('/resep-obat/{id}', [DokterResepObatController::class, 'destroy'])->name('resep-obat.destroy');
 });
 
 // Pasien Routes

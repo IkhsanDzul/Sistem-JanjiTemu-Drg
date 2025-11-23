@@ -12,7 +12,7 @@ use App\Models\ResepObat;
 use App\Http\Requests\Admin\StoreRekamMedisRequest;
 use App\Http\Requests\Admin\UpdateRekamMedisRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -122,90 +122,6 @@ class RekamMedisController extends Controller
     /**
      * Menyimpan data rekam medis baru
      */
-    public function store(StoreRekamMedisRequest $request)
-    {
-        DB::beginTransaction();
-        
-        try {
-            // Validasi janji temu
-            $janjiTemu = JanjiTemu::findOrFail($request->janji_temu_id);
-            
-            // Cek apakah janji temu sudah memiliki rekam medis
-            if ($janjiTemu->rekamMedis) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Janji temu ini sudah memiliki rekam medis.');
-            }
-
-            // Buat rekam medis
-            $rekamMedis = RekamMedis::create([
-                'id' => Str::uuid(),
-                'janji_temu_id' => $request->janji_temu_id,
-                'diagnosa' => $request->diagnosa,
-                'tindakan' => $request->tindakan,
-                'catatan' => $request->catatan,
-                'biaya' => $request->biaya ?? 0,
-            ]);
-
-            // Update status janji temu menjadi completed (konsisten dengan dokter)
-            if ($janjiTemu->status !== 'completed') {
-                $janjiTemu->update(['status' => 'completed']);
-            }
-
-            // Simpan resep obat jika ada
-            if ($request->filled('resep_obat_nama') && $request->filled('resep_obat_jumlah')) {
-                // Ambil dokter dari janji temu
-                $dokter = $janjiTemu->dokter;
-                
-                // Ambil aturan pakai dari master obat jika field kosong
-                $aturanPakai = $request->resep_obat_aturan_pakai;
-                $dosis = $request->resep_obat_dosis ?? 0;
-                
-                // Jika aturan pakai atau dosis kosong, ambil dari master obat
-                if (empty($aturanPakai) || $dosis == 0) {
-                    $masterObat = MasterObat::where('nama_obat', $request->resep_obat_nama)
-                        ->where('aktif', true)
-                        ->first();
-                    
-                    if ($masterObat) {
-                        if (empty($aturanPakai)) {
-                            $aturanPakai = $masterObat->aturan_pakai_default ?? '';
-                        }
-                        if ($dosis == 0) {
-                            $dosis = $masterObat->dosis_default ?? 0;
-                        }
-                    }
-                }
-                
-                ResepObat::create([
-                    'rekam_medis_id' => $rekamMedis->id,
-                    'dokter_id' => $dokter->id ?? null,
-                    'tanggal_resep' => now()->toDateString(),
-                    'nama_obat' => $request->resep_obat_nama,
-                    'jumlah' => $request->resep_obat_jumlah,
-                    'dosis' => $dosis,
-                    'aturan_pakai' => $aturanPakai,
-                ]);
-            }
-
-            DB::commit();
-
-            $message = 'Rekam medis berhasil ditambahkan.';
-            if ($request->filled('resep_obat_nama') && $request->filled('resep_obat_jumlah')) {
-                $message .= ' beserta resep obat';
-            }
-
-            return redirect()->route('admin.rekam-medis.show', $rekamMedis->id)
-                ->with('success', $message);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
-        }
-    }
 
     /**
      * Menampilkan detail rekam medis
@@ -379,21 +295,5 @@ class RekamMedisController extends Controller
         }
     }
 
-    /**
-     * Export rekam medis ke PDF
-     */
-    public function export($id)
-    {
-        $rekam = RekamMedis::with([
-            'janjiTemu.dokter.user',
-            'janjiTemu.pasien.user'
-        ])->findOrFail($id);
-
-        // Generate PDF using the same template as pasien
-        $pdf = Pdf::loadView('admin.rekam-medis.pdf', compact('rekam'))
-            ->setPaper('A4', 'portrait');
-
-        return $pdf->download("Rekam_Medis_{$rekam->id}.pdf");
-    }
 }
 

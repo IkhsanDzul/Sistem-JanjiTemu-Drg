@@ -29,7 +29,7 @@
 
     <!-- Back Button -->
     <div>
-        <a href="{{ route('dokter.rekam-medis.show', $rekamMedis->janjiTemu->pasien_id) }}" 
+        <a href="{{ route('dokter.rekam-medis', $rekamMedis->janjiTemu->pasien_id) }}" 
            class="inline-flex items-center gap-2 text-[#005248] hover:text-[#007a6a] font-medium">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
