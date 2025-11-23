@@ -1,4 +1,7 @@
-@props(['title' => 'Dashboard'])
+@props([
+'title' => 'Dashboard',
+'subtitle' => 'Halaman Utama'
+])
 
 <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
     <div class="px-6 py-4 flex items-center justify-between">
@@ -12,9 +15,7 @@
         <!-- Page Title -->
         <div class="flex-1 ml-4 lg:ml-0">
             <h1 class="text-2xl font-bold text-gray-900">{{ $title }}</h1>
-            <p class="text-sm text-gray-500 mt-1">
-                Selamat datang Dokter {{ Auth::user()->nama_lengkap ?? '' }}
-            </p>
+            <p class="text-sm text-gray-500 mt-1">{{ $subtitle }}</p>
         </div>
 
         <!-- Right Side - Notifications, Profile, Date/Time -->

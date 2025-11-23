@@ -1,6 +1,11 @@
-@extends('layouts.admin')
+@extends('layouts.dokter')
 
 @section('title', 'Tambah Rekam Medis')
+
+@php
+    $title = 'Tambah Rekam Medis';
+    $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
+@endphp
 
 @section('content')
 <div class="space-y-6">
@@ -48,7 +53,7 @@
     @endif
 
     <!-- Form Section -->
-    <form action="{{ route('admin.rekam-medis.store') }}" method="POST" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
+    <form action="{{ route('dokter.rekam-medis.store') }}" method="POST" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
         @csrf
 
         <!-- Pilih Janji Temu -->
