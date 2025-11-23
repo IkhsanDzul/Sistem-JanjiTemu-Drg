@@ -295,5 +295,23 @@ class RekamMedisController extends Controller
         }
     }
 
+    /**
+     * Export rekam medis ke PDF
+     */
+    public function export($id)
+    {
+        $rekam = RekamMedis::with([
+            'janjiTemu.dokter.user',
+            'janjiTemu.pasien.user',
+            'resepObat'
+        ])->findOrFail($id);
+
+        // Generate PDF using the same template as pasien
+        $pdf = Pdf::loadView('admin.rekam-medis.pdf', compact('rekam'))
+            ->setPaper('A4', 'portrait');
+
+        return $pdf->download("Rekam_Medis_{$rekam->id}.pdf");
+    }
+
 }
 

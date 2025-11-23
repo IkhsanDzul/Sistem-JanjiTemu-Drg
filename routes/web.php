@@ -89,14 +89,11 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AdminPasienController::class, 'destroy'])->name('destroy');
         });
         
-        // Rekam Medis Routes (CRUD)
+        // Rekam Medis Routes (View Only + PDF)
         Route::prefix('admin/rekam-medis')->name('admin.rekam-medis.')->group(function () {
             Route::get('/', [AdminRekamMedisController::class, 'index'])->name('index');
             Route::get('/{id}', [AdminRekamMedisController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [AdminRekamMedisController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [AdminRekamMedisController::class, 'update'])->name('update');
-            Route::delete('/{id}', [AdminRekamMedisController::class, 'destroy'])->name('destroy');
-            
+            Route::get('/{id}/pdf', [AdminRekamMedisController::class, 'export'])->name('pdf');
         });
         
         // Laporan Routes
