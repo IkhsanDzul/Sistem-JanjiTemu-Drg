@@ -4,13 +4,6 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Rekam Medis</h2>
-            <p class="text-sm text-gray-600 mt-1">Lihat dan cetak rekam medis semua pasien</p>
-        </div>
-    </div>
 
     <!-- Filter Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-100 p-6">

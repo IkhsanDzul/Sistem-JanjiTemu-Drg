@@ -4,30 +4,22 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Jadwal Praktek Dokter</h2>
-            <p class="text-sm text-gray-600 mt-1">
-                Kelola jadwal praktek untuk <span class="font-semibold">{{ $dokter->user->nama_lengkap ?? 'N/A' }}</span>
-            </p>
-        </div>
-        <div class="flex gap-2">
-            <a href="{{ route('admin.dokter.jadwal-praktek.create', $dokter->id) }}" 
-               class="px-6 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors font-medium flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Jadwal
-            </a>
-            <a href="{{ route('admin.dokter.show', $dokter->id) }}" 
-               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Kembali ke Detail
-            </a>
-        </div>
+    <!-- Action Button Section -->
+    <div class="flex justify-end gap-2">
+        <a href="{{ route('admin.dokter.jadwal-praktek.create', $dokter->id) }}" 
+           class="px-6 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors font-medium flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Jadwal
+        </a>
+        <a href="{{ route('admin.dokter.show', $dokter->id) }}" 
+           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali ke Detail
+        </a>
     </div>
 
     <!-- Success/Error Messages -->

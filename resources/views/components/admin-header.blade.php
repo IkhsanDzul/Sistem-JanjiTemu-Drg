@@ -1,4 +1,39 @@
-@props(['title' => 'Dashboard'])
+@props(['title' => 'Dashboard', 'subtitle' => null])
+
+@php
+    // Determine subtitle based on route if not provided
+    if ($subtitle === null) {
+        $routeName = request()->route()->getName();
+        
+        $subtitleMap = [
+            'admin.dashboard' => 'Halaman Utama',
+            'admin.pasien.index' => 'Kelola data pasien yang terdaftar di sistem',
+            'admin.pasien.create' => 'Tambah data pasien baru ke dalam sistem',
+            'admin.pasien.show' => 'Detail informasi pasien',
+            'admin.pasien.edit' => 'Edit data pasien yang terdaftar',
+            'admin.dokter.index' => 'Kelola data dokter yang terdaftar di sistem',
+            'admin.dokter.create' => 'Tambah data dokter baru ke dalam sistem',
+            'admin.dokter.show' => 'Detail informasi dokter',
+            'admin.dokter.edit' => 'Edit data dokter yang terdaftar',
+            'admin.janji-temu.index' => 'Kelola janji temu pasien dengan dokter',
+            'admin.janji-temu.show' => 'Detail informasi janji temu',
+            'admin.rekam-medis.index' => 'Kelola rekam medis pasien',
+            'admin.rekam-medis.show' => 'Detail rekam medis pasien',
+            'admin.rekam-medis.edit' => 'Edit rekam medis pasien',
+            'admin.resep-obat.index' => 'Kelola resep obat pasien',
+            'admin.resep-obat.show' => 'Detail resep obat pasien',
+            'admin.jadwal-praktek.index' => 'Kelola jadwal praktek dokter',
+            'admin.jadwal-praktek.create' => 'Tambah jadwal praktek baru',
+            'admin.jadwal-praktek.edit' => 'Edit jadwal praktek dokter',
+            'admin.laporan.index' => 'Laporan dan rekapitulasi data sistem',
+            'admin.laporan.pasien' => 'Laporan jumlah pasien terdaftar',
+            'admin.laporan.dokter-aktif' => 'Laporan daftar dokter aktif',
+            'admin.laporan.jadwal-kunjungan' => 'Laporan jadwal kunjungan pasien',
+        ];
+        
+        $subtitle = $subtitleMap[$routeName] ?? 'Halaman Utama';
+    }
+@endphp
 
 <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
     <div class="px-6 py-4 flex items-center justify-between">
@@ -12,7 +47,7 @@
         <!-- Page Title -->
         <div class="flex-1 ml-4 lg:ml-0">
             <h1 class="text-2xl font-bold text-gray-900">{{ $title }}</h1>
-            <p class="text-sm text-gray-500 mt-1">Halaman Utama</p>
+            <p class="text-sm text-gray-500 mt-1">{{ $subtitle }}</p>h
         </div>
 
         <!-- Right Side - Notifications, Profile, Date/Time -->
