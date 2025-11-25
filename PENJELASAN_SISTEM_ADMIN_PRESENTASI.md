@@ -6,35 +6,179 @@
 ## 1. TEKNOLOGI YANG DIGUNAKAN
 
 ### Framework Backend
-- **Laravel Framework**: Versi **12.0** (Laravel 12)
-- **PHP**: Versi **8.2** atau lebih tinggi
-- **Database**: MySQL/MariaDB (menggunakan Eloquent ORM)
+
+#### **Laravel Framework: Versi 12.0**
+Aplikasi ini dibangun menggunakan **Laravel Framework versi 12.0**, yang merupakan framework PHP modern dengan fitur-fitur terbaru. Laravel 12 menggunakan PHP 8.2+ dan mendukung fitur-fitur seperti:
+- Eloquent ORM untuk database operations
+- Blade templating engine untuk views
+- Artisan CLI untuk development tools
+- Middleware untuk request filtering
+- Route model binding untuk clean URLs
+
+**Source Code `composer.json`:**
+```json
+{
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^12.0",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "maatwebsite/excel": "^3.1"
+    }
+}
+```
+
+#### **PHP: Versi 8.2+**
+PHP 8.2 menyediakan:
+- Improved performance dengan JIT compiler
+- Union types dan named arguments
+- Match expressions
+- Constructor property promotion
+
+#### **Database: MySQL/MariaDB**
+Database menggunakan MySQL/MariaDB dengan Eloquent ORM yang menyediakan:
+- Active Record pattern
+- Query builder yang powerful
+- Relationship management (hasOne, hasMany, belongsTo, belongsToMany)
+- Migration system untuk version control database
 
 ### Frontend Framework & Tools
-- **Tailwind CSS**: Versi **3.1.0** - Utility-first CSS framework untuk styling
-- **Alpine.js**: Versi **3.4.2** - JavaScript framework ringan untuk interaktivitas
-- **Vite**: Versi **7.0.7** - Build tool modern untuk development
-- **PostCSS**: Versi **8.4.31** - CSS processor
-- **Autoprefixer**: Versi **10.4.2** - Menambahkan vendor prefixes otomatis
+
+#### **Tailwind CSS: Versi 3.1.0**
+Utility-first CSS framework yang memungkinkan styling cepat dengan class utilities. Menggunakan JIT (Just-In-Time) compiler untuk optimalisasi.
+
+**Source Code `package.json`:**
+```json
+{
+    "devDependencies": {
+        "tailwindcss": "^3.1.0",
+        "@tailwindcss/forms": "^0.5.2",
+        "@tailwindcss/vite": "^4.0.0"
+    }
+}
+```
+
+**Konfigurasi `tailwind.config.js`:**
+```javascript
+module.exports = {
+    content: [
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+    ],
+    theme: {
+        extend: {
+            colors: {
+                primary: '#005248',
+                secondary: '#FFA700',
+            }
+        }
+    },
+    plugins: [
+        require('@tailwindcss/forms'),
+    ],
+}
+```
+
+#### **Alpine.js: Versi 3.4.2**
+JavaScript framework ringan untuk interaktivitas tanpa build step. Digunakan untuk:
+- Toggle sidebar mobile
+- Dropdown menus
+- Form interactions
+- Reactive data binding
+
+**Penggunaan di Blade:**
+```blade
+<div x-data="{ open: false }" @click="open = !open">
+    <div x-show="open">Content</div>
+</div>
+```
+
+#### **Vite: Versi 7.0.7**
+Build tool modern yang menggantikan Laravel Mix. Menyediakan:
+- Hot Module Replacement (HMR) untuk development
+- Fast builds dengan esbuild
+- Optimized production builds
+
+**Source Code `vite.config.js`:**
+```javascript
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+
+export default defineConfig({
+    plugins: [
+        laravel({
+            input: ['resources/css/app.css', 'resources/js/app.js'],
+            refresh: true,
+        }),
+    ],
+});
+```
+
+#### **PostCSS & Autoprefixer**
+- **PostCSS**: CSS processor untuk transform CSS dengan plugins
+- **Autoprefixer**: Menambahkan vendor prefixes otomatis untuk browser compatibility
 
 ### Plugins & Packages
-1. **barryvdh/laravel-dompdf** (v3.1)
-   - Untuk export laporan ke format PDF
-   - Menggunakan DomPDF engine
 
-2. **maatwebsite/excel** (v3.1)
-   - Untuk export laporan ke format Excel
-   - Menggunakan PhpSpreadsheet library
+#### **1. barryvdh/laravel-dompdf (v3.1)**
+Package untuk generate PDF dari HTML/Blade templates.
 
-3. **laravel/breeze** (v2.3)
-   - Authentication scaffolding
-   - Sistem login/logout
+**Penggunaan:**
+```php
+use Barryvdh\DomPDF\Facade\Pdf;
 
-4. **@tailwindcss/forms** (v0.5.2)
-   - Plugin Tailwind untuk styling form
+$pdf = Pdf::loadView('admin.rekam-medis.pdf', $data);
+$pdf->setPaper('a4', 'portrait');
+return $pdf->download('rekam-medis.pdf');
+```
 
-5. **@tailwindcss/vite** (v4.0.0)
-   - Plugin Vite untuk integrasi Tailwind CSS
+**Fitur:**
+- Convert HTML/Blade ke PDF
+- Support CSS styling
+- Custom paper size dan orientation
+- Download atau stream PDF
+
+#### **2. maatwebsite/excel (v3.1)**
+Package untuk export data ke Excel menggunakan PhpSpreadsheet.
+
+**Penggunaan:**
+```php
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PasienExport;
+
+return Excel::download(
+    new PasienExport($data),
+    'laporan-pasien.xlsx'
+);
+```
+
+**Fitur:**
+- Export ke .xlsx, .xls, .csv
+- Import dari Excel
+- Styling cells (colors, borders, fonts)
+- Multiple sheets
+- Custom headers dan footers
+
+#### **3. laravel/breeze (v2.3)**
+Authentication scaffolding yang menyediakan:
+- Login/Register pages
+- Password reset
+- Email verification
+- Session management
+- CSRF protection
+
+**Routes yang disediakan:**
+```php
+// routes/auth.php (auto-generated)
+Route::get('/login', [AuthenticatedSessionController::class, 'create']);
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy']);
+```
+
+#### **4. @tailwindcss/forms (v0.5.2)**
+Plugin untuk styling form elements dengan Tailwind utilities.
+
+#### **5. @tailwindcss/vite (v4.0.0)**
+Plugin untuk integrasi Tailwind CSS dengan Vite build system.
 
 ---
 
@@ -42,25 +186,97 @@
 
 ### Struktur Database (Relasi dari Awal hingga Akhir)
 
+Sistem menggunakan **UUID** sebagai primary key untuk semua tabel (kecuali `roles`), yang memberikan keamanan lebih baik dan menghindari masalah dengan auto-increment. Semua relasi menggunakan **foreign key constraints** dengan cascade delete untuk menjaga integritas data.
+
 #### **Tabel `roles`** (Tabel Master)
-- `id` (string, primary key) - ID role (admin, dokter, pasien)
-- `nama_role` (string) - Nama role
+
+Tabel ini menyimpan role/level akses dalam sistem. Setiap user memiliki satu role.
+
+**Migration File: `database/migrations/2025_11_05_035222_role.php`**
+```php
+Schema::create('roles', function (Blueprint $table) {
+    $table->string('id')->primary();
+    $table->string('nama_role');
+});
+```
+
+**Data Seeder:**
+- `id: 'admin'` → Admin sistem
+- `id: 'dokter'` → Dokter
+- `id: 'pasien'` → Pasien
+
+**Model Relationship:**
+```php
+// app/Models/Role.php
+public function users()
+{
+    return $this->hasMany(User::class, 'role_id', 'id');
+}
+```
 
 #### **Tabel `users`** (Tabel Utama)
-- `id` (UUID, primary key)
-- `role_id` (string, foreign key → `roles.id`)
-- `nik` (string, unique, nullable) - Nomor Induk Kependudukan
-- `nama_lengkap` (string, 100)
-- `email` (string, unique)
-- `password` (string, hashed)
-- `foto_profil` (string, nullable) - Path foto profil
-- `alamat` (text, nullable)
-- `jenis_kelamin` (enum: 'L', 'P', nullable)
-- `tanggal_lahir` (date, nullable)
-- `nomor_telp` (string, 20, nullable)
-- `created_at`, `updated_at` (timestamps)
 
-**Relasi**: Satu user memiliki satu role (admin, dokter, atau pasien)
+Tabel ini adalah tabel pusat untuk semua user dalam sistem (admin, dokter, pasien). Menggunakan **polymorphic relationship** pattern dimana satu user bisa menjadi admin, dokter, atau pasien berdasarkan `role_id`.
+
+**Migration File: `database/migrations/2025_11_05_035233_user.php`**
+```php
+Schema::create('users', function (Blueprint $table) {
+    $table->uuid('id')->primary();
+    $table->string('role_id');
+    $table->string('nik', 16)->unique()->nullable();
+    $table->string('nama_lengkap', 100);
+    $table->string('email')->unique();
+    $table->string('password');
+    $table->string('foto_profil')->nullable();
+    $table->text('alamat')->nullable();
+    $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
+    $table->date('tanggal_lahir')->nullable();
+    $table->string('nomor_telp', 20)->nullable();
+    $table->timestamps();
+    
+    $table->foreign('role_id')
+          ->references('id')
+          ->on('roles')
+          ->onDelete('cascade')
+          ->onUpdate('cascade');
+});
+```
+
+**Model: `app/Models/User.php`**
+```php
+class User extends Authenticatable
+{
+    use HasUuids; // UUID sebagai primary key
+    
+    protected $fillable = [
+        'id', 'role_id', 'nik', 'nama_lengkap', 'email', 'password',
+        'foto_profil', 'alamat', 'jenis_kelamin', 'tanggal_lahir', 'nomor_telp'
+    ];
+    
+    // Relasi polymorphic
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+    
+    public function pasien()
+    {
+        return $this->hasOne(Pasien::class, 'user_id', 'id');
+    }
+    
+    public function dokter()
+    {
+        return $this->hasOne(Dokter::class, 'user_id', 'id');
+    }
+    
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'user_id', 'id');
+    }
+}
+```
+
+**Relasi**: Satu user memiliki satu role (admin, dokter, atau pasien), dan bisa memiliki relasi ke salah satu tabel: `admin`, `dokter`, atau `pasien`.
 
 #### **Tabel `admin`** (Tabel Admin)
 - `id` (UUID, primary key)
@@ -69,24 +285,129 @@
 **Relasi**: Satu admin memiliki satu user
 
 #### **Tabel `pasien`** (Tabel Pasien)
-- `id` (UUID, primary key)
-- `user_id` (string, foreign key → `users.id`)
-- `alergi` (string, nullable)
-- `golongan_darah` (string, 5, not null)
-- `riwayat_penyakit` (string, 100, not null)
 
-**Relasi**: Satu pasien memiliki satu user
+Tabel ini menyimpan data khusus pasien yang tidak ada di tabel `users`.
+
+**Migration File: `database/migrations/2025_11_05_035328_pasien.php`**
+```php
+Schema::create('pasien', function (Blueprint $table) {
+    $table->uuid('id')->primary();
+    $table->string('user_id');
+    $table->string('alergi')->nullable();
+    $table->string('golongan_darah', 5)->notnull();
+    $table->string('riwayat_penyakit', 100)->notnull();
+    
+    $table->foreign('user_id')
+          ->references('id')
+          ->on('users');
+    // Note: Tidak ada cascade delete untuk mencegah accidental deletion
+});
+```
+
+**Model: `app/Models/Pasien.php`**
+```php
+class Pasien extends Model
+{
+    use HasUuids;
+    
+    protected $table = 'pasien';
+    public $timestamps = false; // Tabel ini tidak memiliki timestamps
+    
+    protected $fillable = [
+        'id', 'user_id', 'alergi', 'golongan_darah', 'riwayat_penyakit'
+    ];
+    
+    // Relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    
+    // Relasi ke JanjiTemu (one-to-many)
+    public function janjiTemu()
+    {
+        return $this->hasMany(JanjiTemu::class, 'pasien_id', 'id');
+    }
+    
+    // Relasi ke RekamMedis melalui JanjiTemu (has-many-through)
+    public function rekamMedis()
+    {
+        return $this->hasManyThrough(
+            RekamMedis::class,
+            JanjiTemu::class,
+            'pasien_id',      // Foreign key di janji_temu
+            'janji_temu_id',  // Foreign key di rekam_medis
+            'id',             // Local key di pasien
+            'id'              // Local key di janji_temu
+        );
+    }
+}
+```
+
+**Relasi**: 
+- Satu pasien memiliki satu user (belongsTo)
+- Satu pasien memiliki banyak janji temu (hasMany)
+- Satu pasien memiliki banyak rekam medis melalui janji temu (hasManyThrough)
 
 #### **Tabel `dokter`** (Tabel Dokter)
-- `id` (UUID, primary key)
-- `user_id` (string, foreign key → `users.id`)
-- `no_str` (string, 50, unique) - Nomor STR (Surat Tanda Registrasi)
-- `pendidikan` (string, not null)
-- `pengalaman_tahun` (string, 100, not null)
-- `spesialisasi_gigi` (string, 100, not null)
-- `status` (enum: 'tersedia', 'tidak tersedia', not null)
 
-**Relasi**: Satu dokter memiliki satu user
+Tabel ini menyimpan data khusus dokter seperti STR, spesialisasi, dan status ketersediaan.
+
+**Migration File: `database/migrations/2025_11_05_035331_dokter.php`**
+```php
+Schema::create('dokter', function (Blueprint $table) {
+    $table->uuid('id')->primary();
+    $table->string('user_id');
+    $table->string('no_str', 50)->unique(); // Nomor STR harus unique
+    $table->string('pendidikan')->notnull();
+    $table->string('pengalaman_tahun', 100)->notnull();
+    $table->string('spesialisasi_gigi', 100)->notnull();
+    $table->enum('status', ['tersedia', 'tidak tersedia'])->notnull();
+    
+    $table->foreign('user_id')
+          ->references('id')
+          ->on('users');
+});
+```
+
+**Model: `app/Models/Dokter.php`**
+```php
+class Dokter extends Model
+{
+    use HasUuids;
+    
+    protected $table = 'dokter';
+    public $timestamps = false;
+    
+    protected $fillable = [
+        'id', 'user_id', 'no_str', 'pendidikan', 
+        'pengalaman_tahun', 'spesialisasi_gigi', 'status'
+    ];
+    
+    // Relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    
+    // Relasi ke JadwalPraktek (one-to-many)
+    public function jadwalPraktek()
+    {
+        return $this->hasMany(JadwalPraktek::class, 'dokter_id', 'id');
+    }
+    
+    // Relasi ke JanjiTemu (one-to-many)
+    public function janjiTemu()
+    {
+        return $this->hasMany(JanjiTemu::class, 'dokter_id', 'id');
+    }
+}
+```
+
+**Relasi**: 
+- Satu dokter memiliki satu user (belongsTo)
+- Satu dokter memiliki banyak jadwal praktek (hasMany)
+- Satu dokter memiliki banyak janji temu (hasMany)
 
 #### **Tabel `jadwal_praktek`** (Jadwal Praktek Dokter)
 - `id` (UUID, primary key)
@@ -152,11 +473,249 @@
 - Satu dokter memiliki banyak resep obat
 
 ### Alur Relasi Database
+
+#### **Diagram Alur Relasi (Simplified)**
 ```
 roles → users → admin/pasien/dokter
 dokter → jadwal_praktek
 pasien + dokter → janji_temu → rekam_medis → resep_obat
 master_obat (referensi untuk resep_obat)
+```
+
+#### **Penjelasan Detail Alur Relasi Database**
+
+##### **1. Alur Hierarki User & Role (Autentikasi & Authorization)**
+
+**`roles` → `users` → `admin` / `pasien` / `dokter`**
+
+**Penjelasan:**
+- **Tabel `roles`** adalah tabel master yang menyimpan 3 jenis role: `admin`, `dokter`, dan `pasien`
+- **Tabel `users`** adalah tabel pusat yang menyimpan data umum semua user (admin, dokter, pasien)
+  - Setiap user memiliki `role_id` yang merujuk ke tabel `roles`
+  - Data yang disimpan: NIK, nama lengkap, email, password, foto profil, alamat, jenis kelamin, tanggal lahir, nomor telepon
+  - Foreign key: `role_id` → `roles.id` (cascade delete/update)
+- **Tabel `admin`, `pasien`, `dokter`** adalah tabel khusus yang menyimpan data spesifik untuk masing-masing role
+  - Setiap tabel memiliki `user_id` yang merujuk ke `users.id`
+  - **Tabel `admin`**: Hanya menyimpan `user_id` (data lengkap ada di `users`)
+  - **Tabel `pasien`**: Menyimpan data medis pasien (alergi, golongan darah, riwayat penyakit)
+  - **Tabel `dokter`**: Menyimpan data profesional dokter (no. STR, pendidikan, pengalaman, spesialisasi, status)
+
+**Relasi:**
+- `roles` **hasMany** `users` (satu role memiliki banyak user)
+- `users` **belongsTo** `roles` (satu user memiliki satu role)
+- `users` **hasOne** `admin` / `pasien` / `dokter` (satu user bisa menjadi salah satu: admin, pasien, atau dokter)
+- `admin` / `pasien` / `dokter` **belongsTo** `users` (satu admin/pasien/dokter memiliki satu user)
+
+**Contoh Alur:**
+```
+1. Sistem membuat role "dokter" di tabel roles
+2. User baru mendaftar dengan role_id = "dokter"
+3. Data user disimpan di tabel users (nama, email, password, dll)
+4. Data khusus dokter disimpan di tabel dokter (no_str, spesialisasi, dll)
+5. Relasi: users.id = dokter.user_id
+```
+
+##### **2. Alur Jadwal Praktek Dokter**
+
+**`dokter` → `jadwal_praktek`**
+
+**Penjelasan:**
+- **Tabel `jadwal_praktek`** menyimpan jadwal ketersediaan dokter untuk praktek
+- Setiap jadwal memiliki `dokter_id` yang merujuk ke `dokter.id`
+- Data yang disimpan: tanggal, jam mulai, jam selesai, status (available/booked)
+- Foreign key: `dokter_id` → `dokter.id` (cascade delete/update)
+
+**Relasi:**
+- `dokter` **hasMany** `jadwal_praktek` (satu dokter memiliki banyak jadwal praktek)
+- `jadwal_praktek` **belongsTo** `dokter` (satu jadwal praktek dimiliki oleh satu dokter)
+
+**Contoh Alur:**
+```
+1. Dokter dengan id "abc-123" dibuat di tabel dokter
+2. Admin membuat jadwal praktek untuk dokter tersebut:
+   - Tanggal: 2025-01-15
+   - Jam: 08:00 - 12:00
+   - Status: available
+3. Data disimpan di jadwal_praktek dengan dokter_id = "abc-123"
+4. Jika dokter dihapus, semua jadwal prakteknya otomatis terhapus (cascade delete)
+```
+
+##### **3. Alur Janji Temu (Core Business Process)**
+
+**`pasien` + `dokter` → `janji_temu`**
+
+**Penjelasan:**
+- **Tabel `janji_temu`** adalah tabel inti yang menghubungkan pasien dan dokter untuk membuat janji temu
+- Setiap janji temu memiliki:
+  - `pasien_id` yang merujuk ke `pasien.id`
+  - `dokter_id` yang merujuk ke `dokter.id`
+- Data yang disimpan: tanggal, jam mulai, jam selesai, foto gigi (keluhan), keluhan, status (pending/confirmed/completed/canceled)
+- Foreign keys: 
+  - `pasien_id` → `pasien.id` (cascade delete/update)
+  - `dokter_id` → `dokter.id` (cascade delete/update)
+
+**Relasi:**
+- `pasien` **hasMany** `janji_temu` (satu pasien bisa membuat banyak janji temu)
+- `dokter` **hasMany** `janji_temu` (satu dokter bisa menerima banyak janji temu)
+- `janji_temu` **belongsTo** `pasien` (satu janji temu dimiliki oleh satu pasien)
+- `janji_temu` **belongsTo** `dokter` (satu janji temu ditangani oleh satu dokter)
+
+**Contoh Alur:**
+```
+1. Pasien dengan id "pasien-001" membuat janji temu
+2. Pasien memilih dokter dengan id "dokter-001"
+3. Data janji temu disimpan:
+   - pasien_id = "pasien-001"
+   - dokter_id = "dokter-001"
+   - tanggal = 2025-01-15
+   - jam_mulai = 09:00
+   - keluhan = "Sakit gigi geraham"
+   - status = "pending"
+4. Jika pasien dihapus, semua janji temunya otomatis terhapus (cascade delete)
+5. Jika dokter dihapus, semua janji temunya otomatis terhapus (cascade delete)
+```
+
+##### **4. Alur Rekam Medis & Resep Obat (Medical Records)**
+
+**`janji_temu` → `rekam_medis` → `resep_obat`**
+
+**Penjelasan:**
+
+**A. Rekam Medis:**
+- **Tabel `rekam_medis`** menyimpan hasil pemeriksaan dokter setelah janji temu selesai
+- Setiap rekam medis memiliki `janji_temu_id` yang merujuk ke `janji_temu.id`
+- Data yang disimpan: diagnosa, tindakan, catatan, biaya
+- Foreign key: `janji_temu_id` → `janji_temu.id` (cascade delete/update)
+- **Relasi One-to-One**: Satu janji temu hanya memiliki satu rekam medis
+
+**B. Resep Obat:**
+- **Tabel `resep_obat`** menyimpan resep obat yang diberikan dokter setelah pemeriksaan
+- Setiap resep obat memiliki:
+  - `rekam_medis_id` yang merujuk ke `rekam_medis.id`
+  - `dokter_id` yang merujuk ke `dokter.id` (untuk tracking dokter yang meresepkan)
+- Data yang disimpan: tanggal resep, nama obat, jumlah, dosis, aturan pakai
+- Foreign keys:
+  - `rekam_medis_id` → `rekam_medis.id` (cascade delete/update)
+  - `dokter_id` → `dokter.id` (cascade delete/update)
+- **Relasi One-to-Many**: Satu rekam medis bisa memiliki banyak resep obat
+
+**Relasi:**
+- `janji_temu` **hasOne** `rekam_medis` (satu janji temu memiliki satu rekam medis)
+- `rekam_medis` **belongsTo** `janji_temu` (satu rekam medis dimiliki oleh satu janji temu)
+- `rekam_medis` **hasMany** `resep_obat` (satu rekam medis bisa memiliki banyak resep obat)
+- `resep_obat` **belongsTo** `rekam_medis` (satu resep obat dimiliki oleh satu rekam medis)
+- `resep_obat` **belongsTo** `dokter` (satu resep obat dibuat oleh satu dokter)
+
+**Contoh Alur Lengkap:**
+```
+1. Janji temu dengan id "janji-001" dibuat (status: "pending")
+2. Dokter mengkonfirmasi → status menjadi "confirmed"
+3. Pasien datang, dokter melakukan pemeriksaan → status menjadi "completed"
+4. Dokter membuat rekam medis:
+   - janji_temu_id = "janji-001"
+   - diagnosa = "Karies gigi geraham"
+   - tindakan = "Tambal gigi"
+   - biaya = 500000
+5. Dokter menambahkan resep obat ke rekam medis:
+   - rekam_medis_id = "rekam-001"
+   - dokter_id = "dokter-001"
+   - nama_obat = "Paracetamol"
+   - jumlah = 10
+   - dosis = 500
+   - aturan_pakai = "3x1 sehari setelah makan"
+6. Jika janji temu dihapus, rekam medis dan resep obat otomatis terhapus (cascade delete)
+```
+
+##### **5. Master Obat (Reference Data)**
+
+**`master_obat` (referensi untuk `resep_obat`)**
+
+**Penjelasan:**
+- **Tabel `master_obat`** adalah tabel referensi/master data yang menyimpan informasi standar tentang obat-obatan
+- Tabel ini **TIDAK memiliki foreign key** ke `resep_obat`, melainkan digunakan sebagai **referensi** saat membuat resep
+- Data yang disimpan: nama obat (unique), satuan (mg/ml/tablet), dosis default, aturan pakai default, deskripsi, status aktif
+- **Relasi Logis (bukan database constraint)**: 
+  - `resep_obat.nama_obat` bisa merujuk ke `master_obat.nama_obat`
+  - Saat dokter membuat resep, bisa memilih dari `master_obat` atau input manual
+  - Jika memilih dari master, dosis dan aturan pakai default bisa diambil dari `master_obat`
+
+**Contoh Alur:**
+```
+1. Admin menambahkan obat ke master_obat:
+   - nama_obat = "Paracetamol 500mg"
+   - satuan = "mg"
+   - dosis_default = 500
+   - aturan_pakai_default = "3x1 sehari setelah makan"
+2. Dokter membuat resep obat:
+   - Bisa memilih "Paracetamol 500mg" dari master_obat
+   - Sistem otomatis mengisi dosis_default dan aturan_pakai_default
+   - Dokter bisa mengubah jika diperlukan
+3. Data disimpan di resep_obat dengan nama_obat = "Paracetamol 500mg"
+```
+
+#### **Ringkasan Cascade Delete (Data Integrity)**
+
+Untuk menjaga integritas data, sistem menggunakan **cascade delete** pada foreign key:
+
+1. **Hapus Role** → Semua user dengan role tersebut terhapus → Semua admin/pasien/dokter terkait terhapus
+2. **Hapus User** → Tidak otomatis hapus admin/pasien/dokter (tidak ada cascade), tapi data menjadi orphan
+3. **Hapus Pasien** → Semua janji temu terhapus → Semua rekam medis terhapus → Semua resep obat terhapus
+4. **Hapus Dokter** → Semua jadwal praktek terhapus → Semua janji temu terhapus → Semua rekam medis terhapus → Semua resep obat terhapus
+5. **Hapus Janji Temu** → Rekam medis terhapus → Semua resep obat terhapus
+6. **Hapus Rekam Medis** → Semua resep obat terhapus
+
+#### **Diagram Relasi Lengkap (ERD Simplified)**
+
+```
+┌─────────┐
+│  roles  │
+└────┬────┘
+     │ 1
+     │
+     │ N
+┌────▼────┐
+│  users  │
+└────┬────┘
+     │ 1
+     │
+     ├─────────┬─────────┐
+     │ 1        │ 1        │ 1
+┌────▼───┐ ┌───▼────┐ ┌───▼────┐
+│ admin  │ │ pasien │ │ dokter │
+└────────┘ └────┬───┘ └───┬─────┘
+                │         │
+                │ N       │ N
+                │         │
+                │         ├──────────┐
+                │         │          │
+                │         │ N        │ N
+                │         │          │
+         ┌──────▼─────────▼──┐      │
+         │   janji_temu      │      │
+         └──────┬────────────┘      │
+                │ 1                 │
+                │                   │
+                │ N                 │
+         ┌──────▼────────────┐      │
+         │  rekam_medis      │      │
+         └──────┬────────────┘      │
+                │ 1                 │
+                │                   │
+                │ N                 │
+         ┌──────▼────────────┐      │
+         │   resep_obat      │◄─────┘
+         └──────────────────┘
+                │
+                │ (referensi logis)
+                │
+         ┌──────▼────────────┐
+         │  master_obat       │
+         └───────────────────┘
+                │
+                │ N
+         ┌──────▼────────────┐
+         │ jadwal_praktek    │
+         └───────────────────┘
 ```
 
 ---
@@ -166,9 +725,56 @@ master_obat (referensi untuk resep_obat)
 ### Struktur Layout Admin
 
 #### **Layout Utama** (`layouts/admin.blade.php`)
-- Menggunakan **Tailwind CSS** untuk styling
-- Menggunakan **Alpine.js** untuk interaktivitas
-- Struktur: Sidebar (kiri) + Header (atas) + Main Content (tengah)
+
+**Source Code Lengkap:**
+
+```blade
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Dashboard Admin') - DentaTime</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+
+    <!-- Scripts - Vite untuk build assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="font-sans antialiased bg-gray-50" x-data="{ sidebarOpen: false }">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar Component -->
+        <x-admin-sidebar />
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-hidden lg:ml-64">
+            <!-- Header Component -->
+            <x-admin-header :title="$title ?? 'Dashboard'" />
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6" style="background-color: #f9fafb;">
+                @yield('content')
+            </main>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+**Penjelasan:**
+- **Blade Components**: Menggunakan `<x-admin-sidebar />` dan `<x-admin-header />` untuk reusable components
+- **Alpine.js**: `x-data="{ sidebarOpen: false }"` untuk state management sidebar
+- **Tailwind Classes**: 
+  - `flex h-screen` - Flexbox layout dengan tinggi full screen
+  - `lg:ml-64` - Margin kiri 256px di desktop untuk sidebar
+  - `overflow-hidden` - Prevent scroll pada container
+  - `overflow-y-auto` - Vertical scroll pada main content
+- **Vite Integration**: `@vite()` directive untuk load compiled CSS dan JS
+- **CSRF Token**: Meta tag untuk AJAX requests
 
 #### **Komponen Sidebar** (`components/admin-sidebar.blade.php`)
 
@@ -311,19 +917,115 @@ master_obat (referensi untuk resep_obat)
 
 ### Controller: `Admin\JanjiTemuController`
 
-**Method `index()`:**
-- Query dengan eager loading (`with(['pasien.user', 'dokter.user'])`)
-- Filter, search, dan sorting
-- Pagination 15 per halaman
-- Statistik status
+**Source Code Lengkap:**
 
-**Method `show($id)`:**
-- Menampilkan detail dengan relasi lengkap
-- Termasuk rekam medis dan resep obat jika ada
+**File: `app/Http/Controllers/Admin/JanjiTemuController.php`**
 
-**Method `updateStatus()`:**
-- Validasi status (pending, confirmed, completed, canceled)
-- Update status dan redirect dengan pesan sukses
+#### **Method `index()` - Daftar Janji Temu**
+
+```php
+public function index(Request $request)
+{
+    // Eager loading untuk menghindari N+1 query problem
+    $query = JanjiTemu::with(['pasien.user', 'dokter.user']);
+
+    // Filter berdasarkan status
+    if ($request->has('status') && $request->status != '') {
+        $query->where('status', $request->status);
+    }
+
+    // Filter berdasarkan tanggal
+    if ($request->has('tanggal') && $request->tanggal != '') {
+        $query->whereDate('tanggal', $request->tanggal);
+    }
+
+    // Filter berdasarkan bulan
+    if ($request->has('bulan') && $request->bulan != '') {
+        $query->whereMonth('tanggal', $request->bulan)
+              ->whereYear('tanggal', Carbon::now()->year);
+    }
+
+    // Search menggunakan whereHas untuk relasi nested
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+        $query->whereHas('pasien.user', function($q) use ($search) {
+            $q->where('nama_lengkap', 'like', "%{$search}%");
+        })->orWhereHas('dokter.user', function($q) use ($search) {
+            $q->where('nama_lengkap', 'like', "%{$search}%");
+        });
+    }
+
+    // Sorting dengan default created_at desc
+    $sortBy = $request->get('sort_by', 'created_at');
+    $sortOrder = $request->get('sort_order', 'desc');
+    $query->orderBy($sortBy, $sortOrder);
+
+    // Pagination 15 per halaman
+    $janjiTemu = $query->paginate(15);
+
+    // Statistik untuk filter (dihitung terpisah untuk performa)
+    $totalPending = JanjiTemu::where('status', 'pending')->count();
+    $totalConfirmed = JanjiTemu::where('status', 'confirmed')->count();
+    $totalCompleted = JanjiTemu::where('status', 'completed')->count();
+    $totalCanceled = JanjiTemu::where('status', 'canceled')->count();
+
+    return view('admin.janji-temu.index', compact(
+        'janjiTemu', 'totalPending', 'totalConfirmed', 
+        'totalCompleted', 'totalCanceled'
+    ))->with('title', 'Kelola Janji Temu');
+}
+```
+
+**Penjelasan:**
+- **Eager Loading**: Menggunakan `with()` untuk load relasi sekaligus, menghindari N+1 query problem
+- **Dynamic Query**: Query builder yang fleksibel untuk filter dan search
+- **Pagination**: Menggunakan Laravel pagination untuk performa dan UX yang baik
+- **Statistik**: Dihitung terpisah untuk menghindari query yang kompleks
+
+#### **Method `show($id)` - Detail Janji Temu**
+
+```php
+public function show($id)
+{
+    // Load dengan relasi lengkap termasuk rekam medis dan resep obat
+    $janjiTemu = JanjiTemu::with([
+        'pasien.user', 
+        'dokter.user', 
+        'rekamMedis.resepObat'
+    ])->findOrFail($id);
+
+    return view('admin.janji-temu.show', compact('janjiTemu'))
+        ->with('title', 'Detail Janji Temu');
+}
+```
+
+**Penjelasan:**
+- **Nested Eager Loading**: Load relasi bertingkat (`rekamMedis.resepObat`)
+- **findOrFail**: Otomatis return 404 jika tidak ditemukan
+
+#### **Method `updateStatus()` - Update Status**
+
+```php
+public function updateStatus(Request $request, $id)
+{
+    // Validasi status harus salah satu dari enum values
+    $request->validate([
+        'status' => 'required|in:pending,confirmed,completed,canceled'
+    ]);
+
+    $janjiTemu = JanjiTemu::findOrFail($id);
+    $janjiTemu->status = $request->status;
+    $janjiTemu->save();
+
+    return redirect()->route('admin.janji-temu.show', $id)
+        ->with('success', 'Status janji temu berhasil diperbarui.');
+}
+```
+
+**Penjelasan:**
+- **Validation**: Memastikan status yang diinput valid
+- **Mass Assignment Protection**: Menggunakan `fill()` atau assign langsung
+- **Flash Message**: Menggunakan session flash untuk notifikasi
 
 ---
 
@@ -333,20 +1035,102 @@ master_obat (referensi untuk resep_obat)
 
 #### **1. CREATE (Tambah Pasien)**
 
-**Route:** `GET /admin/pasien/create` → Form tambah pasien
-**Route:** `POST /admin/pasien` → Simpan data pasien
+**Route:** 
+- `GET /admin/pasien/create` → Form tambah pasien
+- `POST /admin/pasien` → Simpan data pasien
 
-**Proses:**
-1. Admin mengisi form:
-   - Data User: NIK, Nama Lengkap, Email, Password, Jenis Kelamin, Tanggal Lahir, Nomor Telp, Alamat, Foto Profil
-   - Data Pasien: Alergi, Golongan Darah, Riwayat Penyakit
-2. Validasi data menggunakan `StorePasienRequest`
-3. Upload foto profil (jika ada) ke `storage/app/public/foto_profil`
-4. Buat user baru dengan `role_id = 'pasien'`
-5. Buat data pasien dengan `user_id` dari user yang baru dibuat
-6. Menggunakan **Database Transaction** untuk memastikan konsistensi data
+**Source Code Controller: `app/Http/Controllers/Admin/PasienController.php`**
 
-**Controller Method:** `PasienController@store()`
+```php
+public function store(StorePasienRequest $request)
+{
+    // Mulai database transaction untuk memastikan konsistensi
+    DB::beginTransaction();
+    
+    try {
+        // Handle upload foto profil
+        $fotoProfilPath = null;
+        if ($request->hasFile('foto_profil')) {
+            // Simpan ke storage/app/public/foto_profil
+            $fotoProfilPath = $request->file('foto_profil')
+                ->store('foto_profil', 'public');
+        }
+
+        // Buat user baru dengan UUID
+        $user = User::create([
+            'id' => Str::uuid(), // Generate UUID
+            'role_id' => 'pasien',
+            'nik' => $request->nik,
+            'nama_lengkap' => $request->nama_lengkap,
+            'email' => $request->email,
+            'password' => Hash::make($request->password), // Hash password
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'nomor_telp' => $request->nomor_telp,
+            'alamat' => $request->alamat,
+            'foto_profil' => $fotoProfilPath,
+        ]);
+
+        // Buat data pasien dengan user_id dari user yang baru dibuat
+        $pasien = Pasien::create([
+            'id' => Str::uuid(),
+            'user_id' => $user->id,
+            'alergi' => $request->alergi,
+            'golongan_darah' => $request->golongan_darah,
+            'riwayat_penyakit' => $request->riwayat_penyakit,
+        ]);
+
+        // Commit transaction jika semua berhasil
+        DB::commit();
+
+        return redirect()->route('admin.pasien.index')
+            ->with('success', 'Data pasien berhasil ditambahkan.');
+
+    } catch (\Exception $e) {
+        // Rollback jika ada error
+        DB::rollBack();
+        
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
+    }
+}
+```
+
+**Form Request Validation: `app/Http/Requests/Admin/StorePasienRequest.php`**
+
+```php
+public function rules(): array
+{
+    return [
+        // Data User
+        'nik' => 'required|string|size:16|unique:users,nik',
+        'nama_lengkap' => 'required|string|max:100',
+        'email' => 'required|email|max:50|unique:users,email',
+        'password' => 'required|string|min:8|confirmed',
+        'jenis_kelamin' => 'required|in:L,P',
+        'tanggal_lahir' => 'required|date|before:today',
+        'nomor_telp' => 'required|string|max:20',
+        'alamat' => 'required|string',
+        
+        // Data Pasien
+        'alergi' => 'nullable|string|max:255',
+        'golongan_darah' => 'nullable|string|max:3|in:A,B,AB,O',
+        'riwayat_penyakit' => 'nullable|string|max:500',
+        
+        // Foto Profil
+        'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ];
+}
+```
+
+**Penjelasan Proses:**
+1. **Form Request Validation**: Validasi otomatis sebelum masuk ke controller
+2. **File Upload**: Menggunakan Laravel Storage untuk upload foto
+3. **Password Hashing**: Menggunakan `Hash::make()` untuk keamanan
+4. **UUID Generation**: Menggunakan `Str::uuid()` untuk generate unique ID
+5. **Database Transaction**: Memastikan jika ada error, semua perubahan di-rollback
+6. **Error Handling**: Try-catch untuk handle exception dengan graceful error message
 
 #### **2. READ (Lihat Daftar & Detail Pasien)**
 
@@ -387,13 +1171,67 @@ master_obat (referensi untuk resep_obat)
 
 **Route:** `DELETE /admin/pasien/{id}` → Hapus pasien
 
-**Proses:**
-1. Cek apakah pasien memiliki janji temu aktif (pending/confirmed)
-2. Jika ada, tampilkan error (tidak bisa hapus)
-3. Jika tidak ada, hapus pasien terlebih dahulu
-4. Cek apakah user masih digunakan di tabel lain
-5. Jika tidak digunakan, hapus user juga
-6. Menggunakan **Database Transaction**
+**Source Code Controller:**
+
+```php
+public function destroy($id)
+{
+    DB::beginTransaction();
+    
+    try {
+        $pasien = Pasien::with('user')->findOrFail($id);
+        $user = $pasien->user;
+        
+        // Validasi: Cek apakah pasien memiliki janji temu aktif
+        $janjiTemuAktif = $pasien->janjiTemu()
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->count();
+
+        if ($janjiTemuAktif > 0) {
+            return redirect()->back()
+                ->with('error', 'Tidak dapat menghapus pasien yang masih memiliki janji temu aktif.');
+        }
+
+        // Simpan user_id sebelum menghapus pasien
+        $userId = $user->id;
+        
+        // Hapus pasien terlebih dahulu
+        // Cascade delete akan menghapus janji_temu, rekam_medis, resep_obat
+        $pasien->delete();
+        
+        // Cek apakah user masih digunakan di tabel lain
+        $userStillUsed = Dokter::where('user_id', $userId)->exists() ||
+                       Admin::where('user_id', $userId)->exists();
+        
+        // Jika user tidak digunakan lagi, hapus user
+        if (!$userStillUsed) {
+            // Hapus foto profil dari storage jika ada
+            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $user->delete();
+        }
+
+        DB::commit();
+
+        return redirect()->route('admin.pasien.index')
+            ->with('success', 'Data pasien berhasil dihapus.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        return redirect()->back()
+            ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+    }
+}
+```
+
+**Penjelasan:**
+- **Business Logic Validation**: Cek janji temu aktif sebelum hapus
+- **Cascade Delete**: Foreign key dengan cascade delete akan otomatis hapus data terkait
+- **File Cleanup**: Hapus foto profil dari storage saat hapus user
+- **Safety Check**: Cek apakah user masih digunakan sebelum hapus
+- **Transaction Safety**: Semua operasi dalam transaction untuk konsistensi
 
 **Controller Method:** `PasienController@destroy()`
 
@@ -525,10 +1363,76 @@ master_obat (referensi untuk resep_obat)
 
 ### Validasi Jadwal Praktek
 
-- **Tanggal:** Harus hari ini atau setelahnya (`after_or_equal:today`)
-- **Jam Selesai:** Harus setelah jam mulai (`after:jam_mulai`)
-- **Konflik Waktu:** Tidak boleh overlap dengan jadwal lain pada tanggal yang sama
-- **Duplikasi:** Tidak boleh ada jadwal dengan tanggal dan jam mulai yang sama
+**Source Code Validasi di Controller:**
+
+```php
+public function store(Request $request, $dokterId)
+{
+    // Validasi input
+    $request->validate([
+        'tanggal' => 'required|date|after_or_equal:today',
+        'jam_mulai' => 'required|date_format:H:i',
+        'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+        'status' => 'required|in:available,booked',
+    ]);
+
+    // Cek duplikasi: jadwal dengan tanggal dan jam yang sama
+    $jadwalExist = JadwalPraktek::where('dokter_id', $dokterId)
+        ->where('tanggal', $request->tanggal)
+        ->where('jam_mulai', $request->jam_mulai)
+        ->first();
+
+    if ($jadwalExist) {
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Jadwal untuk tanggal dan jam tersebut sudah ada.');
+    }
+
+    // Cek konflik waktu: overlap dengan jadwal lain
+    $konflik = JadwalPraktek::where('dokter_id', $dokterId)
+        ->where('tanggal', $request->tanggal)
+        ->where('status', 'available')
+        ->where(function($q) use ($request) {
+            // Cek apakah jam baru overlap dengan jadwal yang ada
+            $q->whereBetween('jam_mulai', [$request->jam_mulai, $request->jam_selesai])
+              ->orWhereBetween('jam_selesai', [$request->jam_mulai, $request->jam_selesai])
+              ->orWhere(function($q2) use ($request) {
+                  // Cek jika jadwal baru berada di dalam jadwal yang ada
+                  $q2->where('jam_mulai', '<=', $request->jam_mulai)
+                     ->where('jam_selesai', '>=', $request->jam_selesai);
+              });
+        })
+        ->exists();
+
+    if ($konflik) {
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Jadwal bertabrakan dengan jadwal yang sudah ada.');
+    }
+
+    // Simpan jadwal jika valid
+    JadwalPraktek::create([
+        'id' => Str::uuid(),
+        'dokter_id' => $dokterId,
+        'tanggal' => $request->tanggal,
+        'jam_mulai' => $request->jam_mulai,
+        'jam_selesai' => $request->jam_selesai,
+        'status' => $request->status,
+    ]);
+
+    return redirect()->route('admin.dokter.jadwal-praktek.index', $dokterId)
+        ->with('success', 'Jadwal praktek berhasil ditambahkan.');
+}
+```
+
+**Penjelasan Validasi:**
+- **Tanggal:** `after_or_equal:today` - Tidak boleh tanggal kemarin
+- **Jam Selesai:** `after:jam_mulai` - Harus setelah jam mulai
+- **Duplikasi Check:** Query untuk cek jadwal dengan tanggal dan jam yang sama
+- **Konflik Check:** Query kompleks untuk cek overlap waktu dengan 3 kondisi:
+  1. Jam mulai baru berada di antara jam mulai-selesai jadwal yang ada
+  2. Jam selesai baru berada di antara jam mulai-selesai jadwal yang ada
+  3. Jadwal baru sepenuhnya berada di dalam jadwal yang ada
 
 ---
 
@@ -582,10 +1486,32 @@ rekam_medis → resep_obat (one-to-many)
 - Menampilkan detail dengan relasi lengkap
 - Jika resep obat ada tapi aturan pakai/dosis kosong, ambil dari `master_obat`
 
-**Method `export($id)`:**
-- Load rekam medis dengan relasi
-- Generate PDF menggunakan `Barryvdh\DomPDF\Facade\Pdf`
-- Download dengan nama file `Rekam_Medis_{id}.pdf`
+**Method `export($id)` - Export PDF:**
+
+```php
+public function export($id)
+{
+    // Load rekam medis dengan semua relasi yang diperlukan
+    $rekam = RekamMedis::with([
+        'janjiTemu.dokter.user',
+        'janjiTemu.pasien.user',
+        'resepObat'
+    ])->findOrFail($id);
+
+    // Generate PDF menggunakan DomPDF
+    $pdf = Pdf::loadView('admin.rekam-medis.pdf', compact('rekam'))
+        ->setPaper('A4', 'portrait');
+
+    // Download dengan nama file yang dinamis
+    return $pdf->download("Rekam_Medis_{$rekam->id}.pdf");
+}
+```
+
+**Penjelasan:**
+- **Eager Loading**: Load semua relasi sekaligus untuk menghindari N+1 query
+- **Blade Template**: Menggunakan view `admin.rekam-medis.pdf` untuk template PDF
+- **Paper Setting**: A4 Portrait untuk format standar
+- **Dynamic Filename**: Nama file menggunakan ID rekam medis
 
 ### RESEP OBAT
 
@@ -675,69 +1601,320 @@ Setiap laporan dapat diekspor dalam 3 format:
 
 **Library:** `barryvdh/laravel-dompdf` (v3.1)
 
-**Proses:**
-1. User klik tombol "Export PDF"
-2. Controller memanggil method `exportPDF()`
-3. Load data yang diperlukan
-4. Generate PDF menggunakan `Pdf::loadView()`
-5. Set paper size: A4 Portrait
-6. Enable local file access (untuk gambar/asset)
-7. Download file dengan nama sesuai format
+**Source Code Controller: `app/Http/Controllers/Admin/LaporanController.php`**
 
-**Contoh Kode:**
 ```php
+/**
+ * Export ke PDF menggunakan DomPDF
+ */
 private function exportPDF($view, $data, $filename)
 {
+    // Load view Blade dan convert ke PDF
     $pdf = Pdf::loadView($view, $data);
+    
+    // Set ukuran kertas A4 Portrait
     $pdf->setPaper('a4', 'portrait');
+    
+    // Enable local file access untuk gambar/asset
     $pdf->setOption('enable-local-file-access', true);
+    
+    // Download file dengan nama yang ditentukan
     return $pdf->download($filename);
 }
 ```
 
-**Template PDF:**
-- Menggunakan Blade template khusus untuk PDF
-- Styling dengan CSS inline
-- Format: A4 Portrait
+**Contoh Penggunaan di Method Laporan:**
+
+```php
+public function pasien(Request $request)
+{
+    $format = $request->get('format', 'view');
+    
+    // Query data pasien
+    $pasien = Pasien::with('user')->get();
+    
+    // Hitung statistik
+    $totalPasien = $pasien->count();
+    $pasienLaki = $pasien->filter(function($p) {
+        return $p->user->jenis_kelamin === 'L';
+    })->count();
+    
+    $data = [
+        'title' => 'Laporan Jumlah Pasien Terdaftar',
+        'totalPasien' => $totalPasien,
+        'pasienLaki' => $pasienLaki,
+        'pasien' => $pasien,
+        'tanggalLaporan' => Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+    ];
+
+    // Jika format PDF, export ke PDF
+    if ($format === 'pdf') {
+        return $this->exportPDF('admin.laporan.pasien-pdf', $data, 'laporan-pasien.pdf');
+    }
+    
+    // Default: return view
+    return view('admin.laporan.pasien', $data);
+}
+```
+
+**Template PDF: `resources/views/admin/rekam-medis/pdf.blade.php`**
+
+```blade
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Rekam Medis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #005248;
+        }
+        .header h1 {
+            color: #005248;
+            font-size: 20px;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #005248;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>REKAM MEDIS</h1>
+        <p>DentaTime - Sistem Manajemen Klinik Gigi</p>
+    </div>
+    
+    <!-- Content rekam medis -->
+    <div class="section">
+        <div class="label">Pasien:</div>
+        <div class="value">{{ $rekam->janjiTemu->pasien->user->nama_lengkap }}</div>
+    </div>
+    
+    <!-- ... konten lainnya ... -->
+</body>
+</html>
+```
+
+**Penjelasan:**
+- **Blade Template**: Menggunakan Blade untuk generate HTML
+- **Inline CSS**: CSS ditulis inline karena DomPDF tidak support external CSS dengan baik
+- **Paper Size**: A4 Portrait untuk format standar
+- **File Download**: Browser akan download file PDF langsung
 
 #### **2. Export Excel**
 
 **Library:** `maatwebsite/excel` (v3.1) menggunakan PhpSpreadsheet
 
-**Proses:**
-1. User klik tombol "Export Excel"
-2. Controller memanggil `Excel::download()`
-3. Menggunakan Export Class yang implement interface:
-   - `FromCollection` - Data source
-   - `WithHeadings` - Header kolom
-   - `WithMapping` - Mapping data per row
-   - `WithStyles` - Styling cells
-   - `WithColumnWidths` - Lebar kolom
-   - `WithCustomStartCell` - Start cell (bukan A1)
-   - `WithEvents` - Event untuk custom styling
+**Source Code Export Class: `app/Exports/PasienExport.php`**
 
-**Contoh Export Class:** `PasienExport`
-
-**Fitur Excel Export:**
-- Header laporan (judul, tanggal, statistik)
-- Table dengan header yang di-style
-- Border untuk semua cell
-- Auto-width kolom
-- Center alignment untuk kolom tertentu
-- Warna background untuk header (hijau tua #005248)
-- Text color putih untuk header
-
-**Contoh Kode:**
 ```php
-return Excel::download(
-    new PasienExport($pasien, $totalPasien, $pasienLaki, $pasienPerempuan),
-    'laporan-pasien-' . date('Y-m-d') . '.xlsx'
-);
+namespace App\Exports;
+
+use App\Models\Pasien;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Carbon\Carbon;
+
+class PasienExport implements 
+    FromCollection, 
+    WithHeadings, 
+    WithStyles, 
+    WithTitle, 
+    WithMapping, 
+    WithColumnWidths, 
+    WithCustomStartCell, 
+    WithEvents
+{
+    protected $pasien;
+    protected $totalPasien;
+    protected $pasienLaki;
+    protected $pasienPerempuan;
+
+    public function __construct($pasien, $totalPasien, $pasienLaki, $pasienPerempuan)
+    {
+        $this->pasien = $pasien;
+        $this->totalPasien = $totalPasien;
+        $this->pasienLaki = $pasienLaki;
+        $this->pasienPerempuan = $pasienPerempuan;
+    }
+
+    // Data source
+    public function collection()
+    {
+        return $this->pasien;
+    }
+
+    // Start cell untuk data (bukan A1)
+    public function startCell(): string
+    {
+        return 'A10'; // Data dimulai dari baris 10
+    }
+
+    // Header kolom
+    public function headings(): array
+    {
+        return [
+            'No',
+            'Nama Lengkap',
+            'Email',
+            'No. Telepon',
+            'Jenis Kelamin',
+            'Tanggal Daftar'
+        ];
+    }
+
+    // Mapping data per row
+    public function map($p): array
+    {
+        static $no = 0;
+        $no++;
+        return [
+            $no,
+            $p->user->nama_lengkap ?? '-',
+            $p->user->email ?? '-',
+            $p->user->nomor_telp ?? '-',
+            $p->user->jenis_kelamin ?? '-',
+            $p->user->created_at ? Carbon::parse($p->user->created_at)->format('d/m/Y') : '-',
+        ];
+    }
+
+    // Lebar kolom
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 8,   // No
+            'B' => 25,  // Nama
+            'C' => 30,  // Email
+            'D' => 15,  // Telepon
+            'E' => 15,  // Jenis Kelamin
+            'F' => 15,  // Tanggal
+        ];
+    }
+
+    // Event untuk custom styling
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                
+                // Tambahkan header laporan di baris 1-3
+                $sheet->setCellValue('A1', 'LAPORAN JUMLAH PASIEN TERDAFTAR');
+                $sheet->setCellValue('A2', 'DentaTime - Sistem Manajemen Klinik Gigi');
+                $sheet->setCellValue('A3', 'Tanggal Laporan: ' . Carbon::now()->locale('id')->isoFormat('dddd, D MMMM YYYY'));
+                
+                // Statistik di baris 5-8
+                $sheet->setCellValue('A5', 'STATISTIK');
+                $sheet->setCellValue('A6', 'Total Pasien: ' . $this->totalPasien);
+                $sheet->setCellValue('A7', 'Pasien Laki-laki: ' . $this->pasienLaki);
+                $sheet->setCellValue('A8', 'Pasien Perempuan: ' . $this->pasienPerempuan);
+                
+                // Merge cells untuk header
+                $sheet->mergeCells('A1:F1');
+                $sheet->mergeCells('A2:F2');
+                $sheet->mergeCells('A3:F3');
+                
+                // Style header laporan
+                $sheet->getStyle('A1')->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 16],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                ]);
+                
+                // Style header table (baris 10)
+                $sheet->getStyle('A10:F10')->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '005248'], // Hijau tua
+                    ],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['rgb' => '000000'],
+                        ],
+                    ],
+                ]);
+                
+                // Border untuk semua data
+                $lastRow = $sheet->getHighestRow();
+                if ($lastRow >= 11) {
+                    $sheet->getStyle('A10:F' . $lastRow)->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['rgb' => '000000'],
+                            ],
+                        ],
+                    ]);
+                }
+            },
+        ];
+    }
+}
 ```
 
-**File Excel:**
-- Format: `.xlsx` (Excel 2007+)
-- Nama file: `laporan-{jenis}-{tanggal}.xlsx`
+**Penggunaan di Controller:**
+
+```php
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PasienExport;
+
+public function pasien(Request $request)
+{
+    $format = $request->get('format', 'view');
+    
+    // ... query data ...
+    
+    if ($format === 'excel') {
+        return Excel::download(
+            new PasienExport($pasien, $totalPasien, $pasienLaki, $pasienPerempuan),
+            'laporan-pasien-' . date('Y-m-d') . '.xlsx'
+        );
+    }
+    
+    // ... return view ...
+}
+```
+
+**Penjelasan:**
+- **Interface Implementation**: Export class implement multiple interfaces untuk fitur lengkap
+- **Custom Start Cell**: Data dimulai dari A10, baris 1-9 untuk header dan statistik
+- **Event System**: Menggunakan `AfterSheet` event untuk styling setelah sheet dibuat
+- **PhpSpreadsheet API**: Menggunakan PhpSpreadsheet untuk styling cells, borders, colors
+- **File Format**: `.xlsx` (Excel 2007+) dengan nama file dinamis berdasarkan tanggal
 
 ### Detail Setiap Laporan
 
@@ -835,11 +2012,55 @@ return Excel::download(
 - Menampilkan form edit profile
 - Data user dari `Auth::user()`
 
-**Method `update()`:**
-- Validasi input
-- Update user data
-- Handle upload foto profil
-- Update/create pasien data (jika role pasien)
+**Method `update()` - Update Profile:**
+
+```php
+public function update(Request $request)
+{
+    // Validasi input
+    $request->validate([
+        'nama_lengkap' => 'required|string|max:255',
+        'alamat' => 'nullable|string',
+        'nomor_telp' => 'nullable|string|max:15',
+        'tanggal_lahir' => 'nullable|date',
+        'jenis_kelamin' => 'nullable|string',
+        'foto_profil' => 'nullable|image|max:2048',
+    ]);
+
+    $user = $request->user(); // Get authenticated user
+
+    // Update data user
+    $user->update([
+        'nama_lengkap' => $request->nama_lengkap,
+        'email' => $request->email,
+        'nik' => $request->nik,
+        'alamat' => $request->alamat,
+        'nomor_telp' => $request->nomor_telp,
+        'tanggal_lahir' => $request->tanggal_lahir,
+        'jenis_kelamin' => $request->jenis_kelamin,
+    ]);
+
+    // Handle upload foto profil
+    if ($request->hasFile('foto_profil')) {
+        // Hapus foto lama jika ada
+        if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
+            Storage::disk('public')->delete($user->foto_profil);
+        }
+        
+        // Simpan foto baru
+        $path = $request->file('foto_profil')->store('foto_profil', 'public');
+        $user->update(['foto_profil' => $path]);
+    }
+
+    return back()->with('status', 'Profile updated');
+}
+```
+
+**Penjelasan:**
+- **Auth Helper**: `$request->user()` untuk get authenticated user
+- **File Storage**: Menggunakan Laravel Storage untuk upload file
+- **File Cleanup**: Hapus foto lama sebelum simpan foto baru
+- **Flash Message**: Menggunakan session flash untuk notifikasi
 
 **Validasi:**
 - Nama lengkap: required, string, max 255
@@ -847,7 +2068,7 @@ return Excel::download(
 - Nomor telp: nullable, string, max 15
 - Tanggal lahir: nullable, date
 - Jenis kelamin: nullable, string
-- Foto profil: nullable, image, max 2048 KB
+- Foto profil: nullable, image, max 2048 KB (2MB)
 
 ### LOGOUT
 

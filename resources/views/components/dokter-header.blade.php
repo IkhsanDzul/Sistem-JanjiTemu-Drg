@@ -1,7 +1,34 @@
 @props([
 'title' => 'Dashboard',
-'subtitle' => 'Halaman Utama'
+'subtitle' => null
 ])
+
+@php
+    // Determine subtitle based on route if not provided
+    if ($subtitle === null) {
+        $routeName = request()->route()->getName();
+        
+        $subtitleMap = [
+            'dokter.dashboard' => 'Halaman Utama',
+            'dokter.daftar-pasien' => 'Kelola seluruh data pasien',
+            'dokter.daftar-pasien.show' => 'Detail informasi pasien',
+            'dokter.janji-temu.index' => 'Kelola janji temu pasien',
+            'dokter.janji-temu.show' => 'Detail informasi janji temu',
+            'dokter.jadwal-praktek.index' => 'Kelola jadwal praktek Anda',
+            'dokter.jadwal-praktek.create' => 'Tambah jadwal praktek baru',
+            'dokter.jadwal-praktek.edit' => 'Edit jadwal praktek',
+            'dokter.rekam-medis.index' => 'Kelola rekam medis pasien',
+            'dokter.rekam-medis.show' => 'Detail rekam medis pasien',
+            'dokter.rekam-medis.create' => 'Tambah rekam medis baru',
+            'dokter.rekam-medis.edit' => 'Edit rekam medis pasien',
+            'dokter.resep-obat.index' => 'Kelola resep obat pasien',
+            'dokter.resep-obat.show' => 'Detail resep obat pasien',
+            'dokter.resep-obat.create' => 'Tambah resep obat baru',
+        ];
+        
+        $subtitle = $subtitleMap[$routeName] ?? 'Halaman Utama';
+    }
+@endphp
 
 <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
     <div class="px-6 py-4 flex items-center justify-between">

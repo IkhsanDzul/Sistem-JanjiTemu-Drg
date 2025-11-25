@@ -13,9 +13,18 @@
 
         <!-- Menu Tengah -->
         <div class="hidden md:flex items-center gap-6">
-            <a href="#layanan" class="text-white hover:text-[#FFA700] transition-colors font-medium">Layanan</a>
-            <a href="#tentang-kami" class="text-white hover:text-[#FFA700] transition-colors font-medium">Tentang Kami</a>
-            <a href="#kontak" class="text-white hover:text-[#FFA700] transition-colors font-medium">Kontak</a>
+            <a href="#layanan" onclick="event.preventDefault(); document.querySelector('#layanan').scrollIntoView({behavior: 'smooth'});" class="text-white hover:text-[#FFA700] transition-colors font-medium relative group">
+                Layanan
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FFA700] transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#tentang-kami" onclick="event.preventDefault(); document.querySelector('#tentang-kami').scrollIntoView({behavior: 'smooth'});" class="text-white hover:text-[#FFA700] transition-colors font-medium relative group">
+                Tentang Kami
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FFA700] transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="#kontak" onclick="event.preventDefault(); document.querySelector('#kontak').scrollIntoView({behavior: 'smooth'});" class="text-white hover:text-[#FFA700] transition-colors font-medium relative group">
+                Kontak
+                <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FFA700] transition-all duration-300 group-hover:w-full"></span>
+            </a>
         </div>
 
         <!-- Tombol Login dan Register -->
@@ -51,9 +60,9 @@
          x-transition
          class="md:hidden mt-4 pb-4 border-t border-white/20">
         <div class="flex flex-col gap-4 pt-4">
-            <a href="#layanan" @click="open = false" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2">Layanan</a>
-            <a href="#tentang-kami" @click="open = false" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2">Tentang Kami</a>
-            <a href="#kontak" @click="open = false" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2">Kontak</a>
+            <a href="#layanan" @click="open = false; setTimeout(() => document.querySelector('#layanan')?.scrollIntoView({behavior: 'smooth'}), 100)" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2 rounded-lg hover:bg-white/10">Layanan</a>
+            <a href="#tentang-kami" @click="open = false; setTimeout(() => document.querySelector('#tentang-kami')?.scrollIntoView({behavior: 'smooth'}), 100)" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2 rounded-lg hover:bg-white/10">Tentang Kami</a>
+            <a href="#kontak" @click="open = false; setTimeout(() => document.querySelector('#kontak')?.scrollIntoView({behavior: 'smooth'}), 100)" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2 rounded-lg hover:bg-white/10">Kontak</a>
             @auth
                 <a href="{{ route('dashboard') }}" @click="open = false" class="text-white hover:text-[#FFA700] transition-colors px-4 py-2">Dashboard</a>
             @else

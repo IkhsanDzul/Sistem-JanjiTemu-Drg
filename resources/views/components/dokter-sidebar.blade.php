@@ -75,7 +75,7 @@
                 <!-- Daftar Pasien -->
                 <li>
                     <a href="{{ route('dokter.daftar-pasien') }}"
-                        class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-[#005248]/80 transition-colors {{ request()->routeIs('dokter.daftar-pasien') ? 'bg-[#FFA700] text-white' : '' }}">
+                        class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-[#005248] transition-colors {{ request()->routeIs('dokter.daftar-pasien') ? 'bg-[#FFA700] text-white' : 'hover:bg-red-600/20' }}">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
@@ -110,7 +110,7 @@
         <!-- Bottom Section -->
         <div class="border-t border-[#005248]/50 p-4">
             <a href="{{ route('profile.edit') }}"
-                class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-[#005248]/80 transition-colors mb-2">
+                class="flex items-center px-4 py-3 text-white rounded-lg hover:bg-red-600/20 transition-colors mb-2">
                 <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
