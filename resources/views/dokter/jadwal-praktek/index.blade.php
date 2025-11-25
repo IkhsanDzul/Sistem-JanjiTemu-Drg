@@ -32,15 +32,8 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-semibold">Jadwal Praktek</h2>
-                <p class="text-sm text-white/90 mt-1">Kelola jadwal praktek Anda</p>
+                <p class="text-sm text-white/90 mt-1">Lihat jadwal praktek Anda (untuk menambah atau mengubah jadwal, hubungi admin)</p>
             </div>
-            <a href="{{ route('dokter.jadwal-praktek.create') }}" 
-               class="bg-white text-[#005248] px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-all flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Jadwal
-            </a>
         </div>
     </div>
 
@@ -115,72 +108,12 @@
                                     </div>
 
                                     <div class="flex items-center gap-2">
-                                        @if(count($data['jadwal_ids']) == 1)
-                                            <!-- Jika hanya 1 jadwal, tampilkan tombol edit dan hapus normal -->
-                                            <a href="{{ route('dokter.jadwal-praktek.edit', $data['jadwal_ids'][0]) }}" 
-                                               class="flex-1 text-center px-3 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#007a6a] transition-colors text-sm font-medium">
-                                                Edit
-                                            </a>
-                                            <form action="{{ route('dokter.jadwal-praktek.destroy', $data['jadwal_ids'][0]) }}" 
-                                                  method="POST" 
-                                                  class="inline"
-                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        @else
-                                            <!-- Jika banyak jadwal, tampilkan tombol untuk kelola semua -->
-                                            <div class="flex-1 text-center px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">
-                                                {{ count($data['jadwal_ids']) }} jadwal
-                                            </div>
-                                            <div x-data="{ open: false }" class="relative">
-                                                <button @click="open = !open" 
-                                                        class="px-3 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#007a6a] transition-colors text-sm font-medium">
-                                                    Kelola
-                                                </button>
-                                                <div x-show="open" 
-                                                     @click.away="open = false"
-                                                     x-cloak
-                                                     class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-20">
-                                                    <div class="p-2 max-h-64 overflow-y-auto">
-                                                        <div class="px-2 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1">
-                                                            Pilih tanggal untuk kelola:
-                                                        </div>
-                                                        @foreach($data['jadwal_ids'] as $index => $jadwalId)
-                                                            @php
-                                                                $tanggalItem = $data['tanggal'][$index];
-                                                            @endphp
-                                                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
-                                                                <span class="text-xs text-gray-700 font-medium">
-                                                                    {{ \Carbon\Carbon::parse($tanggalItem)->locale('id')->isoFormat('D MMMM YYYY') }}
-                                                                </span>
-                                                                <div class="flex gap-2">
-                                                                    <a href="{{ route('dokter.jadwal-praktek.edit', $jadwalId) }}" 
-                                                                       class="text-[#005248] hover:text-[#007a6a] text-xs font-medium">
-                                                                        Edit
-                                                                    </a>
-                                                                    <span class="text-gray-300">|</span>
-                                                                    <form action="{{ route('dokter.jadwal-praktek.destroy', $jadwalId) }}" 
-                                                                          method="POST" 
-                                                                          class="inline"
-                                                                          onsubmit="return confirm('Hapus jadwal tanggal {{ \Carbon\Carbon::parse($tanggalItem)->format('d M Y') }}?');">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium">
-                                                                            Hapus
-                                                                        </button>
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
+                                        <div class="flex-1 text-center px-3 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">
+                                            {{ count($data['jadwal_ids']) }} jadwal
+                                        </div>
+                                        <div class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                                            Hubungi admin untuk perubahan
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -197,14 +130,7 @@
                 </svg>
             </div>
             <h3 class="text-lg font-semibold text-gray-700 mb-2">Belum Ada Jadwal Praktek</h3>
-            <p class="text-gray-500 text-sm mb-6">Tambahkan jadwal praktek untuk mengatur waktu ketersediaan Anda</p>
-            <a href="{{ route('dokter.jadwal-praktek.create') }}" 
-               class="inline-flex items-center px-6 py-3 bg-[#005248] text-white rounded-lg hover:bg-[#007a6a] transition-colors font-medium">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Jadwal Pertama
-            </a>
+            <p class="text-gray-500 text-sm mb-6">Hubungi admin untuk menambahkan jadwal praktek Anda</p>
         </div>
     @endif
 </div>

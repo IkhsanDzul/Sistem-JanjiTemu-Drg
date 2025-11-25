@@ -148,13 +148,8 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
      Route::patch('/janji-temu/{id}/reject', [JanjiTemuController::class, 'reject'])->name('janji-temu.reject');
      Route::patch('/janji-temu/{id}/complete', [JanjiTemuController::class, 'complete'])->name('janji-temu.complete');
      
-    // Jadwal Praktek
+    // Jadwal Praktek (View Only - dokter tidak bisa menambah/edit jadwal)
     Route::get('/jadwal-praktek', [JadwalPraktekController::class, 'index'])->name('jadwal-praktek.index');
-    Route::get('/jadwal-praktek/create', [JadwalPraktekController::class, 'create'])->name('jadwal-praktek.create');
-    Route::post('/jadwal-praktek', [JadwalPraktekController::class, 'store'])->name('jadwal-praktek.store');
-    Route::get('/jadwal-praktek/{id}/edit', [JadwalPraktekController::class, 'edit'])->name('jadwal-praktek.edit');
-    Route::put('/jadwal-praktek/{id}', [JadwalPraktekController::class, 'update'])->name('jadwal-praktek.update');
-    Route::delete('/jadwal-praktek/{id}', [JadwalPraktekController::class, 'destroy'])->name('jadwal-praktek.destroy');
      
     // Resep Obat
     Route::get('/resep-obat', [DokterResepObatController::class, 'index'])->name('resep-obat.index');
