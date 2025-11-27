@@ -78,17 +78,6 @@
                     <p class="text-sm font-medium text-gray-600">Keluhan</p>
                     <p class="text-base text-gray-900">{{ $rekamMedis->janjiTemu->keluhan ?? '-' }}</p>
                 </div>
-                <!-- Foto Gigi (jika ada) -->
-                @if($fotoGigiUrl)
-                <div class="mt-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Foto Gigi Pasien</h3>
-                    <div class="border rounded-lg overflow-hidden">
-                        <img src="{{ $fotoGigiUrl }}"
-                            alt="Foto Gigi Pasien"
-                            class="w-full h-auto object-contain">
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
 

@@ -1,10 +1,10 @@
 @extends('layouts.pasien')
 
-@section('title', 'Rekam Medis Saya')
+@section('title', 'Rimayat Pemeriksaan')
 
 @php
-    $title = 'Rekam Medis Saya';
-    $subtitle = 'Daftar rekam medis saya';
+$title = 'Riwayat Pemeriksaan';
+$subtitle = 'Daftar Pemeriksaan saya';
 @endphp
 
 @section('content')
@@ -31,53 +31,25 @@
     <!-- List Rekam Medis -->
     <div class="space-y-4">
         @forelse ($rekamMedis as $rm)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all">
-            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                <!-- Icon + Info Dokter -->
-                <div class="flex items-start gap-4 flex-1">
-                    <!-- Icon -->
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <!-- Informasi -->
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold text-gray-900">
-                            {{ $rm->janjiTemu->dokter->user->nama_lengkap ?? 'Dokter Tidak Ditemukan' }}
-                        </h3>
-                        <div class="flex flex-wrap gap-4 mt-2">
-                            <p class="text-sm text-gray-600">
-                                <span class="font-medium">Tanggal:</span>
-                                {{ $rm->janjiTemu->tanggal ? \Carbon\Carbon::parse($rm->janjiTemu->tanggal)->locale('id')->isoFormat('dddd, DD MMMM YYYY') : 'N/A' }}
-                            </p>
-                            <p class="text-sm text-gray-600">
-                                <span class="font-medium">Spesialisasi:</span>
-                                {{ $rm->janjiTemu->dokter->spesialisasi_gigi ?? 'N/A' }}
-                            </p>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-2">
-                            <span class="font-medium">Diagnosa:</span>
-                            {{ Str::limit($rm->diagnosa, 60, '...') }}
-                        </p>
-                        @if($rm->biaya)
-                        <p class="text-sm font-semibold text-green-600 mt-2">
-                            Biaya: Rp {{ number_format($rm->biaya, 0, ',', '.') }}
-                        </p>
-                        @endif
-                    </div>
+        <!-- Hanya tampilkan info dasar -->
+        <div class="p-4 bg-white rounded-lg shadow mb-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-semibold text-gray-800">{{ $rm->janjiTemu->dokter->user->nama_lengkap }}</h3>
+                    <p class="text-sm text-gray-600">Spesialisasi: {{ $rm->janjiTemu->dokter->spesialisasi_gigi }}</p>
                 </div>
-
-                <!-- Tombol Detail -->
-                <div class="mt-4 md:mt-0 self-start">
-                    <a href="{{ route('pasien.rekam-medis.detail', $rm->id) }}"
-                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
-                        Lihat Detail
-                    </a>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($rm->janjiTemu->tanggal)->locale('id_ID')->isoFormat('dddd, D MMMM YYYY') }}</p>
+                    <p class="font-medium text-green-600">Biaya: Rp {{ number_format($rm->biaya, 0, ',', '.') }}</p>
                 </div>
+            </div>
+
+            <!-- Tombol Lihat Detail (opsional) -->
+            <div class="mt-3 flex justify-end">
+                <a href="{{ route('pasien.rekam-medis.detail', $rm->id) }}"
+                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm">
+                    Lihat Detail
+                </a>
             </div>
         </div>
         @empty

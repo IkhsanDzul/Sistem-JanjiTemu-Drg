@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\JanjiTemu;
 use App\Models\JadwalPraktek;
+use App\Models\RekamMedis;
 use Carbon\Carbon;
 
 class JanjiTemuController extends Controller
@@ -60,8 +61,10 @@ class JanjiTemuController extends Controller
             'keluhan' => $appointment->keluhan,
             'status' => $appointment->status,
         ];
+
+        $rekamMedis = RekamMedis::where('janji_temu_id', $id)->first();
         
-        return view('dokter.janji-temu.show', ['appointment' => $appointmentFormatted, 'appointmentModel' => $appointment]);
+        return view('dokter.janji-temu.show', ['appointment' => $appointmentFormatted, 'appointmentModel' => $appointment, 'rekamMedis' => $rekamMedis]);
     }
 
     public function approve($id)
