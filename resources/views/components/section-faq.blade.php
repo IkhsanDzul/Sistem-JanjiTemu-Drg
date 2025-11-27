@@ -52,6 +52,26 @@
                                 'pertanyaan' => 'Apakah data saya aman?',
                                 'jawaban' => 'Sangat aman! DentaTime menggunakan enkripsi SSL untuk melindungi semua data pribadi dan medis Anda. Kami mengikuti standar keamanan data kesehatan yang ketat dan tidak akan membagikan informasi Anda kepada pihak ketiga tanpa izin.'
                             ],
+                            [
+                                'pertanyaan' => 'Bagaimana cara melihat riwayat perawatan?',
+                                'jawaban' => 'Setelah login ke akun Anda, Anda dapat mengakses menu "Rekam Medis" di dashboard. Di sana Anda akan melihat semua riwayat perawatan, resep obat, dan catatan medis dari dokter.'
+                            ],
+                            [
+                                'pertanyaan' => 'Apakah bisa booking untuk anggota keluarga?',
+                                'jawaban' => 'Ya, Anda dapat membuat booking untuk anggota keluarga. Setelah login, Anda dapat menambahkan data anggota keluarga di menu "Profil" dan kemudian membuat janji temu untuk mereka.'
+                            ],
+                            [
+                                'pertanyaan' => 'Bagaimana jika saya lupa password?',
+                                'jawaban' => 'Anda dapat menggunakan fitur "Lupa Password" di halaman login. Masukkan email yang terdaftar, dan kami akan mengirimkan link reset password ke email Anda.'
+                            ],
+                            [
+                                'pertanyaan' => 'Apakah ada biaya tambahan untuk booking?',
+                                'jawaban' => 'Tidak ada biaya tambahan untuk booking. Anda hanya membayar biaya layanan yang dipilih sesuai dengan harga yang ditampilkan. Tidak ada biaya admin atau biaya tersembunyi lainnya.'
+                            ],
+                            [
+                                'pertanyaan' => 'Bagaimana cara menghubungi customer service?',
+                                'jawaban' => 'Anda dapat menghubungi customer service kami melalui email di info@dentatime.com atau telepon di 0800 1234 5678. Tim kami siap membantu Anda dari Senin hingga Jumat, pukul 08:00 - 17:00 WIB.'
+                            ],
                         ];
                     @endphp
 

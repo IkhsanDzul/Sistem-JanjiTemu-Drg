@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             @php
                 $features = [
                     [
@@ -31,6 +31,24 @@
                         'title' => 'Harga Transparan',
                         'description' => 'Tidak ada biaya tersembunyi. Semua harga layanan ditampilkan dengan jelas sebelum Anda membuat janji temu.',
                         'color' => 'bg-[#FFA700]'
+                    ],
+                    [
+                        'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01',
+                        'title' => 'Rekam Medis Digital',
+                        'description' => 'Akses rekam medis Anda kapan saja secara digital. Riwayat perawatan tersimpan dengan aman dan mudah diakses.',
+                        'color' => 'bg-purple-500'
+                    ],
+                    [
+                        'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+                        'title' => 'Notifikasi Otomatis',
+                        'description' => 'Dapatkan pengingat janji temu melalui email dan SMS. Tidak akan melewatkan jadwal perawatan Anda.',
+                        'color' => 'bg-pink-500'
+                    ],
+                    [
+                        'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
+                        'title' => 'Keamanan Data',
+                        'description' => 'Data pribadi dan medis Anda dilindungi dengan enkripsi SSL dan standar keamanan kesehatan internasional.',
+                        'color' => 'bg-indigo-500'
                     ]
                 ];
             @endphp

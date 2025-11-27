@@ -19,9 +19,32 @@
         </a>
     </div>
 
+    <!-- Success Message -->
+    @if(session('success'))
+        <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ session('success') }}
+            </div>
+        </div>
+    @endif
+
     <!-- Error Messages -->
+    @if(session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ session('error') }}
+            </div>
+        </div>
+    @endif
+
     @if($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
             <div class="flex items-center mb-2">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -37,7 +60,7 @@
     @endif
 
     <!-- Form Section -->
-    <form action="{{ route('admin.dokter.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6">
+    <form action="{{ route('admin.dokter.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md border border-gray-100 p-6 space-y-6" id="form-tambah-dokter">
         @csrf
 
         <!-- Data Pribadi -->
@@ -62,7 +85,8 @@
                            maxlength="16"
                            required
                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('nik') border-red-500 @enderror"
-                           placeholder="Masukkan NIK (16 digit)">
+                           placeholder="Masukkan NIK (16 digit angka)"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     @error('nik')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -248,6 +272,23 @@
                     @enderror
                 </div>
 
+                <!-- Pendidikan -->
+                <div>
+                    <label for="pendidikan" class="block text-sm font-medium text-gray-700 mb-2">
+                        Pendidikan <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="pendidikan" 
+                           name="pendidikan" 
+                           value="{{ old('pendidikan') }}"
+                           required
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('pendidikan') border-red-500 @enderror"
+                           placeholder="Contoh: S1 Kedokteran Gigi, Sp.KG, dll">
+                    @error('pendidikan')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Spesialisasi Gigi -->
                 <div>
                     <label for="spesialisasi_gigi" class="block text-sm font-medium text-gray-700 mb-2">
@@ -335,6 +376,17 @@ function previewImage(input) {
         previewContainer.classList.add('hidden');
     }
 }
+
+// Debug form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('form-tambah-dokter');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitted');
+            // Jangan prevent default, biarkan form submit normal
+        });
+    }
+});
 </script>
 @endsection
 

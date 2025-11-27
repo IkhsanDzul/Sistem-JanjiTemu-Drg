@@ -223,16 +223,22 @@
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Dokter Aktif</h3>
-                            <a href="#" class="text-sm text-[#005248] hover:text-[#FFA700] font-medium transition-colors">Lihat Semua</a>
+                            <a href="{{ route('admin.dokter.index') }}" class="text-sm text-[#005248] hover:text-[#FFA700] font-medium transition-colors">Lihat Semua</a>
                         </div>
                         <div class="space-y-3">
                             @forelse($dokterAktif as $dokter)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                     <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 bg-green-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-semibold text-sm">
-                                                {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
-                                            </span>
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-green-500 flex items-center justify-center">
+                                            @if($dokter->user->foto_profil)
+                                                <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" 
+                                                     alt="{{ $dokter->user->nama_lengkap }}" 
+                                                     class="h-10 w-10 rounded-full object-cover">
+                                            @else
+                                                <span class="text-white font-semibold text-sm">
+                                                    {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                                                </span>
+                                            @endif
                                         </div>
                                         <div class="ml-3">
                                             <p class="text-sm font-medium text-gray-900">{{ $dokter->user->nama_lengkap ?? 'N/A' }}</p>
@@ -257,7 +263,7 @@
                             <h3 class="text-lg font-semibold text-gray-900">Log Aktivitas</h3>
                             <a href="#" class="text-sm text-[#005248] hover:text-[#FFA700] font-medium transition-colors">Lihat Semua</a>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 max-h-96 overflow-y-auto">
                             @forelse($logsTerbaru as $log)
                                 <div class="flex items-start p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                                     <div class="flex-shrink-0">
@@ -267,24 +273,59 @@
                                                 'edit' => 'bg-blue-500',
                                                 'hapus' => 'bg-red-500',
                                             ];
+                                            $actionIcons = [
+                                                'buat' => 'M12 4v16m8-8H4',
+                                                'edit' => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
+                                                'hapus' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+                                            ];
                                             $actionColor = $actionColors[$log->action] ?? 'bg-gray-500';
+                                            $actionIcon = $actionIcons[$log->action] ?? '';
+                                            $actionText = [
+                                                'buat' => 'Membuat',
+                                                'edit' => 'Mengedit',
+                                                'hapus' => 'Menghapus',
+                                            ];
+                                            $actionLabel = $actionText[$log->action] ?? ucfirst($log->action);
                                         @endphp
-                                        <div class="h-8 w-8 {{ $actionColor }} rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-semibold">{{ strtoupper(substr($log->action, 0, 1)) }}</span>
+                                        <div class="h-10 w-10 {{ $actionColor }} rounded-full flex items-center justify-center">
+                                            @if($actionIcon)
+                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $actionIcon }}"></path>
+                                                </svg>
+                                            @else
+                                                <span class="text-white text-xs font-semibold">{{ strtoupper(substr($log->action, 0, 1)) }}</span>
+                                            @endif
                                         </div>
                                     </div>
-                                    <div class="ml-3 flex-1">
-                                        <p class="text-sm text-gray-900">
-                                            <span class="font-medium">{{ $log->admin->nama_lengkap ?? 'Admin' }}</span> 
-                                            melakukan aksi <span class="font-semibold">{{ $log->action }}</span>
-                                        </p>
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            {{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}
-                                        </p>
+                                    <div class="ml-3 flex-1 min-w-0">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <p class="text-sm text-gray-900">
+                                                    <span class="font-semibold text-gray-900">{{ $log->admin->nama_lengkap ?? 'Admin' }}</span>
+                                                    <span class="text-gray-600"> {{ $actionLabel }} data</span>
+                                                </p>
+                                                <div class="mt-1 flex items-center gap-2">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $actionColor }} text-white">
+                                                        {{ ucfirst($log->action) }}
+                                                    </span>
+                                                    <span class="text-xs text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($log->created_at)->format('d/m/Y H:i') }}
+                                                    </span>
+                                                </div>
+                                                <p class="text-xs text-gray-400 mt-1">
+                                                    {{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @empty
-                                <p class="text-center text-sm text-gray-500 py-4">Belum ada log aktivitas</p>
+                                <div class="text-center py-8">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-500">Belum ada log aktivitas</p>
+                                </div>
                             @endforelse
                         </div>
                     </div>

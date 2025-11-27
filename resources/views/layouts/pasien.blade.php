@@ -24,7 +24,7 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col overflow-hidden lg:ml-64">
             <!-- Header -->
-            <x-pasien-header :title="$title ?? 'Dashboard'" />
+            <x-pasien-header :title="$title ?? 'Dashboard'" :subtitle="$subtitle ?? 'Halaman Utama'" />
 
             <!-- Page Content -->
             <main class="flex-1 overflow-x-hidden bg-gray-50 p-6" style="background-color: #f9fafb;">

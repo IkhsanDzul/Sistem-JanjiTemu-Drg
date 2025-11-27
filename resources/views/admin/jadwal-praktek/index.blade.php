@@ -4,30 +4,22 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-900">Jadwal Praktek Dokter</h2>
-            <p class="text-sm text-gray-600 mt-1">
-                Kelola jadwal praktek untuk <span class="font-semibold">{{ $dokter->user->nama_lengkap ?? 'N/A' }}</span>
-            </p>
-        </div>
-        <div class="flex gap-2">
-            <a href="{{ route('admin.dokter.jadwal-praktek.create', $dokter->id) }}" 
-               class="px-6 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors font-medium flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Jadwal
-            </a>
-            <a href="{{ route('admin.dokter.show', $dokter->id) }}" 
-               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Kembali ke Detail
-            </a>
-        </div>
+    <!-- Action Button Section -->
+    <div class="flex justify-end gap-2">
+        <a href="{{ route('admin.dokter.jadwal-praktek.create', $dokter->id) }}" 
+           class="px-6 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors font-medium flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Tambah Jadwal
+        </a>
+        <a href="{{ route('admin.dokter.show', $dokter->id) }}" 
+           class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Kembali ke Detail
+        </a>
     </div>
 
     <!-- Success/Error Messages -->
@@ -61,7 +53,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                                Hari
+                                Tanggal
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                                 Jam Praktek
@@ -84,11 +76,13 @@
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
                                             <span class="text-blue-600 font-semibold text-sm">
-                                                {{ substr($jadwal->hari, 0, 1) }}
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal)->format('d') }}
                                             </span>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">{{ $jadwal->hari }}</div>
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -108,10 +102,16 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @php
-                                        $statusColor = $jadwal->status == 'aktif' 
-                                            ? 'bg-green-100 text-green-800' 
-                                            : 'bg-gray-100 text-gray-800';
-                                        $statusLabel = $jadwal->status == 'aktif' ? 'Aktif' : 'Nonaktif';
+                                        $statusColors = [
+                                            'available' => 'bg-green-100 text-green-800',
+                                            'booked' => 'bg-yellow-100 text-yellow-800',
+                                        ];
+                                        $statusLabels = [
+                                            'available' => 'Tersedia',
+                                            'booked' => 'Terbooking',
+                                        ];
+                                        $statusColor = $statusColors[$jadwal->status] ?? 'bg-gray-100 text-gray-800';
+                                        $statusLabel = $statusLabels[$jadwal->status] ?? ucfirst($jadwal->status);
                                     @endphp
                                     <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $statusColor }}">
                                         {{ $statusLabel }}

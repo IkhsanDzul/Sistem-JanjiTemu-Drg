@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pasien;
 
 use App\Http\Controllers\Controller;
 use App\Models\JanjiTemu;
+use App\Models\RekamMedis;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class JanjiTemuController extends Controller
 {
-    public function detailJanjiTemu($id)
+    public function index($id)
     {
         $user = Auth::user();
         $pasien = $user->pasien;
@@ -21,7 +22,7 @@ class JanjiTemuController extends Controller
                 ->with('error', 'Data pasien tidak ditemukan.');
         }
 
-        $janjiTemu = JanjiTemu::with(['dokter.user', 'pasien.user'])
+        $janjiTemu = JanjiTemu::with(['dokter.user', 'pasien.user', 'rekamMedis'])
             ->where('pasien_id', $pasien->id)
             ->findOrFail($id);
 
@@ -29,13 +30,16 @@ class JanjiTemuController extends Controller
             ->locale('id')
             ->isoFormat('dddd, DD MMMM YYYY');
 
-        return view('pasien.janji-temu.detail', compact('janjiTemu', 'tanggalFormat'));
+        // Ambil ID rekam medis jika ada
+        $rekamMedisId = $janjiTemu->rekamMedis ? $janjiTemu->rekamMedis->id : null;
+
+        return view('pasien.janji-temu.detail', compact('janjiTemu', 'tanggalFormat', 'rekamMedisId'));
     }
 
     /**
      * Menampilkan daftar janji temu pasien
      */
-    public function janjiTemuSaya(Request $request)
+    public function show(Request $request)
     {
         $user = Auth::user();
         $pasien = $user->pasien;
@@ -68,7 +72,7 @@ class JanjiTemuController extends Controller
     /**
      * Membatalkan janji temu
      */
-    public function cancelJanjiTemu(Request $request, $id)
+    public function cancel(Request $request, $id)
     {
         $user = Auth::user();
         $pasien = $user->pasien;

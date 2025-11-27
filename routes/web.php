@@ -10,6 +10,11 @@ use App\Http\Controllers\Admin\PasienController as AdminPasienController;
 use App\Http\Controllers\Admin\RekamMedisController as AdminRekamMedisController;
 use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
+use App\Http\Controllers\Admin\ResepObatController as AdminResepObatController;
+use App\Http\Controllers\Dokter\DaftarPasienController;
+use App\Http\Controllers\Dokter\JadwalPraktekController;
+use App\Http\Controllers\Dokter\RekamMedisController as DokterRekamMedisController;
+use App\Http\Controllers\Dokter\ResepObatController as DokterResepObatController;
 use App\Http\Controllers\Pasien\JanjiTemuController as PasienJanjiTemuController;
 use App\Http\Controllers\Pasien\PasienController;
 use App\Http\Controllers\Pasien\RekamMedisController as PasienRekamMedisController;
@@ -84,15 +89,11 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [AdminPasienController::class, 'destroy'])->name('destroy');
         });
         
-        // Rekam Medis Routes (CRUD)
+        // Rekam Medis Routes (View Only + PDF)
         Route::prefix('admin/rekam-medis')->name('admin.rekam-medis.')->group(function () {
             Route::get('/', [AdminRekamMedisController::class, 'index'])->name('index');
-            Route::get('/create', [AdminRekamMedisController::class, 'create'])->name('create');
-            Route::post('/', [AdminRekamMedisController::class, 'store'])->name('store');
             Route::get('/{id}', [AdminRekamMedisController::class, 'show'])->name('show');
-            Route::get('/{id}/edit', [AdminRekamMedisController::class, 'edit'])->name('edit');
-            Route::put('/{id}', [AdminRekamMedisController::class, 'update'])->name('update');
-            Route::delete('/{id}', [AdminRekamMedisController::class, 'destroy'])->name('destroy');
+            Route::get('/{id}/pdf', [AdminRekamMedisController::class, 'export'])->name('pdf');
         });
         
         // Laporan Routes
@@ -101,6 +102,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/pasien', [AdminLaporanController::class, 'pasien'])->name('pasien');
             Route::get('/jadwal-kunjungan', [AdminLaporanController::class, 'jadwalKunjungan'])->name('jadwal-kunjungan');
             Route::get('/dokter-aktif', [AdminLaporanController::class, 'dokterAktif'])->name('dokter-aktif');
+        });
+        
+        // Resep Obat Routes (View Only)
+        Route::prefix('admin/resep-obat')->name('admin.resep-obat.')->group(function () {
+            Route::get('/', [AdminResepObatController::class, 'index'])->name('index');
+            Route::get('/{id}', [AdminResepObatController::class, 'show'])->name('show');
         });
     });
 
@@ -120,27 +127,20 @@ Route::middleware('auth')->group(function () {
 
 // Dokter Routes
 Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->group(function () {
-      // Dashboard - menggunakan controller yang sudah ada
-      Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard');
+    // Dashboard - menggunakan controller yang sudah ada
+    Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard');
+    Route::get('/daftar-pasien', [DaftarPasienController::class, 'index'])->name('daftar-pasien');
+    Route::get('/daftar-pasien/{id}', [DaftarPasienController::class, 'show'])->name('daftar-pasien.show');
 
-    Route::get('/daftar-pasien', function () {
-        return view('dokter.daftar-pasien.index');
-    })->name('daftar-pasien');
-
-    // Rekam Medis - Simple Route
-    Route::get('/rekam-medis', function () {
-        return view('dokter.rekam-medis.index');
-    })->name('rekam-medis');
-
-    //  // Detail rekam medis
-    // Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
-    //  ->name('rekam-medis.show');
-    // Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
-    //  ->name('rekam-medis.edit');
-    // Route::put('/rekam-medis/{id}', [RekamMedisController::class, 'update'])
-    //  ->name('rekam-medis.update');
-    //  Route::delete('/rekam-medis/{id}', [RekamMedisController::class, 'destroy'])
-    //  ->name('rekam-medis.destroy');
+    // Rekam Medis Routes
+    Route::get('/rekam-medis', [DokterRekamMedisController::class, 'index'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [DokterRekamMedisController::class, 'show'])->name('rekam-medis.show');
+    Route::get('/create/{id}', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create');
+    Route::post('/rekam-medis', [DokterRekamMedisController::class, 'store'])->name('rekam-medis.store');
+    Route::get('/rekam-medis/{id}/edit', [DokterRekamMedisController::class, 'edit'])->name('rekam-medis.edit');
+    Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update');
+    Route::delete('/rekam-medis/{id}', [DokterRekamMedisController::class, 'destroy'])->name('rekam-medis.destroy');
+    Route::get('/{id}/pdf', [DokterRekamMedisController::class, 'export'])->name('rekam-medis.pdf');
 
      Route::get('/janji-temu', [JanjiTemuController::class, 'index'])->name('janji-temu.index');
      Route::get('/janji-temu/{id}', [JanjiTemuController::class, 'show'])->name('janji-temu.show');
@@ -148,18 +148,17 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
      Route::patch('/janji-temu/{id}/reject', [JanjiTemuController::class, 'reject'])->name('janji-temu.reject');
      Route::patch('/janji-temu/{id}/complete', [JanjiTemuController::class, 'complete'])->name('janji-temu.complete');
      
-    // Jadwal Praktek
-    Route::get('/jadwal-praktek', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'index'])->name('jadwal-praktek.index');
-    Route::get('/jadwal-praktek/create', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'create'])->name('jadwal-praktek.create');
-    Route::post('/jadwal-praktek', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'store'])->name('jadwal-praktek.store');
-    Route::get('/jadwal-praktek/{id}/edit', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'edit'])->name('jadwal-praktek.edit');
-    Route::put('/jadwal-praktek/{id}', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'update'])->name('jadwal-praktek.update');
-    Route::delete('/jadwal-praktek/{id}', [\App\Http\Controllers\Dokter\JadwalPraktekController::class, 'destroy'])->name('jadwal-praktek.destroy');
+    // Jadwal Praktek (View Only - dokter tidak bisa menambah/edit jadwal)
+    Route::get('/jadwal-praktek', [JadwalPraktekController::class, 'index'])->name('jadwal-praktek.index');
      
     // Resep Obat
-    Route::get('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'index'])->name('resep-obat.index');
-    Route::post('/resep-obat', [\App\Http\Controllers\Dokter\ResepObatController::class, 'store'])->name('resep-obat.store');
-    Route::delete('/resep-obat/{id}', [\App\Http\Controllers\Dokter\ResepObatController::class, 'destroy'])->name('resep-obat.destroy');
+    Route::get('/resep-obat', [DokterResepObatController::class, 'index'])->name('resep-obat.index');
+    Route::get('/resep-obat/create', [DokterResepObatController::class, 'create'])->name('resep-obat.create');
+    Route::post('/resep-obat/master', [DokterResepObatController::class, 'storeMasterObat'])->name('resep-obat.store-master');
+    Route::post('/resep-obat', [DokterResepObatController::class, 'store'])->name('resep-obat.store');
+    Route::get('/resep-obat/{id}/edit', [DokterResepObatController::class, 'edit'])->name('resep-obat.edit');
+    Route::put('/resep-obat/{id}', [DokterResepObatController::class, 'update'])->name('resep-obat.update');
+    Route::delete('/resep-obat/{id}', [DokterResepObatController::class, 'destroy'])->name('resep-obat.destroy');
 });
 
 // Pasien Routes
@@ -173,19 +172,19 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->name('pasien.')->g
     Route::get('/detail-dokter/{id}', [PasienController::class, 'detailDokter'])->name('detail-dokter');
 
     // Janji Temu
-    Route::post('buat-janji', [PasienController::class, 'buatJanjiTemu'])->name('buat-janji');
-    Route::get('janji-temu', [PasienJanjiTemuController::class, 'janjiTemuSaya'])->name('janji-temu');
-    Route::get('janji-temu/{id}', [PasienJanjiTemuController::class, 'detailJanjiTemu'])->name('detail-janji-temu');
-    Route::post('janji-temu/{id}/cancel', [PasienJanjiTemuController::class, 'cancelJanjiTemu'])->name('cancel-janji-temu');
+    Route::post('buat-janji', [PasienController::class, 'store'])->name('buat-janji');
+    Route::get('janji-temu', [PasienJanjiTemuController::class, 'show'])->name('janji-temu');
+    Route::get('janji-temu/{id}', [PasienJanjiTemuController::class, 'index'])->name('detail-janji-temu');
+    Route::post('janji-temu/{id}/cancel', [PasienJanjiTemuController::class, 'cancel'])->name('cancel-janji-temu');
     
     //Rekam Medis
-    Route::get('/rekam-medis', [PasienRekamMedisController::class, 'rekamMedis'])->name('rekam-medis');
-    Route::get('/rekam-medis/{id}', [PasienRekamMedisController::class, 'rekamMedisDetail'])->name('rekam-medis.detail');
-    Route::get('/rekam-medis/{id}/pdf', [PasienRekamMedisController::class, 'downloadPdf'])->name('rekam-medis.pdf');
+    Route::get('/rekam-medis', [PasienRekamMedisController::class, 'index'])->name('rekam-medis');
+    Route::get('/rekam-medis/{id}', [PasienRekamMedisController::class, 'detail'])->name('rekam-medis.detail');
+    Route::get('/rekam-medis/{id}/pdf', [PasienRekamMedisController::class, 'export'])->name('rekam-medis.pdf');
 
     //Resep Obat
     Route::get('/resep-obat/{rekam_id}', [ResepObatController::class, 'show'])->name('resep-obat.show');
-    Route::get('/resep-obat/{rekam_id}/pdf', [ResepObatController::class, 'downloadPdf'])->name('resep-obat.pdf');
+    Route::get('/resep-obat/{rekam_id}/pdf', [ResepObatController::class, 'export'])->name('resep-obat.pdf');
 });
 
 require __DIR__.'/auth.php';

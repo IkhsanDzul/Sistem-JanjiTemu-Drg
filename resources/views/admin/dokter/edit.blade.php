@@ -256,6 +256,23 @@
                     @enderror
                 </div>
 
+                <!-- Pendidikan -->
+                <div>
+                    <label for="pendidikan" class="block text-sm font-medium text-gray-700 mb-2">
+                        Pendidikan <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="pendidikan" 
+                           name="pendidikan" 
+                           value="{{ old('pendidikan', $dokter->pendidikan) }}"
+                           required
+                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('pendidikan') border-red-500 @enderror"
+                           placeholder="Contoh: S1 Kedokteran Gigi, Sp.KG, dll">
+                    @error('pendidikan')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Spesialisasi Gigi -->
                 <div>
                     <label for="spesialisasi_gigi" class="block text-sm font-medium text-gray-700 mb-2">

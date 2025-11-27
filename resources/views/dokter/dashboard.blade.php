@@ -210,11 +210,7 @@
                                 </svg>
                             </div>
                             <p class="text-gray-500 text-sm font-medium">Belum ada jadwal praktek</p>
-                            <p class="text-gray-400 text-xs mt-1">Tambahkan jadwal praktek untuk mengatur ketersediaan</p>
-                            <a href="{{ route('dokter.jadwal-praktek.create') }}" 
-                               class="inline-block mt-4 px-4 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#007a6a] transition-colors text-sm font-medium">
-                                Tambah Jadwal
-                            </a>
+                            <p class="text-gray-400 text-xs mt-1">Hubungi admin untuk menambahkan jadwal praktek</p>
                         </div>
                         @endforelse
                     </div>

@@ -48,25 +48,35 @@
             @endphp
 
             @foreach($layanan as $index => $item)
-                <div x-data="{ loaded: false }" 
+                <div x-data="{ loaded: false, hovered: false }" 
                      x-intersect="loaded = true"
-                     class="bg-white rounded-xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                     @mouseenter="hovered = true"
+                     @mouseleave="hovered = false"
+                     class="bg-white rounded-xl p-6 shadow-md border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105 group cursor-pointer">
                     <div x-show="loaded" 
                          x-transition:enter="transition ease-out duration-1000"
                          x-transition:enter-start="opacity-0 translate-y-10"
                          x-transition:enter-end="opacity-100 translate-y-0"
                          :style="'transition-delay: {{ $index * 100 }}ms'">
-                        <div class="w-16 h-16 bg-gradient-to-br from-[#FFA700] to-[#FFB733] rounded-xl flex items-center justify-center mb-4 shadow-lg">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-16 h-16 bg-gradient-to-br from-[#FFA700] to-[#FFB733] rounded-xl flex items-center justify-center mb-4 shadow-lg transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                            <svg class="w-8 h-8 text-white transform transition-transform duration-300" :class="{'scale-110': hovered}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#005248] transition-colors">
                             {{ $item['judul'] }}
                         </h3>
-                        <p class="text-gray-600 leading-relaxed">
+                        <p class="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
                             {{ $item['deskripsi'] }}
                         </p>
+                        <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span class="text-[#FFA700] font-semibold text-sm flex items-center gap-2">
+                                Pelajari lebih lanjut
+                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        </div>
                     </div>
                 </div>
             @endforeach

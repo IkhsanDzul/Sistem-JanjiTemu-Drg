@@ -35,5 +35,17 @@ class Pasien extends Model
     {
         return $this->hasMany(JanjiTemu::class, 'pasien_id', 'id');
     }
+    public function rekamMedis()
+    {
+        return $this->hasManyThrough(
+            \App\Models\RekamMedis::class,   
+            \App\Models\JanjiTemu::class,   
+            'pasien_id',                     
+            'janji_temu_id',                 
+            'id',                            
+            'id'                             
+        );
+    }
+    
 }
 

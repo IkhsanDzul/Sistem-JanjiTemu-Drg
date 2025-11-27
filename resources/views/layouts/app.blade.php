@@ -32,7 +32,7 @@
         <div class="lg:ml-64">
             
             <!-- HEADER ATAS -->
-            <x-dokter-header :title="$title ?? 'Dashboard'" />
+            <x-dokter-header :title="$title" :subtitle="$subtitle ?? null" />
             
             <!-- ISI HALAMAN -->
             <main class="p-6">

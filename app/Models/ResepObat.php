@@ -32,10 +32,16 @@ class ResepObat extends Model
         'dosis' => 'integer',
     ];
 
-    // Relasi ke User (dokter yang membuat resep)
-    public function user()
+    // Relasi ke Dokter
+    public function dokter()
     {
-        return $this->belongsTo(User::class, 'dokter_id', 'rekam_medis_id', 'id');
+        return $this->belongsTo(Dokter::class, 'dokter_id', 'id');
+    }
+
+    // Relasi ke RekamMedis
+    public function rekamMedis()
+    {
+        return $this->belongsTo(RekamMedis::class, 'rekam_medis_id', 'id');
     }
 }
 

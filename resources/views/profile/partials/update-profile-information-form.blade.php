@@ -17,32 +17,43 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
             <div class="space-y-4">
-
-                <!-- Foto -->
+                <!-- Foto Profil -->
                 <div>
                     <x-input-label for="foto_profil" :value="__('Foto Profil')" />
                     <div class="my-2 flex justify-center md:justify-center">
-                        @if ($user->foto_profil)
-                            <img src="{{ asset('storage/' . $user->foto_profil) }}"
+                        <div class="relative">
+                            <!-- Preview Area (akan muncul saat user pilih gambar) -->
+                            <div id="preview-container" class="hidden">
+                                <img id="preview-image" src="" alt="Preview Foto"
+                                    class="w-32 h-32 md:w-36 md:h-36 rounded-full object-cover shadow-md">
+                            </div>
+
+                            <!-- Foto lama atau placeholder (muncul saat tidak ada preview) -->
+                            @if ($user->foto_profil)
+                            <img id="current-photo" src="{{ asset('storage/' . $user->foto_profil) }}"
                                 alt="Foto Profil"
                                 class="w-32 h-32 md:w-36 md:h-36 rounded-full object-cover shadow-md"
-                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-[#005248] flex items-center justify-center shadow-md hidden">
+                                onerror="this.onerror=null; this.style.display='none'; document.getElementById('placeholder').style.display='flex';">
+                            <div id="placeholder" class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-[#005248] flex items-center justify-center shadow-md hidden">
                                 <span class="text-white font-bold text-4xl md:text-5xl">
                                     {{ strtoupper(substr($user->nama_lengkap ?? 'U', 0, 1)) }}
                                 </span>
                             </div>
-                        @else
-                            <div class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-[#005248] flex items-center justify-center shadow-md">
+                            @else
+                            <div id="placeholder" class="w-32 h-32 md:w-36 md:h-36 rounded-full bg-[#005248] flex items-center justify-center shadow-md">
                                 <span class="text-white font-bold text-4xl md:text-5xl">
                                     {{ strtoupper(substr($user->nama_lengkap ?? 'U', 0, 1)) }}
                                 </span>
                             </div>
-                        @endif
+                            @endif
+                        </div>
                     </div>
 
+                    <!-- Input File -->
                     <x-text-input id="foto_profil" name="foto_profil" type="file" accept="image/*"
-                        class="mt-1 block w-full" />
+                        class="mt-1 block w-full"
+                        onchange="previewImage(this)" />
+
                     <x-input-error :messages="$errors->get('foto_profil')" class="mt-2" />
                 </div>
 
@@ -150,5 +161,35 @@
             @endif
         </div>
     </form>
+    <script>
+        function previewImage(input) {
+            const previewContainer = document.getElementById('preview-container');
+            const previewImage = document.getElementById('preview-image');
 
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+
+                    // Sembunyikan foto lama & placeholder
+                    const currentPhoto = document.getElementById('current-photo');
+                    const placeholder = document.getElementById('placeholder');
+                    if (currentPhoto) currentPhoto.style.display = 'none';
+                    if (placeholder) placeholder.style.display = 'none';
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewContainer.classList.add('hidden');
+
+                // Tampilkan kembali foto lama/placeholder
+                const currentPhoto = document.getElementById('current-photo');
+                const placeholder = document.getElementById('placeholder');
+                if (currentPhoto) currentPhoto.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'flex';
+            }
+        }
+    </script>
 </section>

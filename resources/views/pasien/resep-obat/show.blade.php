@@ -2,10 +2,14 @@
 
 @section('title', 'Resep Obat')
 
+@php
+    $title = 'Resep Obat';
+    $subtitle = 'Daftar obat yang diresepkan';
+@endphp
+
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6 px-4 sm:px-6">
     <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">Resep Obat</h1>
         <a href="{{ route('pasien.rekam-medis.detail', $rekam->id) }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
