@@ -78,7 +78,7 @@
         <div class="value">
             Nama: {{ $rekam->janjiTemu->pasien->user->nama_lengkap ?? 'N/A' }}<br>
             No. Telepon: {{ $rekam->janjiTemu->pasien->user->nomor_telp ?? 'N/A' }}<br>
-            Tanggal Lahir: {{ $rekam->janjiTemu->pasien->tanggal_lahir ? \Carbon\Carbon::parse($rekam->janjiTemu->pasien->tanggal_lahir)->format('d M Y') : 'N/A' }}
+            Tanggal Lahir: {{ $rekam->janjiTemu->pasien->user->tanggal_lahir ? \Carbon\Carbon::parse($rekam->janjiTemu->pasien->user->tanggal_lahir)->format('d M Y') : 'N/A' }}
         </div>
     </div>
 

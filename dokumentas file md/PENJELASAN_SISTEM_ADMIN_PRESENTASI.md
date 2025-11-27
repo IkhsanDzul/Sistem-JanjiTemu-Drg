@@ -282,7 +282,107 @@ class User extends Authenticatable
 - `id` (UUID, primary key)
 - `user_id` (string, foreign key → `users.id`)
 
-**Relasi**: Satu admin memiliki satu user
+**Relasi Database**: Satu admin memiliki satu user
+
+**Catatan Penting tentang Relasi Admin:**
+
+ERD yang ditampilkan hanya menunjukkan **relasi database struktural** (foreign key constraints), bukan **relasi akses/authorization**. 
+
+**Perbedaan Relasi Database vs Relasi Akses:**
+
+1. **Relasi Database (Structural Relationships):**
+   - Ditunjukkan dengan **foreign key** di database
+   - Contoh: `admin.user_id` → `users.id` (ada foreign key)
+   - Contoh: `logs.admin_id` → `admin.id` atau `users.id` (ada foreign key)
+   - Relasi ini memastikan **integritas data** di level database
+
+2. **Relasi Akses (Logical/Authorization Relationships):**
+   - Tidak menggunakan foreign key, tetapi menggunakan **role-based access control**
+   - Admin dapat mengakses semua data karena memiliki `role_id = 'admin'` di tabel `users`
+   - Akses dilakukan melalui **query berdasarkan role**, bukan foreign key langsung
+
+**Akses Admin ke Data Lain (Tanpa Foreign Key):**
+
+Meskipun admin tidak memiliki foreign key langsung ke tabel lain (kecuali `logs`), admin dapat:
+
+- **Mengelola Pasien (CRUD):**
+  - Query: `Pasien::all()`, `Pasien::find($id)`, dll
+  - Akses melalui: Role-based authorization di controller
+  - Route: `admin.pasien.*`
+
+- **Mengelola Dokter (CRUD):**
+  - Query: `Dokter::all()`, `Dokter::find($id)`, dll
+  - Akses melalui: Role-based authorization di controller
+  - Route: `admin.dokter.*`
+
+- **Melihat & Mengelola Janji Temu:**
+  - Query: `JanjiTemu::with(['pasien.user', 'dokter.user'])->get()`
+  - Akses melalui: Role-based authorization
+  - Route: `admin.janji-temu.*`
+
+- **Melihat Rekam Medis:**
+  - Query: `RekamMedis::with(['janjiTemu.pasien.user', 'janjiTemu.dokter.user'])->get()`
+  - Akses melalui: Role-based authorization
+  - Route: `admin.rekam-medis.*`
+
+- **Melihat Resep Obat:**
+  - Query: `ResepObat::with(['rekamMedis.janjiTemu.pasien.user', 'dokter.user'])->get()`
+  - Akses melalui: Role-based authorization
+  - Route: `admin.resep-obat.*`
+
+- **Mengelola Jadwal Praktek:**
+  - Query: `JadwalPraktek::where('dokter_id', $dokterId)->get()`
+  - Akses melalui: Role-based authorization
+  - Route: `admin.dokter.jadwal-praktek.*`
+
+**Mengapa Admin Tidak Perlu Foreign Key Langsung?**
+
+1. **Role-Based Access Control (RBAC):**
+   - Admin diidentifikasi melalui `users.role_id = 'admin'`
+   - Middleware `role:admin` memastikan hanya admin yang bisa akses route admin
+   - Tidak perlu foreign key karena akses dikontrol di level aplikasi, bukan database
+
+2. **Polymorphic Pattern:**
+   - Sistem menggunakan pattern polymorphic dimana `users` adalah tabel pusat
+   - Admin, dokter, dan pasien adalah "tipe" user yang berbeda
+   - Relasi ke data lain dilakukan melalui `users.id`, bukan `admin.id`
+
+3. **Fleksibilitas:**
+   - Jika admin perlu foreign key ke setiap tabel, akan membuat schema terlalu kompleks
+   - Dengan RBAC, akses lebih fleksibel dan mudah dikelola
+
+**Contoh Implementasi Akses Admin:**
+
+```php
+// Middleware: role:admin
+Route::middleware('role:admin')->group(function () {
+    // Admin bisa akses semua route ini
+    Route::get('/admin/pasien', [PasienController::class, 'index']);
+    Route::get('/admin/dokter', [DokterController::class, 'index']);
+    Route::get('/admin/rekam-medis', [RekamMedisController::class, 'index']);
+    // dll...
+});
+
+// Controller: Admin\PasienController
+public function index() {
+    // Admin bisa query semua pasien tanpa foreign key
+    $pasien = Pasien::with('user')->paginate(15);
+    return view('admin.manajemen-pasien.index', compact('pasien'));
+}
+```
+
+**Kesimpulan:**
+
+ERD menunjukkan **relasi struktural database** (foreign key), sedangkan **relasi akses** dikontrol melalui:
+- Role-based access control (RBAC)
+- Middleware `role:admin`
+- Query langsung ke tabel tanpa foreign key
+- Authorization di level controller
+
+Ini adalah desain yang **benar dan efisien** karena:
+- Menghindari kompleksitas foreign key yang tidak perlu
+- Memberikan fleksibilitas dalam manajemen akses
+- Memisahkan concern antara struktur data dan authorization
 
 #### **Tabel `pasien`** (Tabel Pasien)
 
@@ -664,7 +764,7 @@ Untuk menjaga integritas data, sistem menggunakan **cascade delete** pada foreig
 5. **Hapus Janji Temu** → Rekam medis terhapus → Semua resep obat terhapus
 6. **Hapus Rekam Medis** → Semua resep obat terhapus
 
-#### **Diagram Relasi Lengkap (ERD Simplified)**
+#### **Diagram Relasi Lengkap (ERD Simplified - Structural Relationships)**
 
 ```
 ┌─────────┐
@@ -682,41 +782,132 @@ Untuk menjaga integritas data, sistem menggunakan **cascade delete** pada foreig
      │ 1        │ 1        │ 1
 ┌────▼───┐ ┌───▼────┐ ┌───▼────┐
 │ admin  │ │ pasien │ │ dokter │
-└────────┘ └────┬───┘ └───┬─────┘
-                │         │
-                │ N       │ N
-                │         │
-                │         ├──────────┐
-                │         │          │
-                │         │ N        │ N
-                │         │          │
-         ┌──────▼─────────▼──┐      │
-         │   janji_temu      │      │
-         └──────┬────────────┘      │
-                │ 1                 │
-                │                   │
-                │ N                 │
-         ┌──────▼────────────┐      │
-         │  rekam_medis      │      │
-         └──────┬────────────┘      │
-                │ 1                 │
-                │                   │
-                │ N                 │
-         ┌──────▼────────────┐      │
-         │   resep_obat      │◄─────┘
-         └──────────────────┘
-                │
-                │ (referensi logis)
-                │
-         ┌──────▼────────────┐
-         │  master_obat       │
-         └───────────────────┘
-                │
-                │ N
-         ┌──────▼────────────┐
-         │ jadwal_praktek    │
-         └───────────────────┘
+└───┬────┘ └────┬───┘ └───┬─────┘
+    │           │         │
+    │ N         │ N       │ N
+    │           │         │
+    │           │         ├──────────┐
+    │           │         │          │
+    │           │         │ N        │ N
+    │           │         │          │
+    │    ┌──────▼─────────▼──┐      │
+    │    │   janji_temu      │      │
+    │    └──────┬────────────┘      │
+    │           │ 1                 │
+    │           │                   │
+    │           │ N                 │
+    │    ┌──────▼────────────┐      │
+    │    │  rekam_medis      │      │
+    │    └──────┬────────────┘      │
+    │           │ 1                 │
+    │           │                   │
+    │           │ N                 │
+    │    ┌──────▼────────────┐      │
+    │    │   resep_obat      │◄─────┘
+    │    └───────────────────┘
+    │           │
+    │           │ (referensi logis)
+    │           │
+    │    ┌──────▼────────────┐
+    │    │  master_obat       │
+    │    └───────────────────┘
+    │           │
+    │           │ N
+    │    ┌──────▼────────────┐
+    │    │ jadwal_praktek    │
+    │    └───────────────────┘
+    │
+    │ N
+┌───▼────┐
+│  logs  │
+└────────┘
 ```
+
+**Catatan:** Diagram di atas menunjukkan **relasi database struktural** (foreign key). Admin hanya memiliki foreign key ke `users` dan `logs`, tetapi memiliki **akses logis** ke semua tabel lain melalui Role-Based Access Control (RBAC).
+
+#### **Diagram Alur Akses Admin (Logical Access Relationships)**
+
+```
+                    ┌─────────────┐
+                    │   Admin     │
+                    │ (role_id =  │
+                    │  'admin')   │
+                    └──────┬──────┘
+                           │
+                           │ Role-Based Access Control
+                           │ (Middleware: role:admin)
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+│   Pasien     │   │    Dokter     │   │  Janji Temu  │
+│   (CRUD)     │   │   (CRUD)      │   │   (View &    │
+│              │   │                │   │   Manage)    │
+└──────────────┘   └───────────────┘   └──────────────┘
+        │                  │                  │
+        │                  │                  │
+        └──────────────────┼──────────────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │  Rekam Medis    │
+                  │   (View & PDF)  │
+                  └────────┬─────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │   Resep Obat    │
+                  │    (View Only)  │
+                  └─────────────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │ Jadwal Praktek  │
+                  │   (CRUD)        │
+                  └─────────────────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │    Laporan     │
+                  │ (View/PDF/Excel)│
+                  └─────────────────┘
+```
+
+**Penjelasan Diagram Akses:**
+
+1. **Admin** diidentifikasi melalui `users.role_id = 'admin'`
+2. **Middleware** `role:admin` memverifikasi akses
+3. **Controller** melakukan query langsung ke tabel tanpa foreign key
+4. **Akses Logis:**
+   - **Pasien:** Full CRUD (Create, Read, Update, Delete)
+   - **Dokter:** Full CRUD + Kelola Jadwal Praktek
+   - **Janji Temu:** View, Filter, Update Status
+   - **Rekam Medis:** View, Filter, Export PDF
+   - **Resep Obat:** View Only
+   - **Jadwal Praktek:** CRUD melalui dokter
+   - **Laporan:** View, Export PDF, Export Excel
+
+**Perbedaan Kunci:**
+
+| Aspek | Relasi Database (ERD) | Relasi Akses (RBAC) |
+|-------|----------------------|---------------------|
+| **Tujuan** | Integritas data | Authorization |
+| **Implementasi** | Foreign Key | Middleware + Controller |
+| **Level** | Database | Application |
+| **Admin → Pasien** | ❌ Tidak ada FK | ✅ Query langsung |
+| **Admin → Dokter** | ❌ Tidak ada FK | ✅ Query langsung |
+| **Admin → Rekam Medis** | ❌ Tidak ada FK | ✅ Query langsung |
+| **Admin → Logs** | ✅ Ada FK | ✅ Query langsung |
+
+**Kesimpulan:**
+
+ERD yang benar menunjukkan admin hanya terhubung ke `users` dan `logs` melalui foreign key. Namun, admin memiliki **akses penuh** ke semua data lain melalui:
+- Role-based access control
+- Query langsung di controller
+- Middleware authorization
+
+Ini adalah desain yang **benar dan efisien** karena memisahkan concern antara struktur data (database) dan authorization (application).
 
 ---
 
@@ -2109,6 +2300,632 @@ public function update(Request $request)
 - Profile link: Hover effect dengan background `bg-[#005248]/80`
 - Logout button: Hover effect dengan background `bg-red-600/20`
 - Icon SVG untuk visual
+
+---
+
+## 10. PENJELASAN DETAIL SETIAP HALAMAN ADMIN
+
+### 10.1. HALAMAN DASHBOARD ADMIN
+
+**Route:** `GET /admin/dashboard`  
+**Controller:** `AdminController@index()`  
+**View:** `resources/views/admin/dashboard.blade.php`  
+**Layout:** `layouts/admin.blade.php`
+
+#### **Deskripsi Halaman**
+
+Dashboard Admin adalah halaman utama yang menampilkan ringkasan statistik dan informasi penting tentang sistem. Halaman ini memberikan gambaran cepat tentang kondisi klinik secara keseluruhan.
+
+#### **Komponen Halaman**
+
+**1. Statistik Cards Utama (4 Cards)**
+
+Halaman menampilkan 4 card statistik utama di bagian atas:
+
+- **Total Pasien** (Card Biru)
+  - Menampilkan jumlah total pasien yang terdaftar di sistem
+  - Icon: SVG user group
+  - Background: `bg-blue-50`
+  - Data dari: `Pasien::count()`
+
+- **Total Dokter** (Card Hijau)
+  - Menampilkan jumlah total dokter yang terdaftar
+  - Icon: SVG briefcase
+  - Background: `bg-green-50`
+  - Data dari: `Dokter::count()`
+
+- **Janji Temu Bulan Ini** (Card Orange)
+  - Menampilkan jumlah janji temu pada bulan berjalan
+  - Sub-info: Jumlah janji temu hari ini
+  - Icon: SVG calendar
+  - Background: `bg-orange-50`
+  - Data dari: `JanjiTemu::whereMonth('tanggal', Carbon::now()->month)->count()`
+
+- **Pendapatan Bulan Ini** (Card Teal)
+  - Menampilkan total pendapatan dari rekam medis bulan berjalan
+  - Format: Rupiah dengan pemisah ribuan
+  - Sub-info: Pendapatan hari ini
+  - Icon: SVG currency
+  - Background: `bg-teal-50`
+  - Data dari: `RekamMedis::whereMonth('created_at', Carbon::now()->month)->sum('biaya')`
+
+**2. Statistik Status Janji Temu (4 Cards)**
+
+Menampilkan breakdown status janji temu:
+
+- **Pending** (Kuning): `bg-yellow-50`, border `border-yellow-200`
+- **Confirmed** (Biru): `bg-blue-50`, border `border-blue-200`
+- **Completed** (Hijau): `bg-green-50`, border `border-green-200`
+- **Canceled** (Merah): `bg-red-50`, border `border-red-200`
+
+Setiap card menampilkan:
+- Label status
+- Jumlah janji temu dengan status tersebut
+- Indikator visual (dot berwarna)
+
+**3. Grid Layout Dua Kolom**
+
+**A. Janji Temu Terbaru (Kiri)**
+- Tabel menampilkan 10 janji temu terbaru
+- Kolom: Pasien, Dokter, Tanggal, Status
+- Link "Lihat Semua" mengarah ke `admin.janji-temu.index`
+- Status badge dengan warna sesuai status
+- Empty state jika tidak ada data
+
+**B. User Terbaru (Kanan)**
+- List menampilkan user terbaru yang terdaftar
+- Menampilkan: Avatar (inisial), Nama, Email, Role badge
+- Role badge dengan warna berbeda:
+  - Admin: `bg-purple-100 text-purple-700`
+  - Dokter: `bg-green-100 text-green-700`
+  - Pasien: `bg-blue-100 text-blue-700`
+
+**4. Grid Layout Dua Kolom (Bawah)**
+
+**A. Dokter Aktif (Kiri)**
+- List 5 dokter dengan status "tersedia"
+- Menampilkan: Foto profil (atau inisial), Nama, Spesialisasi, Status badge
+- Link "Lihat Semua" mengarah ke `admin.dokter.index`
+
+**B. Log Aktivitas (Kanan)**
+- List 10 log aktivitas terbaru
+- Menampilkan: Icon aksi (buat/edit/hapus), Admin yang melakukan, Waktu, Action badge
+- Icon dengan warna berbeda:
+  - Buat: `bg-green-500`
+  - Edit: `bg-blue-500`
+  - Hapus: `bg-red-500`
+- Format waktu: `d/m/Y H:i` dan `diffForHumans()`
+- Scrollable dengan `max-h-96 overflow-y-auto`
+
+#### **Styling & Responsive**
+
+- **Grid System:** 
+  - Statistik cards: `grid-cols-1 md:grid-cols-2 lg:grid-cols-4`
+  - Status cards: `grid-cols-1 md:grid-cols-4`
+  - Tabel layout: `grid-cols-1 lg:grid-cols-2`
+
+- **Hover Effects:**
+  - Cards: `hover:shadow-lg transition-shadow`
+  - Table rows: `hover:bg-gray-50 transition-colors`
+
+- **Color Scheme:**
+  - Primary: `#005248` (hijau tua)
+  - Secondary: `#FFA700` (orange)
+  - Background: `bg-gray-50`
+
+#### **Data yang Ditampilkan**
+
+Semua data diambil dari controller `AdminController@index()`:
+- Statistik umum (pasien, dokter, admin)
+- Statistik janji temu (hari ini, minggu ini, bulan ini, per status)
+- Statistik pendapatan (hari ini, bulan ini)
+- Data terbaru (janji temu, user, dokter aktif, logs)
+
+---
+
+### 10.2. HALAMAN JANJI TEMU
+
+**Route:** `GET /admin/janji-temu`  
+**Controller:** `Admin\JanjiTemuController@index()`  
+**View:** `resources/views/admin/janji-temu/index.blade.php`
+
+#### **Deskripsi Halaman**
+
+Halaman untuk mengelola dan memantau semua janji temu pasien dengan dokter. Admin dapat melihat, mencari, memfilter, dan melihat detail janji temu.
+
+#### **Komponen Halaman**
+
+**1. Filter Section**
+
+Form filter dengan 3 input:
+- **Search:** Input text untuk mencari nama pasien atau dokter
+- **Status Filter:** Dropdown dengan opsi: Semua, Pending, Confirmed, Completed, Canceled
+- **Tanggal Filter:** Input date untuk filter berdasarkan tanggal janji temu
+
+Tombol:
+- **Filter:** Submit form dengan icon search
+- **Reset:** Clear semua filter dan reload halaman
+
+**2. Statistik Cards (4 Cards)**
+
+Menampilkan jumlah janji temu per status:
+- Pending (Kuning)
+- Confirmed (Biru)
+- Completed (Hijau)
+- Canceled (Merah)
+
+**3. Tabel Janji Temu**
+
+Kolom tabel:
+- **Tanggal & Waktu:** 
+  - Tanggal format `d/m/Y`
+  - Jam format `H:i` (mulai - selesai)
+  - Sortable dengan link ke query parameter
+- **Pasien:**
+  - Avatar dengan inisial (background biru)
+  - Nama lengkap
+  - Email (sub-text)
+- **Dokter:**
+  - Avatar dengan inisial (background hijau)
+  - Nama lengkap
+  - Spesialisasi (sub-text)
+- **Keluhan:**
+  - Text dengan truncate jika panjang
+  - Tooltip untuk melihat full text
+- **Status:**
+  - Badge dengan warna sesuai status
+  - Label dalam Bahasa Indonesia
+- **Aksi:**
+  - Link "Detail" dengan icon eye
+  - Mengarah ke `admin.janji-temu.show`
+
+**4. Pagination**
+
+- Menampilkan pagination Laravel di bawah tabel
+- 15 item per halaman
+- Hanya muncul jika ada lebih dari 1 halaman
+
+**5. Empty State**
+
+Jika tidak ada data:
+- Icon calendar
+- Pesan "Tidak ada janji temu"
+- Deskripsi singkat
+
+#### **Fitur Pencarian & Filter**
+
+- **Search:** Mencari di nama pasien atau dokter menggunakan `whereHas`
+- **Status:** Filter berdasarkan status janji temu
+- **Tanggal:** Filter berdasarkan tanggal janji temu
+- **Sorting:** Default `created_at desc`, bisa diubah via query parameter
+
+#### **Styling**
+
+- Filter section: `bg-white rounded-lg shadow-md border border-gray-100`
+- Table: `min-w-full divide-y divide-gray-200`
+- Hover effect pada row: `hover:bg-gray-50 transition-colors`
+- Status badges dengan warna berbeda sesuai status
+
+---
+
+### 10.3. HALAMAN MANAJEMEN PASIEN
+
+**Route:** `GET /admin/pasien`  
+**Controller:** `Admin\PasienController@index()`  
+**View:** `resources/views/admin/manajemen-pasien/index.blade.php`
+
+#### **Deskripsi Halaman**
+
+Halaman untuk mengelola data pasien. Admin dapat melihat daftar pasien, mencari, memfilter, melihat detail, menambah, mengedit, dan menghapus pasien.
+
+#### **Komponen Halaman**
+
+**1. Action Button**
+
+Tombol "Tambah Pasien" di kanan atas:
+- Background: `bg-[#005248]`
+- Hover: `hover:bg-[#003d35]`
+- Icon: Plus SVG
+- Link ke: `admin.pasien.create`
+
+**2. Filter Section**
+
+Form dengan 2 input:
+- **Search:** Cari berdasarkan nama, email, atau NIK
+- **Jenis Kelamin:** Dropdown (Semua, Laki-laki, Perempuan)
+
+Tombol Filter dan Reset.
+
+**3. Statistik Cards (3 Cards)**
+
+- **Total Pasien:** Card putih dengan icon user group
+- **Laki-laki:** Card biru dengan jumlah pasien laki-laki
+- **Perempuan:** Card pink dengan jumlah pasien perempuan
+
+**4. Success/Error Messages**
+
+Alert messages untuk feedback:
+- Success: `bg-green-50 border-green-200 text-green-800`
+- Error: `bg-red-50 border-red-200 text-red-800`
+- Icon checkmark atau warning
+
+**5. Tabel Pasien**
+
+Kolom:
+- **Pasien:**
+  - Foto profil (atau avatar dengan inisial)
+  - Nama lengkap
+  - Email (sub-text)
+- **NIK:** Nomor Induk Kependudukan
+- **Jenis Kelamin:** Laki-laki atau Perempuan
+- **Golongan Darah:** Dari tabel pasien
+- **Alergi:** Text dengan truncate jika panjang
+- **Aksi:**
+  - **Detail:** Icon eye, link ke `admin.pasien.show`
+  - **Edit:** Icon pencil, link ke `admin.pasien.edit`
+  - **Hapus:** Icon trash, form DELETE dengan konfirmasi
+
+**6. Pagination**
+
+Laravel pagination di bawah tabel (15 per halaman).
+
+**7. Empty State**
+
+Jika tidak ada pasien:
+- Icon user group
+- Pesan "Tidak ada pasien"
+- Tombol "Tambah Pasien Pertama"
+
+#### **Fitur CRUD**
+
+- **Create:** Link ke form tambah pasien
+- **Read:** Tabel daftar dan link detail
+- **Update:** Link edit dengan icon pencil
+- **Delete:** Form DELETE dengan konfirmasi JavaScript
+
+#### **Validasi Delete**
+
+Sebelum hapus, sistem mengecek:
+- Apakah pasien memiliki janji temu aktif (pending/confirmed)
+- Jika ada, tampilkan error dan tidak bisa dihapus
+
+---
+
+### 10.4. HALAMAN MANAJEMEN DOKTER
+
+**Route:** `GET /admin/dokter`  
+**Controller:** `Admin\DokterController@index()`  
+**View:** `resources/views/admin/dokter/index.blade.php`
+
+#### **Deskripsi Halaman**
+
+Halaman untuk mengelola data dokter. Admin dapat melihat daftar dokter, mencari, memfilter, melihat detail, menambah, mengedit, menghapus dokter, dan mengelola jadwal praktek.
+
+#### **Komponen Halaman**
+
+**1. Action Button**
+
+Tombol "Tambah Dokter" di kanan atas dengan styling sama seperti halaman pasien.
+
+**2. Filter Section**
+
+Form dengan 3 input:
+- **Search:** Cari berdasarkan nama, email, atau NIK
+- **Status:** Dropdown (Semua, Tersedia, Tidak Tersedia)
+- **Spesialisasi:** Input text untuk mencari spesialisasi
+
+**3. Statistik Cards (3 Cards)**
+
+- **Total Dokter:** Card putih dengan icon briefcase
+- **Tersedia:** Card hijau dengan jumlah dokter tersedia
+- **Tidak Tersedia:** Card merah dengan jumlah dokter tidak tersedia
+
+**4. Tabel Dokter**
+
+Kolom:
+- **Dokter:**
+  - Foto profil (atau avatar dengan inisial hijau)
+  - Nama lengkap
+  - Email (sub-text)
+- **Spesialisasi:** Spesialisasi gigi
+- **No. STR:** Nomor Surat Tanda Registrasi (unique)
+- **Pengalaman:** Jumlah tahun pengalaman
+- **Status:**
+  - Badge hijau untuk "Tersedia"
+  - Badge merah untuk "Tidak Tersedia"
+- **Jadwal Praktek:**
+  - Badge ungu dengan link ke halaman jadwal praktek
+  - Format: `{jadwal aktif}/{total jadwal}`
+  - Icon calendar
+- **Aksi:**
+  - Detail, Edit, Hapus (sama seperti pasien)
+
+**5. Pagination & Empty State**
+
+Sama seperti halaman pasien.
+
+#### **Fitur Khusus**
+
+- **Jadwal Praktek:** Link langsung ke halaman kelola jadwal praktek dokter
+- **Status Dokter:** Filter dan tampilan status ketersediaan
+- **Spesialisasi:** Filter berdasarkan spesialisasi gigi
+
+#### **Relasi dengan Jadwal Praktek**
+
+Setiap dokter memiliki link ke halaman jadwal praktek:
+- Route: `admin.dokter.jadwal-praktek.index`
+- Parameter: `{dokterId}`
+- Menampilkan jumlah jadwal aktif vs total jadwal
+
+---
+
+### 10.5. HALAMAN REKAM MEDIS
+
+**Route:** `GET /admin/rekam-medis`  
+**Controller:** `Admin\RekamMedisController@index()`  
+**View:** `resources/views/admin/rekam-medis/index.blade.php`
+
+#### **Deskripsi Halaman**
+
+Halaman untuk melihat dan mengelola rekam medis pasien. Admin dapat melihat semua rekam medis, mencari, memfilter berdasarkan tanggal, melihat detail, dan export ke PDF.
+
+#### **Komponen Halaman**
+
+**1. Filter Section**
+
+Form dengan 3 input:
+- **Search:** Cari berdasarkan nama pasien, dokter, diagnosa, atau tindakan
+- **Tanggal Dari:** Input date untuk range filter
+- **Tanggal Sampai:** Input date untuk range filter
+
+**2. Statistik Cards (3 Cards)**
+
+- **Total Rekam Medis:** Card putih dengan icon document
+- **Total Biaya:** Card hijau dengan format Rupiah
+- **Bulan Ini:** Card ungu dengan jumlah rekam medis bulan berjalan
+
+**3. Tabel Rekam Medis**
+
+Kolom:
+- **Tanggal:**
+  - Tanggal janji temu (format `d/m/Y`)
+  - Waktu dibuat rekam medis (format `H:i`)
+- **Pasien:**
+  - Avatar dengan inisial biru
+  - Nama lengkap
+  - NIK (sub-text)
+- **Dokter:**
+  - Nama dokter
+  - Spesialisasi (sub-text)
+- **Diagnosa:**
+  - Text dengan truncate jika > 50 karakter
+- **Tindakan:**
+  - Text dengan truncate jika > 50 karakter
+- **Biaya:**
+  - Format Rupiah dengan pemisah ribuan
+- **Aksi:**
+  - **Detail:** Icon eye, link ke `admin.rekam-medis.show`
+  - **PDF:** Icon printer, link ke `admin.rekam-medis.pdf` (target blank)
+
+**4. Pagination & Empty State**
+
+Sama seperti halaman lainnya.
+
+#### **Fitur Khusus**
+
+- **Export PDF:** Setiap rekam medis bisa di-export ke PDF
+- **Range Date Filter:** Filter berdasarkan range tanggal
+- **Biaya Display:** Format Rupiah dengan number formatting
+
+#### **Relasi Data**
+
+Rekam medis diambil dengan eager loading:
+- `janjiTemu.pasien.user`
+- `janjiTemu.dokter.user`
+
+---
+
+### 10.6. HALAMAN RESEP OBAT
+
+**Route:** `GET /admin/resep-obat`  
+**Controller:** `Admin\ResepObatController@index()`  
+**View:** `resources/views/admin/resep-obat/index.blade.php`
+
+#### **Deskripsi Halaman**
+
+Halaman untuk melihat dan mengelola resep obat yang diberikan dokter kepada pasien. Admin hanya dapat melihat (view-only), tidak dapat membuat atau mengedit resep obat.
+
+#### **Komponen Halaman**
+
+**1. Filter Section**
+
+Form dengan 3 input:
+- **Search:** Cari berdasarkan nama obat, nama pasien, atau nama dokter
+- **Tanggal Dari:** Input date untuk range filter
+- **Tanggal Sampai:** Input date untuk range filter
+
+**2. Statistik Cards (3 Cards)**
+
+- **Total Resep Obat:** Card putih dengan icon flask/bottle
+- **Obat Unik:** Card hijau dengan jumlah obat unik yang diresepkan
+- **Bulan Ini:** Card ungu dengan jumlah resep obat bulan berjalan
+
+**3. Tabel Resep Obat**
+
+Kolom:
+- **Tanggal Resep:**
+  - Tanggal resep (format `d/m/Y`)
+  - Waktu dibuat (format `H:i`)
+- **Nama Obat:** Nama obat yang diresepkan
+- **Pasien:**
+  - Avatar dengan foto atau inisial
+  - Nama lengkap
+- **Dokter:**
+  - Nama dokter
+  - Spesialisasi (sub-text)
+- **Jumlah:** Jumlah obat dengan unit
+- **Dosis:** Dosis obat dalam mg dengan format number
+- **Aksi:**
+  - **Detail:** Icon eye, link ke `admin.resep-obat.show`
+
+**4. Pagination & Empty State**
+
+Sama seperti halaman lainnya.
+
+#### **Fitur Khusus**
+
+- **View Only:** Admin hanya bisa melihat, tidak bisa create/edit/delete
+- **Obat Unik:** Statistik menampilkan jumlah obat unik yang berbeda
+- **Relasi Nested:** Data diambil dengan relasi:
+  - `rekamMedis.janjiTemu.pasien.user`
+  - `dokter.user`
+
+#### **Data yang Ditampilkan**
+
+- Nama obat dari `resep_obat.nama_obat`
+- Jumlah dan dosis dari resep obat
+- Aturan pakai (di halaman detail)
+- Data pasien dan dokter melalui relasi rekam medis
+
+---
+
+### 10.7. HALAMAN LAPORAN
+
+**Route:** `GET /admin/laporan`  
+**Controller:** `Admin\LaporanController@index()`  
+**View:** `resources/views/admin/laporan/index.blade.php`
+
+#### **Deskripsi Halaman**
+
+Halaman utama untuk memilih jenis laporan yang ingin dilihat atau di-export. Admin dapat memilih dari 3 jenis laporan dan memilih format export (View, PDF, atau Excel).
+
+#### **Komponen Halaman**
+
+**1. Header Section**
+
+- Judul: "Laporan dan Rekapitulasi Data"
+- Deskripsi: "Pilih jenis laporan yang ingin Anda lihat atau unduh"
+
+**2. Grid 3 Kolom - Pilihan Laporan**
+
+Setiap card laporan memiliki:
+
+**A. Laporan Jumlah Pasien Terdaftar**
+- Icon: User group (biru)
+- Judul: "Jumlah Pasien Terdaftar"
+- Deskripsi: "Laporan data pasien yang terdaftar di sistem"
+- Tombol:
+  - **Lihat Laporan:** Link ke `admin.laporan.pasien` (format view)
+  - **PDF:** Link ke `admin.laporan.pasien?format=pdf` (target blank)
+  - **Excel:** Link ke `admin.laporan.pasien?format=excel`
+
+**B. Laporan Jadwal Kunjungan**
+- Icon: Calendar (hijau)
+- Judul: "Jadwal Kunjungan"
+- Deskripsi: "Laporan jadwal kunjungan pasien hari ini"
+- Tombol: Sama seperti laporan pasien
+
+**C. Laporan Daftar Dokter Aktif**
+- Icon: Briefcase (ungu)
+- Judul: "Daftar Dokter Aktif"
+- Deskripsi: "Laporan daftar dokter yang aktif di klinik"
+- Tombol: Sama seperti laporan pasien
+
+#### **Styling Cards**
+
+- Background: `bg-white rounded-lg shadow-sm border border-gray-100`
+- Hover: `hover:shadow-md transition-shadow`
+- Icon container: `p-3 bg-{color}-50 rounded-lg`
+- Button colors:
+  - Primary: `bg-[#005248]` (hijau tua)
+  - PDF: `bg-red-500`
+  - Excel: `bg-green-500`
+
+#### **Format Export**
+
+Setiap laporan dapat di-export dalam 3 format:
+
+1. **View (Default):**
+   - Menampilkan laporan di browser
+   - Route: `admin.laporan.{type}`
+   - View: `admin.laporan.{type}.blade.php`
+
+2. **PDF:**
+   - Generate PDF menggunakan DomPDF
+   - Route: `admin.laporan.{type}?format=pdf`
+   - View: `admin.laporan.{type}-pdf.blade.php`
+   - Download langsung
+
+3. **Excel:**
+   - Generate Excel menggunakan Maatwebsite Excel
+   - Route: `admin.laporan.{type}?format=excel`
+   - Export class: `{Type}Export.php`
+   - Download file `.xlsx`
+
+#### **Detail Setiap Laporan**
+
+**1. Laporan Jumlah Pasien Terdaftar**
+- Data: Semua pasien dengan relasi user
+- Statistik: Total pasien, Pasien laki-laki, Pasien perempuan
+- Kolom: No, Nama Lengkap, Email, No. Telepon, Jenis Kelamin, Tanggal Daftar
+
+**2. Laporan Jadwal Kunjungan**
+- Data: Janji temu per tanggal (default: hari ini)
+- Statistik: Total kunjungan, Breakdown per status
+- Kolom: Pasien, Dokter, Jam, Status
+
+**3. Laporan Daftar Dokter Aktif**
+- Data: Dokter dengan status "tersedia"
+- Statistik: Total dokter aktif, Statistik per dokter
+- Kolom: Nama, Email, Spesialisasi, Status, Total Janji Temu
+
+---
+
+### 10.8. KESIMPULAN HALAMAN ADMIN
+
+#### **Konsistensi Design**
+
+Semua halaman admin mengikuti pola design yang konsisten:
+
+1. **Layout:**
+   - Sidebar kiri dengan navigasi
+   - Header dengan title dan subtitle
+   - Main content area dengan padding
+
+2. **Color Scheme:**
+   - Primary: `#005248` (hijau tua)
+   - Secondary: `#FFA700` (orange)
+   - Background: `bg-gray-50`
+   - Cards: `bg-white` dengan shadow
+
+3. **Components:**
+   - Filter section dengan form
+   - Statistik cards
+   - Tabel dengan pagination
+   - Empty state dengan icon dan pesan
+   - Success/Error messages
+
+4. **Responsive:**
+   - Mobile-first approach
+   - Grid system responsive
+   - Sidebar overlay di mobile
+   - Tabel scrollable di mobile
+
+5. **User Experience:**
+   - Hover effects pada interactive elements
+   - Loading states
+   - Confirmation dialogs untuk delete
+   - Breadcrumb navigation (implied)
+   - Clear action buttons
+
+#### **Fitur Umum Semua Halaman**
+
+- **Search & Filter:** Semua halaman memiliki fitur pencarian dan filter
+- **Pagination:** Semua tabel menggunakan pagination (15 per halaman)
+- **Sorting:** Beberapa tabel memiliki sorting
+- **Empty States:** Semua halaman memiliki empty state yang informatif
+- **Success/Error Messages:** Feedback untuk user actions
+- **Responsive Design:** Semua halaman responsive untuk mobile dan desktop
 
 ---
 

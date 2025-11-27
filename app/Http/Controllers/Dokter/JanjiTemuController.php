@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\JanjiTemu;
 use App\Models\JadwalPraktek;
 use Carbon\Carbon;
@@ -13,7 +14,7 @@ class JanjiTemuController extends Controller
     // Tampilkan daftar janji temu
     public function index()
     {
-        $dokter = auth()->user()->dokter;
+        $dokter = Auth::user()->dokter;
         
         if (!$dokter) {
             $appointments = collect();
@@ -42,7 +43,7 @@ class JanjiTemuController extends Controller
     // Tampilkan detail janji temu
     public function show($id)
     {
-        $dokter = auth()->user()->dokter;
+        $dokter = Auth::user()->dokter;
         
         $appointment = JanjiTemu::with(['pasien.user', 'dokter.user'])
             ->where('id', $id)
@@ -65,7 +66,7 @@ class JanjiTemuController extends Controller
 
     public function approve($id)
     {
-        $dokter = auth()->user()->dokter;
+        $dokter = Auth::user()->dokter;
         $appointment = JanjiTemu::where('id', $id)
             ->where('dokter_id', $dokter->id)
             ->firstOrFail();
@@ -85,7 +86,7 @@ class JanjiTemuController extends Controller
 
     public function reject($id)
     {
-        $dokter = auth()->user()->dokter;
+        $dokter = Auth::user()->dokter;
         $appointment = JanjiTemu::where('id', $id)
             ->where('dokter_id', $dokter->id)
             ->firstOrFail();
@@ -104,7 +105,7 @@ class JanjiTemuController extends Controller
 
     public function complete($id)
     {
-        $dokter = auth()->user()->dokter;
+        $dokter = Auth::user()->dokter;
         $appointment = JanjiTemu::where('id', $id)
             ->where('dokter_id', $dokter->id)
             ->firstOrFail();
