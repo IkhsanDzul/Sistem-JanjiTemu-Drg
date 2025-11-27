@@ -80,6 +80,7 @@
                             onchange="window.location='?tanggal=' + this.value">
                             <option value="">-- Pilih Tanggal --</option>
 
+                            
                             @foreach ($jadwalFormat as $tgl)
                             <option value="{{ $tgl }}"
                                 {{ isset($tanggalDipilih) && $tanggalDipilih == $tgl ? 'selected' : '' }}>
@@ -113,11 +114,6 @@
                     <div class="mb-4">
                         <label for="keluhan" class="block text-gray-700 mb-2">Keterangan *</label>
                         <textarea id="keluhan" name="keluhan" rows="3" class="w-full border border-gray-300 rounded-md p-2" placeholder="Jelaskan keluhan" required></textarea>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="foto_gigi">Upload Foto Gigi *</label>
-                        <input type="file" id="foto_gigi" name="foto_gigi" accept="image/*" required class="w-full border border-gray-300 rounded-md p-2 mt-2">
                     </div>
 
                     <input type="hidden" name="dokter_id" value="{{ $dokter->id }}">

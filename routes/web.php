@@ -135,7 +135,7 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
     // Rekam Medis Routes
     Route::get('/rekam-medis', [DokterRekamMedisController::class, 'index'])->name('rekam-medis');
     Route::get('/rekam-medis/{id}', [DokterRekamMedisController::class, 'show'])->name('rekam-medis.show');
-    Route::get('/create', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create');
+    Route::get('/create/{id}', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create');
     Route::post('/rekam-medis', [DokterRekamMedisController::class, 'store'])->name('rekam-medis.store');
     Route::get('/rekam-medis/{id}/edit', [DokterRekamMedisController::class, 'edit'])->name('rekam-medis.edit');
     Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update');

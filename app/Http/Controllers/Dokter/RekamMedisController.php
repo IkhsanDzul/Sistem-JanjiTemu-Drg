@@ -104,15 +104,16 @@ class RekamMedisController extends Controller
      */
     public function show($id)
     {
+
         $rekamMedis = RekamMedis::with([
             'janjiTemu.pasien.user',
             'janjiTemu.dokter.user',
             'resepObat'
         ])->findOrFail($id);
 
-        $fotoGigiPath = $rekamMedis->janjiTemu->foto_gigi ?? null;
+        // $fotoGigiPath = $rekamMedis->janjiTemu->foto_gigi ?? null;
 
-        $fotoGigiUrl = $fotoGigiPath ? asset('storage/' . $fotoGigiPath) : null;
+        // $fotoGigiUrl = $fotoGigiPath ? asset('storage/' . $fotoGigiPath) : null;
 
         // Jika resep obat ada tapi aturan pakai kosong, ambil dari master obat
         if ($rekamMedis->resepObat && $rekamMedis->resepObat->count() > 0) {
@@ -134,7 +135,7 @@ class RekamMedisController extends Controller
             }
         }
 
-        return view('dokter.rekam-medis.show', compact('rekamMedis', 'fotoGigiUrl'))
+        return view('dokter.rekam-medis.show', compact('rekamMedis' ))
             ->with('title', 'Detail Rekam Medis');
     }
 
@@ -198,11 +199,6 @@ class RekamMedisController extends Controller
                 'catatan' => $request->catatan,
                 'biaya' => $request->biaya ?? 0,
             ]);
-
-            // Update status janji temu menjadi completed (konsisten dengan dokter)
-            if ($janjiTemu->status !== 'completed') {
-                $janjiTemu->update(['status' => 'completed']);
-            }
 
             // Simpan resep obat jika ada
             if ($request->filled('resep_obat_nama') && $request->filled('resep_obat_jumlah')) {
