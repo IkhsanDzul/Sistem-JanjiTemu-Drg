@@ -3,8 +3,8 @@
 @section('title', 'Janji Temu Saya')
 
 @php
-    $title = 'Janji Temu Saya';
-    $subtitle = 'Daftar janji temu saya';
+$title = 'Janji Temu Saya';
+$subtitle = 'Daftar janji temu saya';
 @endphp
 
 @section('content')
@@ -76,93 +76,95 @@
     <!-- List Janji Temu -->
     <div class="space-y-4">
         @forelse ($janjiTemu as $j)
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 hover:shadow-md transition">
-            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                <!-- Foto Dokter + Info -->
-                <div class="flex items-start gap-3 flex-1">
-                    <!-- Foto Dokter -->
-                    <div class="flex-shrink-0">
-                        @if($j->dokter && $j->dokter->user && $j->dokter->user->foto_profil)
-                        <img src="{{ asset('storage/' . $j->dokter->user->foto_profil) }}"
-                            alt="Foto Dokter"
-                            class="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover"
-                            onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-lg flex items-center justify-center hidden">
-                            <span class="text-gray-400 font-bold text-lg md:text-xl">
-                                {{ strtoupper(substr($j->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
-                            </span>
+        <a href="{{ route('pasien.detail-janji-temu', $j->id) }}">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 hover:shadow-md transition">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <!-- Foto Dokter + Info -->
+                    <div class="flex items-start gap-3 flex-1">
+                        <!-- Foto Dokter -->
+                        <div class="flex-shrink-0">
+                            @if($j->dokter && $j->dokter->user && $j->dokter->user->foto_profil)
+                            <img src="{{ asset('storage/' . $j->dokter->user->foto_profil) }}"
+                                alt="Foto Dokter"
+                                class="w-12 h-12 md:w-16 md:h-16 rounded-lg object-cover"
+                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-lg flex items-center justify-center hidden">
+                                <span class="text-gray-400 font-bold text-lg md:text-xl">
+                                    {{ strtoupper(substr($j->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                                </span>
+                            </div>
+                            @else
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <span class="text-gray-400 font-bold text-lg md:text-xl">
+                                    {{ strtoupper(substr($j->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
+                                </span>
+                            </div>
+                            @endif
                         </div>
-                        @else
-                        <div class="w-12 h-12 md:w-16 md:h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span class="text-gray-400 font-bold text-lg md:text-xl">
-                                {{ strtoupper(substr($j->dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
-                            </span>
+
+                        <!-- Informasi -->
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-base md:text-lg font-semibold text-gray-900 truncate">{{ $j->dokter->user->nama_lengkap ?? 'Dokter' }}</h3>
+                            <p class="text-xs md:text-sm text-gray-600 mt-1 truncate">{{ $j->dokter->spesialisasi_gigi ?? 'Spesialis Gigi' }}</p>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <p class="text-xs text-gray-600">
+                                    <span class="font-medium">Tanggal:</span>
+                                    {{ \Carbon\Carbon::parse($j->tanggal)->locale('id')->isoFormat('ddd, DD MMM YYYY') }}
+                                </p>
+                                <p class="text-xs text-gray-600">
+                                    <span class="font-medium">Jam:</span>
+                                    {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} WIB
+                                </p>
+                            </div>
+                            @if($j->keluhan)
+                            <p class="text-xs text-gray-500 mt-2 line-clamp-2">
+                                <span class="font-medium">Keluhan:</span>
+                                {{ $j->keluhan }}
+                            </p>
+                            @endif
                         </div>
-                        @endif
                     </div>
 
-                    <!-- Informasi -->
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-base md:text-lg font-semibold text-gray-900 truncate">{{ $j->dokter->user->nama_lengkap ?? 'Dokter' }}</h3>
-                        <p class="text-xs md:text-sm text-gray-600 mt-1 truncate">{{ $j->dokter->spesialisasi_gigi ?? 'Spesialis Gigi' }}</p>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <p class="text-xs text-gray-600">
-                                <span class="font-medium">Tanggal:</span>
-                                {{ \Carbon\Carbon::parse($j->tanggal)->locale('id')->isoFormat('ddd, DD MMM YYYY') }}
-                            </p>
-                            <p class="text-xs text-gray-600">
-                                <span class="font-medium">Jam:</span>
-                                {{ \Carbon\Carbon::parse($j->jam_mulai)->format('H:i') }} WIB
-                            </p>
+                    <!-- Status & Actions -->
+                    <div class="flex flex-col items-end gap-2 mt-4 md:mt-0">
+                        <!-- Status Badge -->
+                        @php
+                        $statusConfig = [
+                        'pending' => ['bg-yellow-100', 'text-yellow-800', 'Menunggu'],
+                        'confirmed' => ['bg-green-100', 'text-green-800', 'Disetujui'],
+                        'completed' => ['bg-blue-100', 'text-blue-800', 'Selesai'],
+                        'canceled' => ['bg-red-100', 'text-red-800', 'Dibatalkan'],
+                        ];
+                        $status = $statusConfig[$j->status] ?? $statusConfig['pending'];
+                        @endphp
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $status[0] }} {{ $status[1] }}">
+                            {{ $status[2] }}
+                        </span>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2">
+                            @if($j->status == 'pending')
+                            <form action="{{ route('pasien.cancel-janji-temu', $j->id) }}" method="POST"
+                                onsubmit="return confirm('Apakah Anda yakin ingin membatalkan janji temu ini?');">
+                                @csrf
+                                <button type="submit"
+                                    class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs font-medium">
+                                    Batalkan
+                                </button>
+                            </form>
+                            @endif
+
+                            @if(in_array($j->status, ['confirmed', 'completed']))
+                            <a href="{{ route('pasien.detail-janji-temu', $j->id) }}"
+                                class="px-3 py-1.5 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors text-xs font-medium">
+                                Detail
+                            </a>
+                            @endif
                         </div>
-                        @if($j->keluhan)
-                        <p class="text-xs text-gray-500 mt-2 line-clamp-2">
-                            <span class="font-medium">Keluhan:</span>
-                            {{ $j->keluhan }}
-                        </p>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Status & Actions -->
-                <div class="flex flex-col items-end gap-2 mt-4 md:mt-0">
-                    <!-- Status Badge -->
-                    @php
-                    $statusConfig = [
-                    'pending' => ['bg-yellow-100', 'text-yellow-800', 'Menunggu'],
-                    'confirmed' => ['bg-green-100', 'text-green-800', 'Disetujui'],
-                    'completed' => ['bg-blue-100', 'text-blue-800', 'Selesai'],
-                    'canceled' => ['bg-red-100', 'text-red-800', 'Dibatalkan'],
-                    ];
-                    $status = $statusConfig[$j->status] ?? $statusConfig['pending'];
-                    @endphp
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $status[0] }} {{ $status[1] }}">
-                        {{ $status[2] }}
-                    </span>
-
-                    <!-- Action Buttons -->
-                    <div class="flex gap-2">
-                        @if($j->status == 'pending')
-                        <form action="{{ route('pasien.cancel-janji-temu', $j->id) }}" method="POST"
-                            onsubmit="return confirm('Apakah Anda yakin ingin membatalkan janji temu ini?');">
-                            @csrf
-                            <button type="submit"
-                                class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs font-medium">
-                                Batalkan
-                            </button>
-                        </form>
-                        @endif
-
-                        @if(in_array($j->status, ['confirmed', 'completed']))
-                        <a href="{{ route('pasien.detail-janji-temu', $j->id) }}"
-                            class="px-3 py-1.5 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors text-xs font-medium">
-                            Detail
-                        </a>
-                        @endif
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
         @empty
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
