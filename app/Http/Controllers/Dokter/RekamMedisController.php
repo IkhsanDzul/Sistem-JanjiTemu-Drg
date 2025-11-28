@@ -154,6 +154,15 @@ class RekamMedisController extends Controller
         // Jika ada parameter janji_temu_id, set sebagai selected
         $selectedJanjiTemuId = $request->get('janji_temu_id');
 
+        // Ambil informasi pasien jika janji_temu_id disediakan
+        $pasien = null;
+        if ($selectedJanjiTemuId) {
+            $selectedJanji = JanjiTemu::with('pasien')->find($selectedJanjiTemuId);
+            if ($selectedJanji) {
+                $pasien = $selectedJanji->pasien;
+            }
+        }
+
         // Ambil master obat yang aktif untuk dropdown
         $obatTersedia = MasterObat::where('aktif', true)
             ->orderBy('nama_obat', 'asc')
@@ -166,7 +175,7 @@ class RekamMedisController extends Controller
                 ];
             });
 
-        return view('dokter.rekam-medis.create', compact('janjiTemu', 'selectedJanjiTemuId', 'obatTersedia'))
+        return view('dokter.rekam-medis.create', compact('janjiTemu', 'selectedJanjiTemuId', 'obatTersedia', 'pasien'))
             ->with('title', 'Tambah Rekam Medis');
     }
 
@@ -181,7 +190,13 @@ class RekamMedisController extends Controller
 
         try {
             // Validasi janji temu
-            $janjiTemu = JanjiTemu::findOrFail($request->janji_temu_id);
+            $janjiTemu = JanjiTemu::where('id', $request->janji_temu_id)->first();
+
+            if (!$janjiTemu) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Janji temu tidak ditemukan.');
+            }
 
             // Cek apakah janji temu sudah memiliki rekam medis
             if ($janjiTemu->rekamMedis) {
@@ -200,40 +215,57 @@ class RekamMedisController extends Controller
                 'biaya' => $request->biaya ?? 0,
             ]);
 
-            // Simpan resep obat jika ada
-            if ($request->filled('resep_obat_nama') && $request->filled('resep_obat_jumlah')) {
+            // Simpan resep obat jika ada (dukung multiple resep)
+            $resepObatNama = $request->input('resep_obat_nama');
+            $resepObatJumlah = $request->input('resep_obat_jumlah');
+            $resepObatDosis = $request->input('resep_obat_dosis');
+            $resepObatAturanPakai = $request->input('resep_obat_aturan_pakai');
+
+            if (!empty($resepObatNama) && is_array($resepObatNama)) {
                 // Ambil dokter dari janji temu
                 $dokter = $janjiTemu->dokter;
 
-                // Ambil aturan pakai dari master obat jika field kosong
-                $aturanPakai = $request->resep_obat_aturan_pakai;
-                $dosis = $request->resep_obat_dosis ?? 0;
+                // Proses setiap obat dalam array
+                for ($i = 0; $i < count($resepObatNama); $i++) {
+                    $namaObat = $resepObatNama[$i];
+                    $jumlah = $resepObatJumlah[$i] ?? 0;
 
-                // Jika aturan pakai atau dosis kosong, ambil dari master obat
-                if (empty($aturanPakai) || $dosis == 0) {
-                    $masterObat = MasterObat::where('nama_obat', $request->resep_obat_nama)
-                        ->where('aktif', true)
-                        ->first();
+                    // Lewati jika nama obat atau jumlah kosong
+                    if (empty(trim($namaObat)) || empty($jumlah)) {
+                        continue;
+                    }
 
-                    if ($masterObat) {
-                        if (empty($aturanPakai)) {
-                            $aturanPakai = $masterObat->aturan_pakai_default ?? '';
-                        }
-                        if ($dosis == 0) {
-                            $dosis = $masterObat->dosis_default ?? 0;
+                    // Ambil aturan pakai dan dosis dari input
+                    $aturanPakai = $resepObatAturanPakai[$i] ?? '';
+                    $dosis = $resepObatDosis[$i] ?? 0;
+
+                    // Jika aturan pakai atau dosis kosong, ambil dari master obat
+                    if (empty($aturanPakai) || $dosis == 0) {
+                        $masterObat = MasterObat::where('nama_obat', $namaObat)
+                            ->where('aktif', true)
+                            ->first();
+
+                        if ($masterObat) {
+                            if (empty($aturanPakai)) {
+                                $aturanPakai = $masterObat->aturan_pakai_default ?? '';
+                            }
+                            if ($dosis == 0) {
+                                $dosis = $masterObat->dosis_default ?? 0;
+                            }
                         }
                     }
-                }
 
-                ResepObat::create([
-                    'rekam_medis_id' => $rekamMedis->id,
-                    'dokter_id' => $dokter->id ?? null,
-                    'tanggal_resep' => now()->toDateString(),
-                    'nama_obat' => $request->resep_obat_nama,
-                    'jumlah' => $request->resep_obat_jumlah,
-                    'dosis' => $dosis,
-                    'aturan_pakai' => $aturanPakai,
-                ]);
+                    // Simpan resep obat
+                    ResepObat::create([
+                        'rekam_medis_id' => $rekamMedis->id,
+                        'dokter_id' => $dokter->id ?? null,
+                        'tanggal_resep' => now()->toDateString(),
+                        'nama_obat' => $namaObat,
+                        'jumlah' => $jumlah,
+                        'dosis' => $dosis,
+                        'aturan_pakai' => $aturanPakai,
+                    ]);
+                }
             }
 
             DB::commit();

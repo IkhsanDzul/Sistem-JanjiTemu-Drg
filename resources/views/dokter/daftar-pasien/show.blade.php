@@ -14,10 +14,16 @@
                 Kembali
             </a>
 
-            <a href="{{ url('/dokter/rekam-medis?pasien_id=' . $pasien->id) }}"
-               class="bg-[#005248] text-white px-4 py-2 rounded-lg hover:bg-[#007a6a] transition">
-                Lihat Rekam Medis
-            </a>
+            @if($pasien->rekamMedis->count() > 0)
+                <a href="{{ route('dokter.rekam-medis.show', $pasien->rekamMedis->first()->id) }}"
+                   class="bg-[#005248] text-white px-4 py-2 rounded-lg hover:bg-[#007a6a] transition">
+                    Lihat Rekam Medis
+                </a>
+            @else
+                <span class="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed">
+                    Belum Ada Rekam Medis
+                </span>
+            @endif
         </div>
         <!-- Card Informasi -->
         <div class="bg-white shadow rounded-lg p-6 border border-gray-200">
@@ -34,7 +40,7 @@
 
                 <div>
                     <p class="text-sm text-gray-500">Nomor Rekam Medis (No. RM)</p>
-                    <p class="text-base font-medium text-gray-800">{{ $pasien->id }}</p>
+                    <p class="text-base font-medium text-gray-800">{{ $pasien->no_rm ?? 'Belum ada No. RM' }}</p>
                 </div>
 
                 <div>

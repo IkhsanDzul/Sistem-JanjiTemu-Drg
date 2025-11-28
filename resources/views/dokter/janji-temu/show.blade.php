@@ -136,7 +136,7 @@
 
         <!-- Keluhan Section -->
         @if($appointment->keluhan)
-        <div class="p-6 border-t border-gray-100 bg-gray-50">
+        <div class="p-6 border-t border-gray-100">
             <div class="flex items-start gap-3">
                 <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
