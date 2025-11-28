@@ -24,7 +24,7 @@ class JadwalPraktekSeeder extends Seeder
 
         foreach ($dokters as $dokter) {
             // Jadwal untuk dokter pertama (Dr. Ahmad Wijaya)
-            if ($dokter->user->email === 'dokter@gmail.com') {
+            if ($dokter->user->email === 'dokter1@gmail.com') {
                 $now = date('Y-m-d');
                 $jadwalDokter1 = [
                     ['tanggal' => $now, 'jam_mulai' => '08:00', 'jam_selesai' => '12:00', 'status' => 'available'],

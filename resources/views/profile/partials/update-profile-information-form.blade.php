@@ -1,5 +1,4 @@
 <section class="space-y-6">
-
     <h2 class="text-lg font-medium text-white">
         {{ __('Update Profile Information') }}
     </h2>
@@ -52,24 +51,33 @@
                     <!-- Input File -->
                     <x-text-input id="foto_profil" name="foto_profil" type="file" accept="image/*"
                         class="mt-1 block w-full"
-                        onchange="previewImage(this)" />
+                        onchange="previewImage(this)"
+                        data-max-size="2048" />
 
                     <x-input-error :messages="$errors->get('foto_profil')" class="mt-2" />
                 </div>
 
                 <div>
                     <x-input-label for="nik" :value="__('NIK')" />
-                    <x-text-input id="nik" name="nik" type="text"
+                    <x-text-input id="nik" name="nik" type="number"
                         class="mt-1 block w-full"
                         :value="old('nik', $user->nik)" required autocomplete="nik" />
                     <x-input-error :messages="$errors->get('nik')" class="mt-2" />
                 </div>
 
-                <div>
+                <div class="relative">
                     <x-input-label for="alamat" :value="__('Alamat')" />
                     <x-text-input id="alamat" name="alamat" type="text"
                         class="mt-1 block w-full"
-                        :value="old('alamat', $user->alamat)" required autocomplete="alamat" />
+                        :value="old('alamat', $user->alamat)" required autocomplete="alamat"
+                        placeholder="Mulai mengetik alamat Anda..."
+                        oninput="searchAddress(this.value)"
+                        onfocus="showAutocomplete()"
+                        onblur="hideAutocomplete()" />
+                    <!-- Autocomplete dropdown -->
+                    <div id="alamat-autocomplete" class="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 hidden max-h-60 overflow-y-auto">
+                        <div id="alamat-suggestions"></div>
+                    </div>
                     <x-input-error :messages="$errors->get('alamat')" class="mt-2" />
                 </div>
 
@@ -191,5 +199,104 @@
                 if (placeholder) placeholder.style.display = 'flex';
             }
         }
+
+        // Debouncing function to limit API calls
+        function debounce(func, timeout = 300) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, args), timeout);
+            };
+        }
+
+        // Show autocomplete dropdown
+        function showAutocomplete() {
+            const autocomplete = document.getElementById('alamat-autocomplete');
+            if (autocomplete.dataset.hasSuggestions === 'true') {
+                autocomplete.classList.remove('hidden');
+            }
+        }
+
+        // Hide autocomplete dropdown
+        function hideAutocomplete() {
+            setTimeout(() => {
+                document.getElementById('alamat-autocomplete').classList.add('hidden');
+            }, 200); // Delay to allow click on suggestions
+        }
+
+        // Search for addresses using OpenStreetMap Nominatim API
+        const searchAddress = debounce(async function(query) {
+            if (query.length < 3) {
+                clearSuggestions();
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=id&limit=5`);
+                const results = await response.json();
+
+                if (results.length > 0) {
+                    displaySuggestions(results);
+                } else {
+                    clearSuggestions();
+                }
+            } catch (error) {
+                console.error('Error searching for addresses:', error);
+                clearSuggestions();
+            }
+        }, 500);
+
+        // Display address suggestions
+        function displaySuggestions(suggestions) {
+            const suggestionsContainer = document.getElementById('alamat-suggestions');
+            suggestionsContainer.innerHTML = '';
+
+            if (suggestions.length > 0) {
+                document.getElementById('alamat-autocomplete').dataset.hasSuggestions = 'true';
+
+                suggestions.forEach((suggestion, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0';
+                    div.textContent = suggestion.display_name;
+                    div.onclick = function() {
+                        document.getElementById('alamat').value = suggestion.display_name;
+                        document.getElementById('alamat-autocomplete').classList.add('hidden');
+                    };
+                    suggestionsContainer.appendChild(div);
+                });
+
+                document.getElementById('alamat-autocomplete').classList.remove('hidden');
+            } else {
+                clearSuggestions();
+            }
+        }
+
+        // Clear address suggestions
+        function clearSuggestions() {
+            document.getElementById('alamat-suggestions').innerHTML = '';
+            document.getElementById('alamat-autocomplete').classList.add('hidden');
+            document.getElementById('alamat-autocomplete').dataset.hasSuggestions = 'false';
+        }
     </script>
+
+    <style>
+        #alamat-autocomplete {
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        #alamat-autocomplete .suggestion-item {
+            padding: 0.5rem;
+            cursor: pointer;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        #alamat-autocomplete .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        #alamat-autocomplete .suggestion-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
 </section>

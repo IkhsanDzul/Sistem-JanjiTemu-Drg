@@ -46,26 +46,68 @@
     @endif
 
     <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 lg:grid-reverse gap-6">
         <!-- Daftar Dokter -->
         <div class="lg:col-span-2 space-y-4">
             <!-- Search Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-                <form method="GET" action="{{ route('pasien.dashboard') }}">
-                    <div class="flex gap-2">
-                        <input
-                            type="text"
-                            name="search"
-                            value="{{ request('search') }}"
-                            placeholder="Cari nama dokter atau spesialisasi..."
-                            class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#005248]"
-                            autocomplete="off">
+                <form method="GET" action="{{ route('pasien.dashboard') }}" id="search-form">
+                    <div class="relative flex gap-2">
+                        <div class="flex-1 relative">
+                            <input
+                                type="text"
+                                name="search"
+                                id="search-input"
+                                value="{{ request('search') }}"
+                                placeholder="Cari nama dokter atau spesialisasi..."
+                                class="w-full h-full justify-center text-sm border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent"
+                                autocomplete="off">
+                            @if(request('search'))
+                            <button type="button" class="absolute right-2 top-1/3 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent cursor-pointer flex items-center justify-center w-5 h-5" id="clear-search-btn" onclick="clearSearch()">
+                                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            @endif
+                        </div>
                         <button type="submit" class="px-6 py-2.5 bg-[#005248] text-white rounded-lg hover:bg-[#003d35]">
                             Cari
                         </button>
                     </div>
-                </form> 
+                </form>
             </div>
+
+            <!-- Debounced Search JavaScript -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const searchInput = document.getElementById('search-input');
+                    const searchForm = document.getElementById('search-form');
+                    let searchTimeout;
+
+                    // Function to clear search
+                    window.clearSearch = function() {
+                        searchInput.value = '';
+                        searchForm.submit();
+                    };
+
+                    if (searchInput) {
+                        // Add event listener to the search input
+                        searchInput.addEventListener('input', function() {
+                            // Clear the previous timeout
+                            clearTimeout(searchTimeout);
+
+                            // Only submit if there's text (more than 1 character) or if input is cleared
+                            const query = this.value.trim();
+                            if (query.length >= 2 || query.length === 0) {
+                                // Set a new timeout to submit the form after 500ms
+                                searchTimeout = setTimeout(function() {
+                                    searchForm.submit();
+                                }, 500);
+                            }
+                        });
+                    }
+                });
+            </script>
 
             <!-- List Dokter -->
             @forelse ($dokter as $d)
@@ -136,7 +178,7 @@
             <!-- Pagination -->
             @if($dokter->hasPages())
             <div class="bg-white rounded-lg shadow-sm border border-gray-100 px-6 py-4">
-                {{ $dokter->appends(request()->query())->links() }}
+                {{ $dokter->appends(request()->query())->links('vendor.pagination.custom') }}
             </div>
             @endif
         </div>

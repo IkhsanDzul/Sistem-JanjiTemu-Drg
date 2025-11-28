@@ -231,114 +231,28 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
 
             <!-- Container untuk resep obat -->
             <div id="resep-container">
-                <!-- Template untuk satu item resep -->
-                <div id="resep-template" class="resep-item bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                        <!-- Nama Obat -->
-                        <div class="md:col-span-5">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Nama Obat
-                            </label>
-                            <div class="relative">
-                                <input
-                                    type="text"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-input"
-                                    placeholder="Cari nama obat...">
-                                <div class="obat-search-results absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
-                                    <!-- Search results will be populated here dynamically -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Jumlah -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Jumlah
-                            </label>
-                            <input type="number"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-jumlah-input"
-                                min="1"
-                                placeholder="Jumlah">
-                        </div>
-
-                        <!-- Dosis -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Dosis (mg)
-                            </label>
-                            <input type="number"
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-dosis-input"
-                                min="0"
-                                readonly
-                                placeholder="-----">
-                        </div>
-
-                        <!-- Aturan Pakai -->
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Aturan Pakai
-                            </label>
-                            <textarea
-                                class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-aturan-pakai-input"
-                                rows="1"
-                                readonly
-                                placeholder="-----"></textarea>
-                        </div>
-
-                        <!-- Tombol Hapus -->
-                        <div class="md:col-span-1 flex items-center justify-center mt-6 md:mt-0">
-                            <button type="button" class="hapus-resep-btn w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <!-- Hidden select untuk menyimpan nama obat -->
-                        <div class="hidden">
-                            <select class="resep-obat-select">
-                                <option value="">Pilih Obat</option>
-                                @if(!empty($obatTersedia) && count($obatTersedia) > 0)
-                                @foreach($obatTersedia as $obat)
-                                <option value="{{ $obat['nama_obat'] }}"
-                                    data-dosis="{{ $obat['dosis'] ?? 0 }}"
-                                    data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}">
-                                    {{ $obat['nama_obat'] }}
-                                </option>
-                                @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tempat untuk item resep yang ditambahkan -->
                 <div id="resep-list">
-                    <!-- Jika ada resep dari old input, tampilkan di sini -->
-                    @if(old('resep_obat_nama'))
-                    @foreach(old('resep_obat_nama') as $index => $namaObat)
-                    @php
-                    $jumlah = old('resep_obat_jumlah')[$index] ?? '';
-                    $dosis = old('resep_obat_dosis')[$index] ?? '';
-                    $aturanPakai = old('resep_obat_aturan_pakai')[$index] ?? '';
-                    @endphp
-                    <div class="resep-item bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                    <!-- Template untuk satu item resep -->
+                    <div id="resep-template" class="resep-item bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 hidden">
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                             <!-- Nama Obat -->
                             <div class="md:col-span-5">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Nama Obat
                                 </label>
-                                <div class="relative">
-                                    <input
-                                        type="text"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-input"
-                                        placeholder="Cari nama obat..."
-                                        value="{{ $namaObat }}">
-                                    <div class="obat-search-results absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
-                                        <!-- Search results will be populated here dynamically -->
-                                    </div>
-                                </div>
+                                <select name="resep_obat_nama[]"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-select">
+                                    <option value="">Pilih Obat</option>
+                                    @if(!empty($obatTersedia) && count($obatTersedia) > 0)
+                                        @foreach($obatTersedia as $obat)
+                                            <option value="{{ $obat['nama_obat'] }}"
+                                                data-dosis="{{ $obat['dosis'] ?? 0 }}"
+                                                data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}">
+                                                {{ $obat['nama_obat'] }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
 
                             <!-- Jumlah -->
@@ -347,11 +261,10 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                     Jumlah
                                 </label>
                                 <input type="number"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-jumlah-input"
-                                    name="resep_obat_jumlah[]"
-                                    min="1"
-                                    value="{{ $jumlah }}"
-                                    placeholder="Jumlah">
+                                       name="resep_obat_jumlah[]"
+                                       class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-jumlah-input"
+                                       min="1"
+                                       placeholder="Jumlah">
                             </div>
 
                             <!-- Dosis -->
@@ -360,12 +273,11 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                     Dosis (mg)
                                 </label>
                                 <input type="number"
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-dosis-input"
-                                    name="resep_obat_dosis[]"
-                                    min="0"
-                                    value="{{ $dosis }}"
-                                    readonly
-                                    placeholder="-----">
+                                       name="resep_obat_dosis[]"
+                                       class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-dosis-input"
+                                       min="0"
+                                       readonly
+                                       placeholder="-----">
                             </div>
 
                             <!-- Aturan Pakai -->
@@ -374,11 +286,11 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                     Aturan Pakai
                                 </label>
                                 <textarea
-                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-aturan-pakai-input"
                                     name="resep_obat_aturan_pakai[]"
+                                    class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-aturan-pakai-input"
                                     rows="1"
                                     readonly
-                                    placeholder="-----">{{ $aturanPakai }}</textarea>
+                                    placeholder="-----"></textarea>
                             </div>
 
                             <!-- Tombol Hapus -->
@@ -389,38 +301,175 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                     </svg>
                                 </button>
                             </div>
-
-                            <!-- Hidden select untuk menyimpan nama obat -->
-                            <div class="hidden">
-                                <select class="resep-obat-select" name="resep_obat_nama[]">
-                                    <option value="">Pilih Obat</option>
-                                    @if(!empty($obatTersedia) && count($obatTersedia) > 0)
-                                    @foreach($obatTersedia as $obat)
-                                    <option value="{{ $obat['nama_obat'] }}"
-                                        data-dosis="{{ $obat['dosis'] ?? 0 }}"
-                                        data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}"
-                                        {{ $namaObat == $obat['nama_obat'] ? 'selected' : '' }}>
-                                        {{ $obat['nama_obat'] }}
-                                    </option>
-                                    @endforeach
-                                    @endif
-                                </select>
-                            </div>
                         </div>
                     </div>
-                    @endforeach
+
+                    <!-- Item resep yang sudah ada (dari old input atau default) -->
+                    @if(old('resep_obat_nama'))
+                        @foreach(old('resep_obat_nama') as $index => $namaObat)
+                            @php
+                                $jumlah = old('resep_obat_jumlah')[$index] ?? '';
+                                $dosis = old('resep_obat_dosis')[$index] ?? '';
+                                $aturanPakai = old('resep_obat_aturan_pakai')[$index] ?? '';
+                            @endphp
+                            <div class="resep-item bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <!-- Nama Obat -->
+                                    <div class="md:col-span-5">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Nama Obat
+                                        </label>
+                                        <select name="resep_obat_nama[]"
+                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-select">
+                                            <option value="">Pilih Obat</option>
+                                            @if(!empty($obatTersedia) && count($obatTersedia) > 0)
+                                                @foreach($obatTersedia as $obat)
+                                                    <option value="{{ $obat['nama_obat'] }}"
+                                                        data-dosis="{{ $obat['dosis'] ?? 0 }}"
+                                                        data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                        {{ $namaObat == $obat['nama_obat'] ? 'selected' : '' }}>
+                                                        {{ $obat['nama_obat'] }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+
+                                    <!-- Jumlah -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Jumlah
+                                        </label>
+                                        <input type="number"
+                                               name="resep_obat_jumlah[]"
+                                               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-jumlah-input"
+                                               min="1"
+                                               placeholder="Jumlah"
+                                               value="{{ $jumlah }}">
+                                    </div>
+
+                                    <!-- Dosis -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Dosis (mg)
+                                        </label>
+                                        <input type="number"
+                                               name="resep_obat_dosis[]"
+                                               class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-dosis-input"
+                                               min="0"
+                                               readonly
+                                               placeholder="-----"
+                                               value="{{ $dosis }}">
+                                    </div>
+
+                                    <!-- Aturan Pakai -->
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            Aturan Pakai
+                                        </label>
+                                        <textarea
+                                            name="resep_obat_aturan_pakai[]"
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-aturan-pakai-input"
+                                            rows="1"
+                                            readonly
+                                            placeholder="-----">{{ $aturanPakai }}</textarea>
+                                    </div>
+
+                                    <!-- Tombol Hapus -->
+                                    <div class="md:col-span-1 flex items-center justify-center mt-6 md:mt-0">
+                                        <button type="button" class="hapus-resep-btn w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <!-- Item default pertama -->
+                        <div class="resep-item bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                <!-- Nama Obat -->
+                                <div class="md:col-span-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nama Obat
+                                    </label>
+                                    <select name="resep_obat_nama[]"
+                                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-select">
+                                        <option value="">Pilih Obat</option>
+                                        @if(!empty($obatTersedia) && count($obatTersedia) > 0)
+                                            @foreach($obatTersedia as $obat)
+                                                <option value="{{ $obat['nama_obat'] }}"
+                                                    data-dosis="{{ $obat['dosis'] ?? 0 }}"
+                                                    data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}">
+                                                    {{ $obat['nama_obat'] }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+
+                                <!-- Jumlah -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Jumlah
+                                    </label>
+                                    <input type="number"
+                                           name="resep_obat_jumlah[]"
+                                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-jumlah-input"
+                                           min="1"
+                                           placeholder="Jumlah">
+                                </div>
+
+                                <!-- Dosis -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Dosis (mg)
+                                    </label>
+                                    <input type="number"
+                                           name="resep_obat_dosis[]"
+                                           class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-dosis-input"
+                                           min="0"
+                                           readonly
+                                           placeholder="-----">
+                                </div>
+
+                                <!-- Aturan Pakai -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Aturan Pakai
+                                    </label>
+                                    <textarea
+                                        name="resep_obat_aturan_pakai[]"
+                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-aturan-pakai-input"
+                                        rows="1"
+                                        readonly
+                                        placeholder="-----"></textarea>
+                                </div>
+
+                                <!-- Tombol Hapus -->
+                                <div class="md:col-span-1 flex items-center justify-center mt-6 md:mt-0">
+                                    <button type="button" class="hapus-resep-btn w-full py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center opacity-0 pointer-events-none">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     @endif
                 </div>
+            </div>
 
-                @if(empty($obatTersedia) || count($obatTersedia) == 0)
+            @if(empty($obatTersedia) || count($obatTersedia) == 0)
                 <p class="mt-2 text-sm text-yellow-600">
                     <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                     </svg>
                     Belum ada master obat tersedia.
                 </p>
-                @endif
-            </div>
+            @endif
         </div>
 
         <!-- Action Buttons -->
@@ -445,209 +494,109 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
 
 @push('scripts')
 <script>
+    // JavaScript for dynamic resep obat functionality
     document.addEventListener('DOMContentLoaded', function() {
-        // Ambil semua opsi obat untuk pencarian
-        const allObatOptions = [];
-        const templateSelect = document.querySelector('#resep-template .resep-obat-select');
-        if (templateSelect) {
-            Array.from(templateSelect.querySelectorAll('option:not(:first-child)')).forEach(option => {
-                allObatOptions.push({
-                    value: option.value,
-                    text: option.textContent,
-                    dosis: option.getAttribute('data-dosis'),
-                    aturanPakai: option.getAttribute('data-aturan-pakai')
-                });
-            });
-        }
+        // Function to update fields when obat is selected
+        function updateObatFields(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption) {
+                const dosis = selectedOption.getAttribute('data-dosis') || '';
+                const aturanPakai = selectedOption.getAttribute('data-aturan-pakai') || '';
 
-        // Fungsi untuk menampilkan hasil pencarian
-        function showSearchResults(results, searchResultsContainer, inputElement, selectElement, dosisElement, aturanPakaiElement) {
-            searchResultsContainer.innerHTML = '';
+                // Find the parent resep-item and then locate the corresponding inputs
+                const resepItem = selectElement.closest('.resep-item');
+                if (resepItem) {
+                    const dosisInput = resepItem.querySelector('.resep-dosis-input');
+                    const aturanPakaiInput = resepItem.querySelector('.resep-aturan-pakai-input');
 
-            if (results.length === 0) {
-                searchResultsContainer.classList.add('hidden');
-                return;
+                    if (dosisInput) {
+                        dosisInput.value = dosis;
+                    }
+                    if (aturanPakaiInput) {
+                        aturanPakaiInput.value = aturanPakai;
+                    }
+                }
             }
-
-            results.forEach(obat => {
-                const div = document.createElement('div');
-                div.className = 'p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0';
-                div.innerHTML = `<div class="font-medium">${obat.text}</div>`;
-
-                div.addEventListener('click', function() {
-                    // Set nilai pada select dan sembunyikan hasil pencarian
-                    selectElement.value = obat.value;
-                    inputElement.value = obat.text;
-                    searchResultsContainer.classList.add('hidden');
-
-                    // Update field lainnya
-                    if (dosisElement) {
-                        dosisElement.value = obat.dosis || '';
-                    }
-                    if (aturanPakaiElement) {
-                        aturanPakaiElement.value = obat.aturanPakai || '';
-                    }
-                });
-
-                searchResultsContainer.appendChild(div);
-            });
-
-            searchResultsContainer.classList.remove('hidden');
         }
 
-        // Fungsi untuk menambah resep baru
+        // Function to add a new resep item
         function tambahResep() {
             const template = document.getElementById('resep-template');
             const resepList = document.getElementById('resep-list');
             const newResep = template.cloneNode(true);
 
-            // Hapus class 'hidden' agar item bisa terlihat
+            // Remove hidden class and clear ID
             newResep.classList.remove('hidden');
             newResep.id = '';
 
-            // Bersihkan nilai-nilai input
-            newResep.querySelector('.resep-obat-input').value = '';
-            newResep.querySelector('.resep-jumlah-input').value = '';
-            newResep.querySelector('.resep-dosis-input').value = '';
-            newResep.querySelector('.resep-aturan-pakai-input').value = '';
-
-            // Update name attributes untuk array
-            newResep.querySelector('.resep-obat-select').name = 'resep_obat_nama[]';
-            newResep.querySelector('.resep-jumlah-input').name = 'resep_obat_jumlah[]';
-            newResep.querySelector('.resep-dosis-input').name = 'resep_obat_dosis[]';
-            newResep.querySelector('.resep-aturan-pakai-input').name = 'resep_obat_aturan_pakai[]';
-
-            // Setup search functionality untuk item baru
-            const obatInput = newResep.querySelector('.resep-obat-input');
-            const obatSelect = newResep.querySelector('.resep-obat-select');
-            const obatSearchResults = newResep.querySelector('.obat-search-results');
-            const dosisElement = newResep.querySelector('.resep-dosis-input');
-            const aturanPakaiElement = newResep.querySelector('.resep-aturan-pakai-input');
-
-            if (obatInput && obatSelect && obatSearchResults) {
-                // Event listener untuk input pencarian
-                obatInput.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-
-                    if (searchTerm.length === 0) {
-                        obatSearchResults.classList.add('hidden');
-                        return;
-                    }
-
-                    const filteredResults = allObatOptions.filter(obat =>
-                        obat.text.toLowerCase().includes(searchTerm)
-                    );
-
-                    showSearchResults(filteredResults, obatSearchResults, obatInput, obatSelect, dosisElement, aturanPakaiElement);
-                });
-
-                // Sembunyikan hasil pencarian saat klik di luar input
-                document.addEventListener('click', function(e) {
-                    if (!obatInput.contains(e.target) && !obatSearchResults.contains(e.target)) {
-                        setTimeout(() => {
-                            obatSearchResults.classList.add('hidden');
-                        }, 150); // Delay kecil untuk memungkinkan klik pada hasil
-                    }
-                });
-
-                // Event listener untuk perubahan pada select
-                obatSelect.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    if (selectedOption) {
-                        const dosis = selectedOption.getAttribute('data-dosis') || '';
-                        const aturanPakai = selectedOption.getAttribute('data-aturan-pakai') || '';
-
-                        if (dosisElement) {
-                            dosisElement.value = dosis;
-                        }
-                        if (aturanPakaiElement) {
-                            aturanPakaiElement.value = aturanPakai;
-                        }
-                    }
-                });
+            // Make the delete button visible and functional
+            const deleteBtn = newResep.querySelector('.hapus-resep-btn');
+            if (deleteBtn) {
+                deleteBtn.classList.remove('opacity-0', 'pointer-events-none');
+                deleteBtn.classList.add('opacity-100', 'pointer-events-auto');
             }
+
+            // Clear all values in the new resep item
+            const inputs = newResep.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'number' || input.type === 'text') {
+                    input.value = '';
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else if (input.tagName === 'TEXTAREA') {
+                    input.value = '';
+                }
+            });
 
             resepList.appendChild(newResep);
-        }
 
-        // Tambah event listener untuk tombol tambah resep
-        const tambahResepBtn = document.getElementById('tambah-resep-btn');
-        if (tambahResepBtn) {
-            tambahResepBtn.addEventListener('click', tambahResep);
-        }
-
-        // Gunakan event delegation — attach event ke container utama
-        document.getElementById('resep-list').addEventListener('click', function(e) {
-            if (e.target.closest('.hapus-resep-btn')) {
-                e.preventDefault();
-                const resepItem = e.target.closest('.resep-item');
-
-                // Hanya hapus jika lebih dari 1 item (biar selalu ada minimal 1)
-                if (resepItem && document.querySelectorAll('#resep-list .resep-item:not(#resep-template)').length > 1) {
-                    resepItem.remove();
-                } else {
-                    alert('Minimal harus ada satu resep obat.');
-                }
+            // Add event listener to the new select element
+            const newSelect = newResep.querySelector('.resep-obat-select');
+            if (newSelect) {
+                newSelect.addEventListener('change', function() {
+                    updateObatFields(this);
+                });
             }
+
+            // Add event listener to the new delete button
+            const newDeleteBtn = newResep.querySelector('.hapus-resep-btn');
+            if (newDeleteBtn) {
+                newDeleteBtn.addEventListener('click', function() {
+                    hapusResep(this);
+                });
+            }
+        }
+
+        // Function to remove a resep item
+        function hapusResep(button) {
+            const resepItem = button.closest('.resep-item');
+            if (resepItem) {
+                resepItem.remove();
+            }
+        }
+
+        // Add event listener to the tambah resep button
+        const tambahBtn = document.getElementById('tambah-resep-btn');
+        if (tambahBtn) {
+            tambahBtn.addEventListener('click', tambahResep);
+        }
+
+        // Add event listener to all existing delete buttons
+        document.querySelectorAll('.hapus-resep-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                hapusResep(this);
+            });
         });
 
-        // Setup search functionality untuk semua resep item yang ada (termasuk dari old input)
-        document.querySelectorAll('.resep-item:not(#resep-template)').forEach(function(resepItem) {
-            const obatInput = resepItem.querySelector('.resep-obat-input');
-            const obatSelect = resepItem.querySelector('.resep-obat-select');
-            const obatSearchResults = resepItem.querySelector('.obat-search-results');
-            const dosisElement = resepItem.querySelector('.resep-dosis-input');
-            const aturanPakaiElement = resepItem.querySelector('.resep-aturan-pakai-input');
+        // Add event listener to all existing select elements
+        document.querySelectorAll('.resep-obat-select').forEach(function(select) {
+            select.addEventListener('change', function() {
+                updateObatFields(this);
+            });
 
-            if (obatInput && obatSelect && obatSearchResults) {
-                // Event listener untuk input pencarian
-                obatInput.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-
-                    if (searchTerm.length === 0) {
-                        obatSearchResults.classList.add('hidden');
-                        return;
-                    }
-
-                    const filteredResults = allObatOptions.filter(obat =>
-                        obat.text.toLowerCase().includes(searchTerm)
-                    );
-
-                    showSearchResults(filteredResults, obatSearchResults, obatInput, obatSelect, dosisElement, aturanPakaiElement);
-                });
-
-                // Sembunyikan hasil pencarian saat klik di luar input
-                document.addEventListener('click', function(e) {
-                    if (!obatInput.contains(e.target) && !obatSearchResults.contains(e.target)) {
-                        setTimeout(() => {
-                            obatSearchResults.classList.add('hidden');
-                        }, 150); // Delay kecil untuk memungkinkan klik pada hasil
-                    }
-                });
-
-                // Event listener untuk perubahan pada select
-                obatSelect.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    if (selectedOption) {
-                        const dosis = selectedOption.getAttribute('data-dosis') || '';
-                        const aturanPakai = selectedOption.getAttribute('data-aturan-pakai') || '';
-
-                        if (dosisElement) {
-                            dosisElement.value = dosis;
-                        }
-                        if (aturanPakaiElement) {
-                            aturanPakaiElement.value = aturanPakai;
-                        }
-                    }
-                });
-
-                // Jika ada nilai awal, atur juga input teksnya
-                if (obatSelect.value) {
-                    const selectedOption = Array.from(obatSelect.options).find(option => option.value === obatSelect.value);
-                    if (selectedOption) {
-                        obatInput.value = selectedOption.textContent;
-                    }
-                }
+            // Trigger update on page load if an option is already selected
+            if (select.selectedIndex > 0) {
+                updateObatFields(select);
             }
         });
     });
