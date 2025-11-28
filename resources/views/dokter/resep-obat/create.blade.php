@@ -1,6 +1,6 @@
 @extends('layouts.dokter')
 
-@section('title', 'Tambah Master Obat')
+@section('title', 'Tambah Resep Obat')
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
@@ -34,14 +34,14 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Kembali ke Daftar Obat
+            Kembali ke Daftar Resep Obat
         </a>
     </div>
 
     <!-- Header -->
     <div class="bg-gradient-to-r from-[#005248] to-[#007a6a] rounded-lg shadow-md p-6 text-white">
-        <h2 class="text-2xl font-semibold">Tambah Master Obat</h2>
-        <p class="text-white/90 text-sm mt-1">Tambahkan obat baru ke dalam master data</p>
+        <h2 class="text-2xl font-semibold">Tambah Resep Obat</h2>
+        <p class="text-white/90 text-sm mt-1">Tambahkan Resep obat baru ke dalam Resep Obat data</p>
     </div>
 
     <!-- Form -->
@@ -146,7 +146,7 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Simpan Master Obat
+                    Simpan Resep Obat
                 </button>
             </div>
         </form>

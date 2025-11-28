@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Dokter;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\JanjiTemu;
 use App\Models\JadwalPraktek;
 use App\Models\RekamMedis;
@@ -13,38 +12,38 @@ use Carbon\Carbon;
 class JanjiTemuController extends Controller
 {
     // Tampilkan daftar janji temu
-    public function index()
+    public function index(Request $request)
     {
-        $dokter = Auth::user()->dokter;
-        
-        if (!$dokter) {
-            $appointments = collect();
-        } else {
-            $appointments = JanjiTemu::where('dokter_id', $dokter->id)
-                ->with(['pasien.user', 'dokter.user'])
-                ->orderBy('tanggal', 'desc')
-                ->orderBy('jam_mulai', 'desc')
-                ->get()
-                ->map(function($item) {
-                    return (object)[
-                        'id' => $item->id,
-                        'nama_pasien' => $item->pasien->user->nama_lengkap ?? 'N/A',
-                        'layanan' => 'Konsultasi Gigi', // Default atau bisa dari field lain
-                        'tanggal' => $item->tanggal,
-                        'waktu' => Carbon::parse($item->jam_mulai)->format('H:i'),
-                        'keluhan' => $item->keluhan,
-                        'status' => $item->status,
-                    ];
-                });
+        $dokter = auth()->user()->dokter;
+    
+        $filter = $request->get('filter');
+    
+        $appointments = JanjiTemu::where('dokter_id', $dokter->id)
+            ->with(['pasien.user', 'dokter.user']); 
+    
+        // Filter status
+        if (in_array($filter, ['pending', 'confirmed', 'completed'])) {
+            $appointments->where('status', $filter);
         }
-        
-        return view('dokter.janji-temu.index', compact('appointments'));
+    
+        // Filter hari ini
+        if ($filter === 'today') {
+            $appointments->whereDate('tanggal', now()->toDateString());
+        }
+    
+        // Tambahkan pagination (9 items per halaman untuk grid 3x3)
+        $appointments = $appointments->orderBy('tanggal', 'asc')
+                                     ->paginate(3)
+                                     ->appends(['filter' => $filter]); // Preserve filter di URL
+    
+        return view('dokter.janji-temu.index', compact('appointments', 'filter'));
     }
+    
 
     // Tampilkan detail janji temu
     public function show($id)
     {
-        $dokter = Auth::user()->dokter;
+        $dokter = auth()->user()->dokter;
         
         $appointment = JanjiTemu::with(['pasien.user', 'dokter.user'])
             ->where('id', $id)
@@ -69,7 +68,7 @@ class JanjiTemuController extends Controller
 
     public function approve($id)
     {
-        $dokter = Auth::user()->dokter;
+        $dokter = auth()->user()->dokter;
         $appointment = JanjiTemu::where('id', $id)
             ->where('dokter_id', $dokter->id)
             ->firstOrFail();
@@ -89,7 +88,7 @@ class JanjiTemuController extends Controller
 
     public function reject($id)
     {
-        $dokter = Auth::user()->dokter;
+        $dokter = auth()->user()->dokter;
         $appointment = JanjiTemu::where('id', $id)
             ->where('dokter_id', $dokter->id)
             ->firstOrFail();
@@ -108,7 +107,7 @@ class JanjiTemuController extends Controller
 
     public function complete($id)
     {
-        $dokter = Auth::user()->dokter;
+        $dokter = auth()->user()->dokter;
         $appointment = JanjiTemu::where('id', $id)
             ->where('dokter_id', $dokter->id)
             ->firstOrFail();
