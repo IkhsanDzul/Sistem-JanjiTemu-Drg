@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\JadwalPraktekController as AdminJadwalPraktekCont
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\ResepObatController as AdminResepObatController;
 use App\Http\Controllers\Dokter\DaftarPasienController;
+use App\Http\Controllers\Dokter\MasterObatController;
 use App\Http\Controllers\Dokter\JadwalPraktekController;
 use App\Http\Controllers\Dokter\RekamMedisController as DokterRekamMedisController;
 use App\Http\Controllers\Dokter\ResepObatController as DokterResepObatController;
@@ -141,6 +142,8 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
     Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update');
     Route::delete('/rekam-medis/{id}', [DokterRekamMedisController::class, 'destroy'])->name('rekam-medis.destroy');
     Route::get('/{id}/pdf', [DokterRekamMedisController::class, 'export'])->name('rekam-medis.pdf');
+    Route::get('/rekam-medis/pasien', [App\Http\Controllers\Dokter\RekamMedisPasienController::class, 'index'])
+    ->name('dokter.rekam-medis.pasien');
 
      Route::get('/janji-temu', [JanjiTemuController::class, 'index'])->name('janji-temu.index');
      Route::get('/janji-temu/{id}', [JanjiTemuController::class, 'show'])->name('janji-temu.show');
@@ -159,6 +162,17 @@ Route::middleware(['auth', 'role:dokter'])->prefix('dokter')->name('dokter.')->g
     Route::get('/resep-obat/{id}/edit', [DokterResepObatController::class, 'edit'])->name('resep-obat.edit');
     Route::put('/resep-obat/{id}', [DokterResepObatController::class, 'update'])->name('resep-obat.update');
     Route::delete('/resep-obat/{id}', [DokterResepObatController::class, 'destroy'])->name('resep-obat.destroy');
+
+    // Master Obat Routes
+    Route::prefix('tambah-obat')->name('tambah-obat.')->group(function () {
+        Route::get('/', [MasterObatController::class, 'index'])->name('index');
+        Route::get('/create', [MasterObatController::class, 'create'])->name('create');
+        Route::post('/', [MasterObatController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [MasterObatController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [MasterObatController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MasterObatController::class, 'destroy'])->name('destroy');
+    });
+    
 });
 
 // Pasien Routes
