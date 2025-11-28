@@ -53,11 +53,17 @@
             <div class="space-y-4">
                 <div class="flex items-start space-x-4">
                     <div class="flex-shrink-0">
+                        @if($dokter->user->foto_profil)
+                            <img src="{{ asset('storage/' . $dokter->user->foto_profil) }}" 
+                                 alt="Foto Profil" 
+                                 class="w-20 h-20 object-cover rounded-full">
+                        @else
                         <div class="h-20 w-20 bg-green-100 rounded-full flex items-center justify-center">
                             <span class="text-green-600 font-bold text-2xl">
                                 {{ strtoupper(substr($dokter->user->nama_lengkap ?? 'D', 0, 1)) }}
                             </span>
                         </div>
+                        @endif
                     </div>
                     <div class="flex-1 space-y-3">
                         <div>

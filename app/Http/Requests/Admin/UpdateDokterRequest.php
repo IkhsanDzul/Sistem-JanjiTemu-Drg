@@ -35,13 +35,6 @@ class UpdateDokterRequest extends FormRequest
                 Rule::unique('users', 'nik')->ignore($userId),
             ],
             'nama_lengkap' => 'required|string|max:100',
-            'email' => [
-                'required',
-                'email',
-                'max:50',
-                Rule::unique('users', 'email')->ignore($userId),
-            ],
-            'password' => 'nullable|string|min:8|confirmed',
             'jenis_kelamin' => 'required|in:L,P',
             'tanggal_lahir' => 'required|date|before:today',
             'nomor_telp' => 'required|string|max:20',

@@ -86,25 +86,10 @@
                     @enderror
                 </div>
 
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                        Email <span class="text-red-500">*</span>
-                    </label>
-                    <input type="email" 
-                           id="email" 
-                           name="email" 
-                           value="{{ old('email', $dokter->user->email) }}"
-                           required
-                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent @error('email') border-red-500 @enderror"
-                           placeholder="contoh@email.com">
-                    @error('email')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
+
 
                 <!-- Password -->
-                <div>
+                <!-- <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                         Password <span class="text-gray-500 text-xs">(Kosongkan jika tidak ingin mengubah)</span>
                     </label>
@@ -116,10 +101,10 @@
                     @error('password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                </div>
+                </div> -->
 
                 <!-- Konfirmasi Password -->
-                <div>
+                <!-- <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
                         Konfirmasi Password
                     </label>
@@ -129,7 +114,7 @@
                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent"
                            placeholder="Ulangi password">
                 </div>
-
+ -->
                 <!-- Jenis Kelamin -->
                 <div>
                     <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-2">

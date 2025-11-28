@@ -208,17 +208,11 @@ class DokterController extends Controller
             $userData = [
                 'nik' => $request->nik,
                 'nama_lengkap' => $request->nama_lengkap,
-                'email' => $request->email,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'nomor_telp' => $request->nomor_telp,
                 'alamat' => $request->alamat,
             ];
-
-            // Update password jika diisi
-            if ($request->filled('password')) {
-                $userData['password'] = Hash::make($request->password);
-            }
 
             // Update foto profil jika ada
             if (isset($fotoProfilPath)) {
