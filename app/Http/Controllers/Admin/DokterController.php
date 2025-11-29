@@ -9,15 +9,17 @@ use App\Models\Pasien;
 use App\Models\Admin;
 use App\Http\Requests\Admin\StoreDokterRequest;
 use App\Http\Requests\Admin\UpdateDokterRequest;
-use App\Models\Log;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log as LogFacade;
 
 class DokterController extends Controller
 {
+    use LogsActivity;
     /**
      * Menampilkan daftar semua dokter
      */
@@ -130,6 +132,9 @@ class DokterController extends Controller
 
             DB::commit();
 
+            // Log aktivitas
+            $this->logActivity('buat');
+
             return redirect()->route('admin.dokter.index')
                 ->with('success', 'Data dokter berhasil ditambahkan.');
 
@@ -141,7 +146,7 @@ class DokterController extends Controller
             DB::rollBack();
             
             // Log error untuk debugging
-            Log::error('Error saat menyimpan data dokter: ' . $e->getMessage(), [
+            LogFacade::error('Error saat menyimpan data dokter: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
@@ -232,6 +237,9 @@ class DokterController extends Controller
 
             DB::commit();
 
+            // Log aktivitas
+            $this->logActivity('edit');
+
             return redirect()->route('admin.dokter.show', $id)
                 ->with('success', 'Data dokter berhasil diperbarui.');
 
@@ -283,6 +291,9 @@ class DokterController extends Controller
             }
 
             DB::commit();
+
+            // Log aktivitas
+            $this->logActivity('hapus');
 
             return redirect()->route('admin.dokter.index')
                 ->with('success', 'Data dokter berhasil dihapus.');

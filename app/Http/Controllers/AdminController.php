@@ -62,7 +62,7 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
         
-        $logsTerbaru = Log::with('admin')
+        $logsTerbaru = Log::with('admin.user')
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();

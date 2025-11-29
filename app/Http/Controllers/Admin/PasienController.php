@@ -9,6 +9,7 @@ use App\Models\Dokter;
 use App\Models\Admin;
 use App\Http\Requests\Admin\StorePasienRequest;
 use App\Http\Requests\Admin\UpdatePasienRequest;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PasienController extends Controller
 {
+    use LogsActivity;
     /**
      * Menampilkan daftar semua pasien
      */
@@ -125,6 +127,9 @@ class PasienController extends Controller
 
             DB::commit();
 
+            // Log aktivitas
+            $this->logActivity('buat');
+
             return redirect()->route('admin.pasien.index')
                 ->with('success', 'Data pasien berhasil ditambahkan.');
 
@@ -221,6 +226,9 @@ class PasienController extends Controller
 
             DB::commit();
 
+            // Log aktivitas
+            $this->logActivity('edit');
+
             return redirect()->route('admin.pasien.show', $id)
                 ->with('success', 'Data pasien berhasil diperbarui.');
 
@@ -272,6 +280,9 @@ class PasienController extends Controller
             }
 
             DB::commit();
+
+            // Log aktivitas
+            $this->logActivity('hapus');
 
             return redirect()->route('admin.pasien.index')
                 ->with('success', 'Data pasien berhasil dihapus.');

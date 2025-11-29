@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Dokter;
 use App\Models\JadwalPraktek;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class JadwalPraktekController extends Controller
 {
+    use LogsActivity;
     /**
      * Menampilkan daftar jadwal praktek dokter
      */
@@ -102,6 +104,9 @@ class JadwalPraktekController extends Controller
             'status' => $request->status,
         ]);
 
+        // Log aktivitas
+        $this->logActivity('buat');
+
         return redirect()->route('admin.dokter.jadwal-praktek.index', $dokterId)
             ->with('success', 'Jadwal praktek berhasil ditambahkan.');
     }
@@ -186,6 +191,9 @@ class JadwalPraktekController extends Controller
             'status' => $request->status,
         ]);
 
+        // Log aktivitas
+        $this->logActivity('edit');
+
         return redirect()->route('admin.dokter.jadwal-praktek.index', $dokterId)
             ->with('success', 'Jadwal praktek berhasil diperbarui.');
     }
@@ -199,6 +207,9 @@ class JadwalPraktekController extends Controller
             ->findOrFail($id);
 
         $jadwal->delete();
+
+        // Log aktivitas
+        $this->logActivity('hapus');
 
         return redirect()->route('admin.dokter.jadwal-praktek.index', $dokterId)
             ->with('success', 'Jadwal praktek berhasil dihapus.');

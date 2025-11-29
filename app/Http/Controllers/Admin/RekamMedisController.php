@@ -11,6 +11,7 @@ use App\Models\MasterObat;
 use App\Models\ResepObat;
 use App\Http\Requests\Admin\StoreRekamMedisRequest;
 use App\Http\Requests\Admin\UpdateRekamMedisRequest;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class RekamMedisController extends Controller
 {
+    use LogsActivity;
     /**
      * Menampilkan daftar semua rekam medis
      */
@@ -252,6 +254,9 @@ class RekamMedisController extends Controller
 
             DB::commit();
 
+            // Log aktivitas
+            $this->logActivity('edit');
+
             $message = 'Rekam medis berhasil diperbarui.';
             if ($request->has('hapus_resep_obat') && $request->hapus_resep_obat) {
                 $message .= ' Resep obat telah dihapus.';
@@ -283,6 +288,9 @@ class RekamMedisController extends Controller
             $rekamMedis->delete();
 
             DB::commit();
+
+            // Log aktivitas
+            $this->logActivity('hapus');
 
             return redirect()->route('admin.rekam-medis.index')
                 ->with('success', 'Rekam medis berhasil dihapus.');

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JanjiTemu;
+use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class JanjiTemuController extends Controller
 {
+    use LogsActivity;
     /**
      * Menampilkan daftar semua janji temu
      */
@@ -88,6 +90,9 @@ class JanjiTemuController extends Controller
         $janjiTemu = JanjiTemu::findOrFail($id);
         $janjiTemu->status = $request->status;
         $janjiTemu->save();
+
+        // Log aktivitas
+        $this->logActivity('edit');
 
         return redirect()->route('admin.janji-temu.show', $id)
             ->with('success', 'Status janji temu berhasil diperbarui.');

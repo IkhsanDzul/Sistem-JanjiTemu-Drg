@@ -70,16 +70,23 @@ class LaporanController extends Controller
     }
 
     /**
-     * Laporan Jadwal Kunjungan Hari Ini
+     * Laporan Jadwal Kunjungan Per Bulan
      */
     public function jadwalKunjungan(Request $request)
     {
         $format = $request->get('format', 'view');
-        $tanggal = $request->get('tanggal', today()->format('Y-m-d'));
+        $bulan = $request->get('bulan', today()->format('Y-m'));
 
-        // Query jadwal kunjungan hari ini
+        // Parse bulan (format: Y-m)
+        $carbonBulan = Carbon::parse($bulan . '-01');
+        $tahun = $carbonBulan->year;
+        $bulanAngka = $carbonBulan->month;
+
+        // Query jadwal kunjungan per bulan
         $janjiTemu = JanjiTemu::with(['pasien.user', 'dokter.user'])
-            ->whereDate('tanggal', $tanggal)
+            ->whereYear('tanggal', $tahun)
+            ->whereMonth('tanggal', $bulanAngka)
+            ->orderBy('tanggal', 'asc')
             ->orderBy('jam_mulai', 'asc')
             ->get();
 
@@ -93,19 +100,19 @@ class LaporanController extends Controller
 
         $data = [
             'title' => 'Laporan Jadwal Kunjungan',
-            'tanggal' => $tanggal,
+            'bulan' => $bulan,
             'totalKunjungan' => $totalKunjungan,
             'statusCount' => $statusCount,
             'janjiTemu' => $janjiTemu,
-            'tanggalLaporan' => Carbon::parse($tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY'),
+            'tanggalLaporan' => $carbonBulan->locale('id')->isoFormat('MMMM YYYY'),
         ];
 
         if ($format === 'pdf') {
-            return $this->exportPDF('admin.laporan.jadwal-kunjungan-pdf', $data, 'laporan-jadwal-kunjungan.pdf');
+            return $this->exportPDF('admin.laporan.jadwal-kunjungan-pdf', $data, 'laporan-jadwal-kunjungan-' . $bulan . '.pdf');
         } elseif ($format === 'excel') {
             return Excel::download(
-                new JadwalKunjunganExport($janjiTemu, $tanggal, $totalKunjungan, $statusCount),
-                'laporan-jadwal-kunjungan-' . date('Y-m-d') . '.xlsx'
+                new JadwalKunjunganExport($janjiTemu, $bulan, $totalKunjungan, $statusCount),
+                'laporan-jadwal-kunjungan-' . $bulan . '.xlsx'
             );
         }
 

@@ -20,14 +20,14 @@ use Carbon\Carbon;
 class JadwalKunjunganExport implements FromCollection, WithHeadings, WithStyles, WithTitle, WithMapping, WithColumnWidths, WithCustomStartCell, WithEvents
 {
     protected $janjiTemu;
-    protected $tanggal;
+    protected $bulan;
     protected $totalKunjungan;
     protected $statusCount;
 
-    public function __construct($janjiTemu, $tanggal, $totalKunjungan, $statusCount)
+    public function __construct($janjiTemu, $bulan, $totalKunjungan, $statusCount)
     {
         $this->janjiTemu = $janjiTemu;
-        $this->tanggal = $tanggal;
+        $this->bulan = $bulan;
         $this->totalKunjungan = $totalKunjungan;
         $this->statusCount = $statusCount;
     }
@@ -116,7 +116,7 @@ class JadwalKunjunganExport implements FromCollection, WithHeadings, WithStyles,
                 // Tambahkan header laporan
                 $sheet->setCellValue('A1', 'LAPORAN JADWAL KUNJUNGAN');
                 $sheet->setCellValue('A2', 'DentaTime - Sistem Manajemen Klinik Gigi');
-                $sheet->setCellValue('A3', 'Tanggal: ' . Carbon::parse($this->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY'));
+                $sheet->setCellValue('A3', 'Periode: ' . Carbon::parse($this->bulan . '-01')->locale('id')->isoFormat('MMMM YYYY'));
                 $sheet->setCellValue('A5', 'STATISTIK');
                 $sheet->setCellValue('A6', 'Total Kunjungan: ' . $this->totalKunjungan);
                 $sheet->setCellValue('A7', 'Pending: ' . $this->statusCount['pending'] . ' | Confirmed: ' . $this->statusCount['confirmed'] . ' | Completed: ' . $this->statusCount['completed'] . ' | Canceled: ' . $this->statusCount['canceled']);

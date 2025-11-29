@@ -40,7 +40,7 @@
             </div>
         </div>
 
-        <!-- Laporan Jadwal Kunjungan Hari Ini -->
+        <!-- Laporan Jadwal Kunjungan Per Bulan -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-4">
                 <div class="p-3 bg-green-50 rounded-lg">
@@ -50,7 +50,7 @@
                 </div>
             </div>
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Jadwal Kunjungan</h3>
-            <p class="text-sm text-gray-600 mb-4">Laporan jadwal kunjungan pasien hari ini</p>
+            <p class="text-sm text-gray-600 mb-4">Laporan jadwal kunjungan pasien per bulan</p>
             <div class="flex gap-2">
                 <a href="{{ route('admin.laporan.jadwal-kunjungan') }}" 
                    class="flex-1 px-4 py-2 bg-[#005248] text-white rounded-lg hover:bg-[#003d35] transition-colors text-center text-sm font-medium">

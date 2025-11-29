@@ -194,7 +194,7 @@
     <div class="container">
         <div class="header">
             <h1>{{ $title }}</h1>
-            <p class="subtitle">Tanggal: {{ $tanggalLaporan }}</p>
+            <p class="subtitle">Periode: {{ $tanggalLaporan }}</p>
             <p class="brand">DentaTime - Sistem Manajemen Klinik Gigi</p>
         </div>
 
@@ -254,7 +254,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 20px; color: #999;">Tidak ada jadwal kunjungan untuk tanggal ini</td>
+                    <td colspan="7" style="text-align: center; padding: 20px; color: #999;">Tidak ada jadwal kunjungan untuk bulan ini</td>
                 </tr>
                 @endforelse
             </tbody>

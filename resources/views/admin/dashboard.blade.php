@@ -301,7 +301,7 @@
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <p class="text-sm text-gray-900">
-                                                    <span class="font-semibold text-gray-900">{{ $log->admin->nama_lengkap ?? 'Admin' }}</span>
+                                                    <span class="font-semibold text-gray-900">{{ $log->admin->user->nama_lengkap ?? 'Admin' }}</span>
                                                     <span class="text-gray-600"> {{ $actionLabel }} data</span>
                                                 </p>
                                                 <div class="mt-1 flex items-center gap-2">
