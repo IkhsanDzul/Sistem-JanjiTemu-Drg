@@ -84,11 +84,43 @@ class PasienController extends Controller
         // Ambil hanya tanggal unik yang benar-benar punya jadwal
         $jadwalFormat = $jadwalPraktek->pluck('tanggal')->unique()->values()->sort();
 
+        // Ambil hanya tanggal yang memiliki slot waktu yang tersedia
+        $jadwalFormatDenganSlotTersedia = $jadwalFormat->filter(function ($tanggal) use ($id, $jadwalPraktek) {
+            // Ambil jadwal praktek untuk tanggal yang dipilih
+            $jadwalDiTanggal = $jadwalPraktek->where('tanggal', $tanggal);
+
+            // Ambil jam yang sudah terpakai (oleh janji temu aktif)
+            $janjiTemuTerpakai = JanjiTemu::where('dokter_id', $id)
+                ->where('tanggal', $tanggal)
+                ->whereIn('status', ['pending', 'confirmed', 'completed'])
+                ->pluck('jam_mulai')
+                ->map(fn($jam) => date('H:i', strtotime($jam)))
+                ->toArray();
+
+            // Periksa apakah ada slot waktu yang masih tersedia
+            foreach ($jadwalDiTanggal as $jadwal) {
+                $jamMulai = \Carbon\Carbon::parse($jadwal->jam_mulai);
+                $jamSelesai = \Carbon\Carbon::parse($jadwal->jam_selesai);
+
+                // Periksa setiap jam dalam jadwal praktek apakah ada yang masih tersedia
+                while ($jamMulai->lt($jamSelesai)) {
+                    $jamFormat = $jamMulai->format('H:i');
+                    if (!in_array($jamFormat, $janjiTemuTerpakai)) {
+                        // Jika ada satu jam yang tersedia, tanggal ini masih bisa dipilih
+                        return true;
+                    }
+                    $jamMulai->addHour(); // Slot per jam
+                }
+            }
+            // Jika semua slot sudah terisi, tanggal ini tidak boleh ditampilkan
+            return false;
+        });
+
         // Ambil jam praktek jika tanggal sudah dipilih
         $jamPraktek = [];
         $tanggalDipilih = $request->input('tanggal');
 
-        if ($tanggalDipilih && $jadwalFormat->contains($tanggalDipilih)) {
+        if ($tanggalDipilih && $jadwalFormatDenganSlotTersedia->contains($tanggalDipilih)) {
             // Ambil jadwal praktek untuk tanggal yang dipilih
             $jadwalDiTanggal = $jadwalPraktek->where('tanggal', $tanggalDipilih);
 
@@ -123,9 +155,8 @@ class PasienController extends Controller
 
         return view('pasien.detail-dokter.index', compact(
             'dokter',
-            // 'jadwalHari',       // <-- ini sebenarnya sudah tidak perlu, tapi jika dipakai di view, ganti jadi $jadwalFormat
             'jamPraktek',
-            'jadwalFormat',
+            'jadwalFormatDenganSlotTersedia',
             'tanggalDipilih'
         ));
     }
@@ -138,7 +169,7 @@ class PasienController extends Controller
         $request->validate([
             'dokter_id' => 'required|exists:dokter,id',
             'pasien_id' => 'required|exists:pasien,id',
-            'jam_mulai' => 'required',
+            'jam_mulai' => 'required|date_format:H:i',
             'keluhan' => 'required|string|max:500',
             'tanggal' => 'required|date',
             'status' => 'required|in:pending,confirmed',
@@ -160,7 +191,7 @@ class PasienController extends Controller
         }
 
         // Cek apakah jam yang dipilih ada dalam jadwal praktek yang available
-        $jamBooking = Carbon::parse($request->jam_mulai)->format('H:i');
+        $jamBooking = Carbon::parse($request->jam_mulai);
         $jadwalTersedia = JadwalPraktek::where('dokter_id', $request->dokter_id)
             ->where('tanggal', $request->tanggal)
             ->where('status', 'available')
@@ -175,23 +206,16 @@ class PasienController extends Controller
         }
 
         // Buat janji temu (setelah semua validasi berhasil)
-        $janjiTemu = JanjiTemu::create([
+        JanjiTemu::create([
             'dokter_id' => $request->dokter_id,
             'pasien_id' => $request->pasien_id,
             'tanggal' => $request->tanggal,
             'jam_mulai' => $request->jam_mulai,
-            'jam_selesai' => Carbon::parse($request->jam_mulai)->addHour()->format('H:i:s'),
             'keluhan' => $request->keluhan,
             'status' => $request->status,
         ]);
 
-        // Catatan: Jadwal praktek TIDAK diupdate menjadi 'booked'
-        // Status jadwal tetap 'available' karena masih ada slot lain yang tersedia
-        // Sistem akan cek ketersediaan berdasarkan janji temu yang sudah ada
-
-        return redirect()
-            ->route('pasien.dashboard')
+        return redirect()->route('pasien.dashboard')
             ->with('success', 'Janji temu berhasil dibuat.');
-
-    }
-}  
+    } 
+}

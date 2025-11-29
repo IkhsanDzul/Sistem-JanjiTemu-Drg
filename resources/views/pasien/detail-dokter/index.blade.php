@@ -81,7 +81,7 @@
                             <option value="">-- Pilih Tanggal --</option>
 
                             
-                            @foreach ($jadwalFormat as $tgl)
+                            @foreach ($jadwalFormatDenganSlotTersedia as $tgl)
                             <option value="{{ $tgl }}"
                                 {{ isset($tanggalDipilih) && $tanggalDipilih == $tgl ? 'selected' : '' }}>
                                 {{ \Carbon\Carbon::parse($tgl)->locale('id')->isoFormat('ddd, DD MMM YYYY') }}
