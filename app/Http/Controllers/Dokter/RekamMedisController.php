@@ -104,18 +104,13 @@ class RekamMedisController extends Controller
      */
     public function show($id)
     {
-
         $rekamMedis = RekamMedis::with([
             'janjiTemu.pasien.user',
             'janjiTemu.dokter.user',
             'resepObat'
         ])->findOrFail($id);
 
-        // $fotoGigiPath = $rekamMedis->janjiTemu->foto_gigi ?? null;
-
-        // $fotoGigiUrl = $fotoGigiPath ? asset('storage/' . $fotoGigiPath) : null;
-
-        // Jika resep obat ada tapi aturan pakai kosong, ambil dari master obat
+        // Jika resep obat ada tapi aturan pakai/dosis kosong, ambil dari master obat
         if ($rekamMedis->resepObat && $rekamMedis->resepObat->count() > 0) {
             foreach ($rekamMedis->resepObat as $resep) {
                 if (empty($resep->aturan_pakai) || $resep->dosis == 0) {
@@ -124,12 +119,8 @@ class RekamMedisController extends Controller
                         ->first();
 
                     if ($masterObat) {
-                        if (empty($resep->aturan_pakai)) {
-                            $resep->aturan_pakai = $masterObat->aturan_pakai_default ?? '';
-                        }
-                        if ($resep->dosis == 0) {
-                            $resep->dosis = $masterObat->dosis_default ?? 0;
-                        }
+                        $resep->aturan_pakai = $masterObat->aturan_pakai_default ?? $resep->aturan_pakai;
+                        $resep->dosis = $masterObat->dosis_default ?? $resep->dosis;
                     }
                 }
             }

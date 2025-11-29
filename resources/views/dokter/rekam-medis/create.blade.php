@@ -231,6 +231,15 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
 
             <!-- Container untuk resep obat -->
             <div id="resep-container">
+                <datalist id="obat-options">
+                    @if(!empty($obatTersedia) && count($obatTersedia) > 0)
+                        @foreach($obatTersedia as $obat)
+                            <option value="{{ $obat['nama_obat'] }}"
+                                    data-dosis="{{ $obat['dosis'] ?? 0 }}"
+                                    data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}">
+                        @endforeach
+                    @endif
+                </datalist>
                 <div id="resep-list">
                     <!-- Template untuk satu item resep -->
                     <div id="resep-template" class="resep-item bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4 hidden">
@@ -240,19 +249,13 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                     Nama Obat
                                 </label>
-                                <select name="resep_obat_nama[]"
-                                        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-select">
-                                    <option value="">Pilih Obat</option>
-                                    @if(!empty($obatTersedia) && count($obatTersedia) > 0)
-                                        @foreach($obatTersedia as $obat)
-                                            <option value="{{ $obat['nama_obat'] }}"
-                                                data-dosis="{{ $obat['dosis'] ?? 0 }}"
-                                                data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}">
-                                                {{ $obat['nama_obat'] }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
+                                <input type="text"
+                                       list="obat-options"
+                                       name="resep_obat_nama[]"
+                                       class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-input"
+                                       placeholder="Cari dan pilih obat...">
+                                <input type="hidden" class="resep-obat-dosis-hidden" readonly>
+                                <input type="hidden" class="resep-obat-aturan-hidden" readonly>
                             </div>
 
                             <!-- Jumlah -->
@@ -319,20 +322,14 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             Nama Obat
                                         </label>
-                                        <select name="resep_obat_nama[]"
-                                                class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-select">
-                                            <option value="">Pilih Obat</option>
-                                            @if(!empty($obatTersedia) && count($obatTersedia) > 0)
-                                                @foreach($obatTersedia as $obat)
-                                                    <option value="{{ $obat['nama_obat'] }}"
-                                                        data-dosis="{{ $obat['dosis'] ?? 0 }}"
-                                                        data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}"
-                                                        {{ $namaObat == $obat['nama_obat'] ? 'selected' : '' }}>
-                                                        {{ $obat['nama_obat'] }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
+                                        <input type="text"
+                                               list="obat-options"
+                                               name="resep_obat_nama[]"
+                                               class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-input"
+                                               placeholder="Cari dan pilih obat..."
+                                               value="{{ $namaObat }}">
+                                        <input type="hidden" name="resep_obat_dosis[]" class="resep-obat-dosis-hidden" value="{{ old('resep_obat_dosis')[$index] ?? '' }}">
+                                        <input type="hidden" name="resep_obat_aturan_pakai[]" class="resep-obat-aturan-hidden" value="{{ old('resep_obat_aturan_pakai')[$index] ?? '' }}">
                                     </div>
 
                                     <!-- Jumlah -->
@@ -395,19 +392,13 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
                                         Nama Obat
                                     </label>
-                                    <select name="resep_obat_nama[]"
-                                            class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-select">
-                                        <option value="">Pilih Obat</option>
-                                        @if(!empty($obatTersedia) && count($obatTersedia) > 0)
-                                            @foreach($obatTersedia as $obat)
-                                                <option value="{{ $obat['nama_obat'] }}"
-                                                    data-dosis="{{ $obat['dosis'] ?? 0 }}"
-                                                    data-aturan-pakai="{{ htmlspecialchars($obat['aturan_pakai'] ?? '', ENT_QUOTES, 'UTF-8') }}">
-                                                    {{ $obat['nama_obat'] }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
+                                    <input type="text"
+                                           list="obat-options"
+                                           name="resep_obat_nama[]"
+                                           class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#005248] focus:border-transparent resep-obat-input"
+                                           placeholder="Cari dan pilih obat...">
+                                    <input type="hidden" name="resep_obat_dosis[]" class="resep-obat-dosis-hidden">
+                                    <input type="hidden" name="resep_obat_aturan_pakai[]" class="resep-obat-aturan-hidden">
                                 </div>
 
                                 <!-- Jumlah -->
@@ -494,27 +485,62 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
 
 @push('scripts')
 <script>
-    // JavaScript for dynamic resep obat functionality
+    // JavaScript for dynamic resep obat functionality with search
     document.addEventListener('DOMContentLoaded', function() {
-        // Function to update fields when obat is selected
-        function updateObatFields(selectElement) {
-            const selectedOption = selectElement.options[selectElement.selectedIndex];
-            if (selectedOption) {
-                const dosis = selectedOption.getAttribute('data-dosis') || '';
-                const aturanPakai = selectedOption.getAttribute('data-aturan-pakai') || '';
+        // Create a map of obat data for quick lookup
+        const obatMap = new Map();
+        const options = document.querySelectorAll('#obat-options option');
+        options.forEach(option => {
+            obatMap.set(option.value, {
+                dosis: option.getAttribute('data-dosis') || '',
+                aturanPakai: option.getAttribute('data-aturan-pakai') || ''
+            });
+        });
 
-                // Find the parent resep-item and then locate the corresponding inputs
-                const resepItem = selectElement.closest('.resep-item');
-                if (resepItem) {
-                    const dosisInput = resepItem.querySelector('.resep-dosis-input');
-                    const aturanPakaiInput = resepItem.querySelector('.resep-aturan-pakai-input');
+        // Function to update fields when obat is selected/input
+        function updateObatFields(inputElement) {
+            const inputValue = inputElement.value;
+            const obatData = obatMap.get(inputValue);
 
-                    if (dosisInput) {
-                        dosisInput.value = dosis;
-                    }
-                    if (aturanPakaiInput) {
-                        aturanPakaiInput.value = aturanPakai;
-                    }
+            // Find the parent resep-item and then locate the corresponding inputs
+            const resepItem = inputElement.closest('.resep-item');
+            if (resepItem && obatData) {
+                const dosisInput = resepItem.querySelector('.resep-dosis-input');
+                const aturanPakaiInput = resepItem.querySelector('.resep-aturan-pakai-input');
+                const dosisHidden = resepItem.querySelector('.resep-obat-dosis-hidden');
+                const aturanPakaiHidden = resepItem.querySelector('.resep-obat-aturan-hidden');
+
+                if (dosisInput) {
+                    dosisInput.value = obatData.dosis;
+                }
+                if (aturanPakaiInput) {
+                    aturanPakaiInput.value = obatData.aturanPakai;
+                }
+                // Also update hidden fields to send to the server
+                if (dosisHidden) {
+                    dosisHidden.value = obatData.dosis;
+                }
+                if (aturanPakaiHidden) {
+                    aturanPakaiHidden.value = obatData.aturanPakai;
+                }
+            } else if (resepItem) {
+                // Clear fields if no matching obat is found
+                const dosisInput = resepItem.querySelector('.resep-dosis-input');
+                const aturanPakaiInput = resepItem.querySelector('.resep-aturan-pakai-input');
+                const dosisHidden = resepItem.querySelector('.resep-obat-dosis-hidden');
+                const aturanPakaiHidden = resepItem.querySelector('.resep-obat-aturan-hidden');
+
+                if (dosisInput) {
+                    dosisInput.value = '';
+                }
+                if (aturanPakaiInput) {
+                    aturanPakaiInput.value = '';
+                }
+                if (dosisHidden) {
+                    dosisHidden.value = '';
+                }
+                if (aturanPakaiHidden) {
+                    aturanPakaiHidden.value = '';
                 }
             }
         }
@@ -550,10 +576,14 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
 
             resepList.appendChild(newResep);
 
-            // Add event listener to the new select element
-            const newSelect = newResep.querySelector('.resep-obat-select');
-            if (newSelect) {
-                newSelect.addEventListener('change', function() {
+            // Add event listener to the new input element
+            const newInput = newResep.querySelector('.resep-obat-input');
+            if (newInput) {
+                newInput.addEventListener('change', function() {
+                    updateObatFields(this);
+                });
+
+                newInput.addEventListener('input', function() {
                     updateObatFields(this);
                 });
             }
@@ -588,16 +618,27 @@ $subtitle = 'Isi form di bawah ini untuk menambahkan rekam medis baru';
             });
         });
 
-        // Add event listener to all existing select elements
-        document.querySelectorAll('.resep-obat-select').forEach(function(select) {
-            select.addEventListener('change', function() {
+        // Add event listeners to all existing input elements
+        document.querySelectorAll('.resep-obat-input').forEach(function(input) {
+            input.addEventListener('change', function() {
+                updateObatFields(this);
+            });
+
+            input.addEventListener('input', function() {
                 updateObatFields(this);
             });
 
             // Trigger update on page load if an option is already selected
-            if (select.selectedIndex > 0) {
-                updateObatFields(select);
+            if (input.value) {
+                updateObatFields(input);
             }
+        });
+
+        // Handle form submission to ensure proper values
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            // All the input fields will automatically submit their values
+            // No special handling needed as datalist just provides suggestions
         });
     });
 </script>
