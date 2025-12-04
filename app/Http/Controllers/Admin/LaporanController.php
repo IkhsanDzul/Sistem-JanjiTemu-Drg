@@ -76,20 +76,15 @@ class LaporanController extends Controller
     {
         $format = $request->get('format', 'view');
         $bulan = $request->get('bulan', today()->format('Y-m'));
-
-        // Parse bulan (format: Y-m)
         $carbonBulan = Carbon::parse($bulan . '-01');
         $tahun = $carbonBulan->year;
         $bulanAngka = $carbonBulan->month;
-
-        // Query jadwal kunjungan per bulan
         $janjiTemu = JanjiTemu::with(['pasien.user', 'dokter.user'])
             ->whereYear('tanggal', $tahun)
             ->whereMonth('tanggal', $bulanAngka)
             ->orderBy('tanggal', 'asc')
             ->orderBy('jam_mulai', 'asc')
             ->get();
-
         $totalKunjungan = $janjiTemu->count();
         $statusCount = [
             'pending' => $janjiTemu->where('status', 'pending')->count(),
@@ -97,7 +92,6 @@ class LaporanController extends Controller
             'completed' => $janjiTemu->where('status', 'completed')->count(),
             'canceled' => $janjiTemu->where('status', 'canceled')->count(),
         ];
-
         $data = [
             'title' => 'Laporan Jadwal Kunjungan',
             'bulan' => $bulan,
@@ -106,7 +100,6 @@ class LaporanController extends Controller
             'janjiTemu' => $janjiTemu,
             'tanggalLaporan' => $carbonBulan->locale('id')->isoFormat('MMMM YYYY'),
         ];
-
         if ($format === 'pdf') {
             return $this->exportPDF('admin.laporan.jadwal-kunjungan-pdf', $data, 'laporan-jadwal-kunjungan-' . $bulan . '.pdf');
         } elseif ($format === 'excel') {
@@ -115,7 +108,6 @@ class LaporanController extends Controller
                 'laporan-jadwal-kunjungan-' . $bulan . '.xlsx'
             );
         }
-
         return view('admin.laporan.jadwal-kunjungan', $data);
     }
 
